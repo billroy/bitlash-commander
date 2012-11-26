@@ -64,7 +64,7 @@ if (1 || heroku) {
 		io.set("polling duration", 10); 
 	});
 }
-//io.set('log level', 1);
+io.set('log level', 1);
 
 io.sockets.on('connection', function (socket) {
 	console.log('Client connected via', socket.transport);
