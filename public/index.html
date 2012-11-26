@@ -77,8 +77,10 @@ Button.prototype = {
 		this.text = options.text || 'Untitled';
 		this.script = options.script || '';
 		this.fill = options.fill || 'black';
-		this.stroke = options.stroke || 'red';
-		this['stroke-width'] = options['stroke-width'] || 1;
+		this.fill_highlight = options.fill_highlight || 'white';
+		this.stroke = options.stroke || face_color;
+		this['stroke-width'] = options['stroke-width'] || 5;
+		this.fontsize = options.fontsize || 20;
 
 		var self = this;
 		this.elt = paper.rect(this.x, this.y, this.w, this.h, button_corner)
@@ -87,18 +89,20 @@ Button.prototype = {
 				e.preventDefault();
 				e.stopPropagation();
 				socket.emit('exec', {'cmd': self.script});
-				reply_handler = self.handleReply;
-				return false;
+				reply_handler = function(reply) { self.handleReply.call(self, reply); };
+				return true;
 			});
 
 		this.label = paper.text(this.x + (this.w/2), this.y + (this.h/2), this.text)
-			.attr({fill:this.fill, stroke:this.stroke, });
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize});
 
 		return this;
 	},
 
 	handleReply: function(reply) {
 		console.log('Handle:', reply, typeof reply, this);
+		var color = (parseInt(reply) != 0) ? this.fill_highlight : this.fill;
+		this.elt.attr({fill:color});
 	}
 }
 
