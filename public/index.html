@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!-- 
+	Copyright 2012 by Bill Roy - MIT license - See LICENSE file
+-->
+<html><head>
+<title>Arduino Commander</title>
+<script type='text/javascript' src='js/jquery-1.8.2.min.js'></script>
+<script type='text/javascript' src='/js/fastclick.js'></script>
+<script type='text/javascript' src='/js/raphael.js'></script>
+<script type='text/javascript' src='js/kibo.js'></script>
+<script type='text/javascript' src='/socket.io/socket.io.js'></script>
+</head><body style='background:gray'>
+
+<script type='text/javascript' charset='utf8'>
+
+$(document).ready(function() {
+
+var socket;
+
+function initSocketIO() {
+	socket = io.connect();
+	console.log('Socket connected', socket);
+//	window.setTimeout(function() {
+//		connection_indicator.attr({fill: '#00ff00', stroke:'#00ff00'});
+//	}, 500);
+	socket.on('reply', function (data) {
+		console.log('Bitlash reply:', data);
+		if (reply_handler) {
+			var temp_reply_handler = reply_handler;
+			reply_handler = undefined;
+			temp_reply_handler(data);
+		}
+	});
+	socket.on('pong', function(data) {
+		var rtt = new Date().getTime() - data.timestamp;
+		window.status = 'RTT: ' + rtt + 'ms';
+	});
+	socket.on('disconnect', function (data) {
+		//connection_indicator.attr({stroke: 'darkgreen', fill: 'darkgreen'});		
+		window.setTimeout(initSocketIO, 200);
+	});
+	window.setInterval(function() {
+		socket.emit('ping', {'timestamp': new Date().getTime()});
+	}, 10000);
+}
+initSocketIO();
+
+
+var face_width = 1 * $(window).width();
+var face_height = 1 * $(window).height();
+var face_topleft_x = ($(window).width() - face_width)/2;
+var face_topleft_y = ($(window).height() - face_height)/2;
+
+var face_color = 'mediumseagreen';
+var face_fill = 'black';
+var face_stroke = face_color;
+
+var paper = Raphael(0, 0, $(window).width(), $(window).height());
+
+var face = paper.rect(face_topleft_x, face_topleft_y, face_width, face_height, 20)
+	.attr({stroke: face_stroke, fill: face_fill, 'stroke-width': 10});
+
+var button_corner = 10;
+var buttons = [];
+
+function Button(options) {
+	return this.init(options || {});
+}
+
+Button.prototype = {
+
+	init: function(options) {
+		this.x = face_topleft_x + (options.x || 50);
+		this.y = face_topleft_y + (options.y || 50);
+		this.w = options.w || 50;
+		this.h = options.h || 50;
+		this.text = options.text || 'Untitled';
+		this.script = options.script || '';
+		this.fill = options.fill || 'black';
+		this.stroke = options.stroke || 'red';
+		this['stroke-width'] = options['stroke-width'] || 1;
+
+		var self = this;
+		this.elt = paper.rect(this.x, this.y, this.w, this.h, button_corner)
+			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
+			.click(function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				socket.emit('exec', {'cmd': self.script});
+				reply_handler = self.handleReply;
+				return false;
+			});
+
+		this.label = paper.text(this.x + (this.w/2), this.y + (this.h/2), this.text)
+			.attr({fill:this.fill, stroke:this.stroke, });
+
+		return this;
+	},
+
+	handleReply: function(reply) {
+		console.log('Handle:', reply, typeof reply, this);
+	}
+}
+
+function addButton(options) {
+	var button = new Button(options);
+	buttons.push(button);
+}
+
+addButton({x:100,y:100,w:150,h:60,text:'Toggle',script:'d13=!d13;print d13'});
+
+}); 	// document.ready
+</script>
+Click the button...
+</body></html>
