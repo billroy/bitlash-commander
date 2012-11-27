@@ -53,7 +53,7 @@ var face_height = 1 * $(window).height();
 var face_topleft_x = ($(window).width() - face_width)/2;
 var face_topleft_y = ($(window).height() - face_height)/2;
 
-var face_color = 'yellow';	//'mediumseagreen';
+var face_color = 'mediumseagreen';
 var face_fill = 'black';
 var face_stroke = face_color;
 
@@ -115,18 +115,14 @@ Button.prototype = {
 	handleReply: function(reply) {
 		//console.log('Handle:', reply, typeof reply, this);
 		if (reply === undefined) return;
-		if ((typeof reply != 'string') || (reply.length == 0)) {
-			console.log('Odd reply:', typeof reply, reply);
-			return;
-		}
-		this.setColor(reply.trim());
+		reply = reply.trim();
+		if (reply.length == 0) return;
+		this.setColor(reply);
 	},
 	
 	setColor: function(color) {
 		if (color == '0') color = this.fill;
 		else if (color == '1') color = this.fill_highlight;
-console.log('color:', color, typeof color, color.length, this.id, color=='0', color=='1');
-console.log('0:', color.charAt(0), '1:', color.charAt(1));
 		this.elt.attr({fill:color});
 	}
 }
