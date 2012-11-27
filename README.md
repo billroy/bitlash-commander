@@ -1,14 +1,12 @@
 # Arduino Communicator
 
-
-
 ## To Do
 
-- vslider control
+- gauge control, v1: text value getter
+	- periodic update
+	- click to update
 
-- template expansion for scripts
-	slider value
-	need template library
+- sync sliders and other statuses at startup
 
 - edit mode
 	- edit mode toggle
@@ -16,16 +14,19 @@
 	- drag
 	- edit
 	- delete
-	
+
+- broadcast slider updates
+- broadcast button status updates
+
+- smaller demo layout for ipad
+
 - named control sets
 	- save
 	- load
 
-- gauge control
-
-- periodic execution
-
 - apply click handling to the text label too
+
+- send text command from keyboard
 
 - sound
 - scrolling log panel

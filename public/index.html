@@ -3,11 +3,11 @@
 	Copyright 2012 by Bill Roy - MIT license - See LICENSE file
 -->
 <html><head>
-<title>Arduino Commander</title>
+<title>Bitlash Commander</title>
 <script type='text/javascript' src='js/jquery-1.8.2.min.js'></script>
 <script type='text/javascript' src='/js/fastclick.js'></script>
 <script type='text/javascript' src='/js/raphael.js'></script>
-<script type='text/javascript' src='js/kibo.js'></script>
+<script type='text/javascript' src='js/mustache.js'></script>
 <script type='text/javascript' src='/socket.io/socket.io.js'></script>
 </head><body style='background:gray'>
 
@@ -25,7 +25,7 @@ function initSocketIO() {
 //		connection_indicator.attr({fill: '#00ff00', stroke:'#00ff00'});
 //	}, 500);
 	socket.on('reply', function (data) {
-		console.log('Bitlash reply:', data);
+		//console.log('Bitlash reply:', data);
 		if (reply_handler) {
 			var temp_reply_handler = reply_handler;
 			reply_handler = undefined;
@@ -52,7 +52,7 @@ var face_height = 1 * $(window).height();
 var face_topleft_x = ($(window).width() - face_width)/2;
 var face_topleft_y = ($(window).height() - face_height)/2;
 
-var face_color = 'mediumseagreen';
+var face_color = 'yellow';	//'mediumseagreen';
 var face_fill = 'black';
 var face_stroke = face_color;
 
@@ -78,7 +78,7 @@ Button.prototype = {
 		this.id = options.id || 'Unnamed' + Math.floor(Math.random()*10000),
 		this.x = face_topleft_x + (options.x || 50);
 		this.y = face_topleft_y + (options.y || 50);
-		this.w = options.w || 50;
+		this.w = options.w || 125;
 		this.h = options.h || 50;
 		this.text = options.text || 'Untitled';
 		this.script = options.script || '';
@@ -94,7 +94,9 @@ Button.prototype = {
 			.click(function(e) {
 				e.preventDefault();
 				e.stopPropagation();
-				socket.emit('exec', {'cmd': self.script});
+				var cmd = Mustache.render(self.script, self);
+				//console.log('button exec:', cmd);
+				socket.emit('exec', {'cmd': cmd});
 				reply_handler = function(reply) { self.handleReply.call(self, reply); };
 				return true;
 			});
@@ -106,8 +108,14 @@ Button.prototype = {
 	},
 
 	handleReply: function(reply) {
-		console.log('Handle:', reply, typeof reply, this);
-		var color = (parseInt(reply) != 0) ? this.fill_highlight : this.fill;
+		//console.log('Handle:', reply, typeof reply, this);
+		if (!reply) return;
+		this.setColor(reply);
+	},
+	
+	setColor: function(color) {
+		if (color == '0') color = this.fill;
+		else if (color == '1') color = this.fill_highlight;
 		this.elt.attr({fill:color});
 	}
 }
@@ -117,12 +125,12 @@ function addButton(options) {
 	controls[button.id] = button;
 }
 
-addButton({x:100,y:100,w:150,h:60,text:'Toggle2',script:'d2=!d2;print d2'});
-addButton({x:100,y:200,w:150,h:60,text:'Toggle4',script:'d4=!d4;print d4'});
-addButton({x:100,y:300,w:150,h:60,text:'Toggle7',script:'d7=!d7;print d7'});
-addButton({x:100,y:400,w:150,h:60,text:'Toggle8',script:'d8=!d8;print d8'});
-addButton({x:100,y:500,w:150,h:60,text:'Toggle12',script:'d12=!d12;print d12'});
-addButton({x:100,y:600,w:150,h:60,text:'Toggle13',script:'d13=!d13;print d13'});
+addButton({x:100, y:100, text:'Toggle2', script:'d2=!d2;print d2'});
+addButton({x:100, y:180, text:'Toggle4', script:'d4=!d4;print d4'});
+addButton({x:100, y:260, text:'Toggle7', script:'d7=!d7;print d7'});
+addButton({x:100, y:340, text:'Toggle8', script:'d8=!d8;print d8'});
+addButton({x:100, y:420, text:'Toggle12', script:'d12=!d12;print d12'});
+addButton({x:100, y:500, text:'Toggle13', script:'d13=!d13;if d13 print "blue"; else print "red";'});
 
 
 //////////
@@ -139,8 +147,8 @@ Slider.prototype = {
 		this.id = options.id || 'Unnamed' + Math.floor(Math.random()*10000),
 		this.x = face_topleft_x + (options.x || 50);
 		this.y = face_topleft_y + (options.y || 50);
-		this.w = options.w || 128;
-		this.h = options.h || 350;
+		this.w = options.w || 80;
+		this.h = options.h || 200;
 		this.text = options.text || 'Untitled';
 		this.script = options.script || '';
 		this.fill = options.fill || 'black';
@@ -186,8 +194,8 @@ Slider.prototype = {
 	dragStart: function(x, y, event) {
 		//this.dragy = y;
 	},
-	dragMove: function(dx, dy, x, y, event) {
-		console.log('move:',dx,dy,x,y,event)
+	dragMove: function(dx, dy, x, y, e) {
+		//console.log('move:',dx,dy,x,y,e)
 		if (y < this.y) y = this.y;
 		else if (y > this.y + this.h) y = this.y + this.h;
 		var fraction = (y - this.y) / this.h;
@@ -195,12 +203,16 @@ Slider.prototype = {
 		this.readout.attr({text: ''+this.value});
 		var slidey = this.slideYPos();
 		this.slide.attr({y:slidey});
+		this.dragEnd(e);
 	},
 	dragEnd: function(e) {
 		e.preventDefault();
 		e.stopPropagation();
-		socket.emit('exec', {'cmd': this.script});
-		reply_handler = function(reply) { this.handleReply.call(this, reply); };
+		var cmd = Mustache.render(this.script, this);
+		//console.log('slider exec:', cmd);
+		socket.emit('exec', {'cmd': cmd});
+		var self = this;
+		reply_handler = function(reply) { self.handleReply.call(self, reply); };
 		return true;
 	},
 
@@ -212,7 +224,7 @@ Slider.prototype = {
 	},
 
 	handleReply: function(reply) {
-		console.log('Handle:', reply, typeof reply, this);
+		//console.log('Handle:', reply, typeof reply, this);
 	}
 }
 
@@ -223,12 +235,12 @@ function addSlider(options) {
 
 // need to get value from control into script...
 // templating for the script
-addSlider({x:400,y:100,text:'PWM3',script:'d13=!d13'});
-addSlider({x:550,y:100,text:'PWM5',script:'d13=!d13'});
-addSlider({x:700,y:100,text:'PWM6',script:'d13=!d13'});
-addSlider({x:850,y:100,text:'PWM9',script:'d13=!d13'});
-addSlider({x:1000,y:100,text:'PWM10',script:'d13=!d13'});
-addSlider({x:1150,y:100,text:'PWM11',script:'d13=!d13'});
+addSlider({x:350,y:100,text:'PWM3',script:'a3={{value}}'});
+addSlider({x:450,y:100,text:'PWM5',script:'a5={{value}}'});
+addSlider({x:550,y:100,text:'PWM6',script:'a6={{value}}'});
+addSlider({x:650,y:100,text:'PWM9',script:'a9={{value}}'});
+addSlider({x:750,y:100,text:'PWM10',script:'a10={{value}}'});
+addSlider({x:850,y:100,text:'PWM11',script:'a11={{value}}'});
 
 
 
