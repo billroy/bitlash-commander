@@ -78,6 +78,9 @@ io.sockets.on('connection', function (socket) {
 		}
 		else io.sockets.emit('reply','ERROR');		// emit error here
 	});
+	socket.on('update', function(data) {
+		socket.broadcast.emit('update', data);
+	});
 	socket.on('ping', function(data) {
 		socket.emit('pong', data);
 	});

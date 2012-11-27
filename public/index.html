@@ -36,6 +36,10 @@ function initSocketIO() {
 			temp_reply_handler(data);
 		}
 	});
+	socket.on('update', function(data) {
+		console.log('Update:', data.id, data.value);
+		if (controls[data.id]) controls[data.id].setValue(data.value);
+	});
 	socket.on('pong', function(data) {
 		var rtt = new Date().getTime() - data.timestamp;
 		window.status = 'RTT: ' + rtt + 'ms';
@@ -150,17 +154,16 @@ Button.prototype = {
 		if (reply === undefined) return;
 		this.reply = reply.trim();
 		if (this.reply.length == 0) return;
-		this.replies.push(this.reply);
-		this.times.push(new Date().getTime());
-		this.label.attr({text: this.text + ': ' + this.reply});
-		//this.setColor(this.reply);
+		this.setValue(this.reply);
+		socket.emit('update', {id: this.id, value: this.value});
 	},
 	
-	setColor: function(color) {
-		if (color == '0') color = this.fill;
-		else if (color == '1') color = this.fill_highlight;
-		this.elt.attr({fill:color});
-	}
+	setValue: function(value) {
+		this.value = value;
+		this.replies.push(this.value);
+		this.times.push(new Date().getTime());
+		this.label.attr({text: this.text + ': ' + this.value});
+	}		
 }
 
 function addButton(options) {
@@ -212,6 +215,8 @@ Slider.prototype = {
 		this.stroke = options.stroke || face_color;
 		this['stroke-width'] = options['stroke-width'] || control_stroke;
 		this.fontsize = options.fontsize || 20;
+		this.replies = [];
+		this.times = [];
 
 		this.min = options.min || 0;
 		this.max = options.max || 255;
@@ -255,10 +260,8 @@ Slider.prototype = {
 		if (y < this.y) y = this.y;
 		else if (y > this.y + this.h) y = this.y + this.h;
 		var fraction = (y - this.y) / this.h;
-		this.value = Math.floor(this.min + (1.0 - fraction) * (this.max - this.min));
-		this.readout.attr({text: ''+this.value});
-		var slidey = this.slideYPos();
-		this.slide.attr({y:slidey});
+		var value = Math.floor(this.min + (1.0 - fraction) * (this.max - this.min));
+		this.setValue(value);
 		this.dragEnd(e);
 	},
 	dragEnd: function(e) {
@@ -279,9 +282,22 @@ Slider.prototype = {
 		return Math.floor(this.y + this.h * (1.0 - fraction));
 	},
 
-	handleReply: function(reply) {
-		//console.log('Handle:', reply, typeof reply, this);
-	}
+	handleReply: function(reply) {		// reply is ignored for slider
+		//if (reply === undefined) return;
+		//this.reply = reply.trim();
+		//if (this.reply.length == 0) return;
+		//this.setValue();
+		socket.emit('update', {id: this.id, value: this.value});
+	},
+	
+	setValue: function(value) {
+		this.value = value;
+		this.replies.push(this.value);
+		this.times.push(new Date().getTime());
+		this.readout.attr({text: ''+this.value});
+		var slidey = this.slideYPos();
+		this.slide.attr({y:slidey});
+	}		
 }
 
 function addSlider(options) {

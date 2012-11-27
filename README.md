@@ -57,9 +57,8 @@ You can use any field of the control object in {{}}.
 ## To Do
 
 - button
-	- periodic update
-	- click to start/stop
 	- inherit from eventemitter for side effects like color changes
+	- display indication that a repeat button is repeating
 
 - reorganize svg-controls.js
 - Controls(c, y, w, h, fill, stroke, ...)
@@ -73,6 +72,7 @@ You can use any field of the control object in {{}}.
 - broadcast slider updates
 - broadcast button status updates
 - reconnect serial port on close
+	- reconnect button
 
 - edit mode
 	- edit mode toggle
