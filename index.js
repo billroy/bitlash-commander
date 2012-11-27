@@ -15,14 +15,7 @@ if (argv.help) {
 	process.exit();
 } 
 
-var port;
-var heroku;
-if (argv.port) port = argv.port;
-else if (process && process.env && process.env.PORT) {
-	heroku = true;
-	port = process.env.PORT;
-}
-else port = 3000;
+var port = argv.port || 3000;
 
 var express = require('express');
 var app = module.exports = express.createServer().listen(port);

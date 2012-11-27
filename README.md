@@ -30,13 +30,17 @@ To start the web server on a different port:
 
 ## Customize
 
-Right now, to add new controls you can add your own addButton and addSlider initialization to public/index.html.
+Copy public/index.html to public/new.html and edit new.html to add your controls following the addButton / addSlider examples you will see there.  Then open new.html for testing:
 
-Buttons and Sliders display the value returned by Bitlash in their label.
+	http://localhost:3000/new.html
+
+Buttons display the value returned by Bitlash in their label.  Make sure your script causes Bitlash to print the output you'd like displayed.
+
+There are many options you can set on the Button and Slider object, though mostly the defaults should work for you.  See Button.init() and Slider.init().
 
 ## The "Script" field
 
-The script field of a control contains the Bitlash code you want executed when the button is pressed or the slider is moved.  The text of the script field is sent to Bitlash, and any reply from Bitlash is displayed by the control.
+The script field of a control contains the Bitlash code you want executed when the button is pressed or the slider is moved.  The text of the script field is sent to Bitlash, and any reply from Bitlash is displayed by the control (if it's a Button).
 
 Here is an example that toggles pin 13 and returns the value of pin 13 by printing it:
 
@@ -60,16 +64,13 @@ You can use any field of the control object in {{}}.
 	- inherit from eventemitter for side effects like color changes
 	- display indication that a repeat button is repeating
 
-- reorganize svg-controls.js
-- Controls(c, y, w, h, fill, stroke, ...)
-	.addButton()
-	.addSlider()
-
 - chart
 - BUG: control-C doesn't quit the server
 
 - reconnect serial port on close
 	- reconnect button
+
+- revisit default sizes as % parent width/height
 
 - edit mode
 	- edit mode toggle
@@ -85,8 +86,3 @@ You can use any field of the control object in {{}}.
 - send text command from keyboard
 - sound
 - scrolling log panel
-
-- arduino demo board
-	- 8 tracking graph gauges for a0-a7
-	- 6 sliders for PWM pins (3,5,6,9,10,11) (outputs)
-	- 6 toggles for remaining pins (2,4,7,8,12,13) (outputs)
