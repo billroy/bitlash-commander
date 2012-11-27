@@ -1,6 +1,6 @@
 # Bitlash Commander
 
-Bitlash Commander is a node.js web interface toolkit for your Bitlash-powered Arduino.  It serves a web page containing buttons and slider controls, easily customized, which trigger Bitlash scripts you specify to control the Arduino over the usb-serial link.
+Bitlash Commander is a node.js web interface toolkit for Arduino.  It serves a web page containing buttons and slider controls, easily customized, which trigger Bitlash scripts you specify to control the Arduino over the usb-serial link.
 
 ![screenshot](https://raw.github.com/billroy/bitlash-commander/master/screenshot.png)
 
@@ -68,9 +68,6 @@ You can use any field of the control object in {{}}.
 - chart
 - BUG: control-C doesn't quit the server
 
-- sync sliders and other statuses at startup
-- broadcast slider updates
-- broadcast button status updates
 - reconnect serial port on close
 	- reconnect button
 
