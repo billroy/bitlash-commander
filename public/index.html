@@ -117,7 +117,12 @@ function addButton(options) {
 	controls[button.id] = button;
 }
 
-addButton({x:100,y:100,w:150,h:60,text:'Toggle',script:'d13=!d13;print d13'});
+addButton({x:100,y:100,w:150,h:60,text:'Toggle2',script:'d2=!d2;print d2'});
+addButton({x:100,y:200,w:150,h:60,text:'Toggle4',script:'d4=!d4;print d4'});
+addButton({x:100,y:300,w:150,h:60,text:'Toggle7',script:'d7=!d7;print d7'});
+addButton({x:100,y:400,w:150,h:60,text:'Toggle8',script:'d8=!d8;print d8'});
+addButton({x:100,y:500,w:150,h:60,text:'Toggle12',script:'d12=!d12;print d12'});
+addButton({x:100,y:600,w:150,h:60,text:'Toggle13',script:'d13=!d13;print d13'});
 
 
 //////////
@@ -134,8 +139,8 @@ Slider.prototype = {
 		this.id = options.id || 'Unnamed' + Math.floor(Math.random()*10000),
 		this.x = face_topleft_x + (options.x || 50);
 		this.y = face_topleft_y + (options.y || 50);
-		this.w = options.w || 50;
-		this.h = options.h || 200;
+		this.w = options.w || 128;
+		this.h = options.h || 350;
 		this.text = options.text || 'Untitled';
 		this.script = options.script || '';
 		this.fill = options.fill || 'black';
@@ -148,30 +153,32 @@ Slider.prototype = {
 		this.max = options.max || 255;
 		this.value = options.value || this.min;
 
-		this.slidew = this.w;
-		this.slideh = options.slideh || 1+Math.floor(this.h / 16);
+		this.slidew = .8 * this.w;
+		this.slideh = options.slideh || 1+Math.floor(this.h / 12);
 
-		this.barw = options.barw || 1+Math.floor(this.w / 16);
+		this.barw = options.barw || 1;	//1+Math.floor(this.w / 16);
 		this.barh = this.h;
 
 		var self = this;
 
-		this.outerrect = paper.rect(this.x, this.y, this.w, this.h)
-			.attr({fill:'red', stroke:'red'});
+		this.outerrect = paper.rect(this.x, this.y, this.w, this.h + this.slideh, 10)
+			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width':5});
 
-		this.elt = paper.rect(this.x + (this.w-this.barw)/2, this.y, this.barw, this.barh)
-			.attr({fill:this.stroke, stroke:this.stroke, 'stroke-width': this['stroke-width']})
+		this.bar = paper.rect(this.x + (this.w-this.barw)/2, this.y, this.barw, this.barh + this.slideh)
+			.attr({fill:this.stroke, stroke:this.stroke})
 			.click(function(e) {
 				console.log('bar click:', e);
 			});
 
-		this.slide = paper.rect(this.x, this.y, this.slidew, this.slideh, 5)
+		this.slide = paper.rect(this.x + (this.w - this.slidew)/2, this.slideYPos(), this.slidew, this.slideh, 5)
 			.attr({fill:this.stroke, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-
-		this.label = paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize*2, this.text)
+		this.label = paper.text(this.x + (this.w/2), this.y + this.h + this.slideh + this.fontsize*2, this.text)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize});
+
+		this.readout = paper.text(this.x + (this.w/2), this.y + this.h + this.slideh + this.fontsize, ''+this.value)
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2});
 
 		return this;
 	},
@@ -184,16 +191,16 @@ Slider.prototype = {
 		if (y < this.y) y = this.y;
 		else if (y > this.y + this.h) y = this.y + this.h;
 		var fraction = (y - this.y) / this.h;
-		this.value = this.min + (1.0 - fraction) * (this.max - this.min);
+		this.value = Math.floor(this.min + (1.0 - fraction) * (this.max - this.min));
+		this.readout.attr({text: ''+this.value});
 		var slidey = this.slideYPos();
-console.log('frac:', fraction, this.value, slidey);
 		this.slide.attr({y:slidey});
 	},
 	dragEnd: function(e) {
 		e.preventDefault();
 		e.stopPropagation();
-		socket.emit('exec', {'cmd': self.script});
-		reply_handler = function(reply) { self.handleReply.call(self, reply); };
+		socket.emit('exec', {'cmd': this.script});
+		reply_handler = function(reply) { this.handleReply.call(this, reply); };
 		return true;
 	},
 
@@ -216,8 +223,12 @@ function addSlider(options) {
 
 // need to get value from control into script...
 // templating for the script
-addSlider({x:400,y:100,text:'Fade1',script:'d3=0'});
-addSlider({x:600,y:100,text:'Fade2',script:'d3=0'});
+addSlider({x:400,y:100,text:'PWM3',script:'d13=!d13'});
+addSlider({x:550,y:100,text:'PWM5',script:'d13=!d13'});
+addSlider({x:700,y:100,text:'PWM6',script:'d13=!d13'});
+addSlider({x:850,y:100,text:'PWM9',script:'d13=!d13'});
+addSlider({x:1000,y:100,text:'PWM10',script:'d13=!d13'});
+addSlider({x:1150,y:100,text:'PWM11',script:'d13=!d13'});
 
 
 
