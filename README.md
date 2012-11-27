@@ -21,9 +21,8 @@ To start the web server on a different port:
 
 Right now, to add new controls you can add your own addButton and addSlider initialization to public/index.html.
 
-Buttons use the value returned by Bitlash to set their color.
+Buttons and Sliders display the value returned by Bitlash in their label.
 
-Sliders discard the value returned by Bitlash.
 
 
 ## To Do
@@ -33,17 +32,21 @@ Sliders discard the value returned by Bitlash.
 - button
 	- periodic update
 	- click to update
+	- highlight while pressed using lighter()
 	- inherit from eventemitter for side effects like color changes
-
 
 - reorganize svg-controls.js
 - Controls()
 	.addButton()
 	.addSlider()
 
+- chart
+- BUG: control-C doesn't quit the server
+
 - sync sliders and other statuses at startup
 - broadcast slider updates
 - broadcast button status updates
+- reconnect serial port on close
 
 - edit mode
 	- edit mode toggle

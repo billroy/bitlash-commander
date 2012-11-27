@@ -15,6 +15,7 @@
 
 $(document).ready(function() {
 
+document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
 var socket;
 var next_id = 0;
 var reply_handler;
@@ -57,12 +58,14 @@ var face_color = 'mediumseagreen';
 var face_fill = 'black';
 var face_stroke = face_color;
 
+var button_corner = 10;
+var control_stroke = 3;
+
 var paper = Raphael(0, 0, $(window).width(), $(window).height());
 
 var face = paper.rect(face_topleft_x, face_topleft_y, face_width, face_height, 20)
-	.attr({stroke: face_stroke, fill: face_fill, 'stroke-width': 10});
+	.attr({stroke: face_stroke, fill: face_fill, 'stroke-width': 2*control_stroke});
 
-var button_corner = 10;
 var controls = {};
 
 //////////
@@ -86,7 +89,7 @@ Button.prototype = {
 		this.fill = options.fill || 'black';
 		this.fill_highlight = options.fill_highlight || 'white';
 		this.stroke = options.stroke || face_color;
-		this['stroke-width'] = options['stroke-width'] || 5;
+		this['stroke-width'] = options['stroke-width'] || control_stroke;
 		this.fontsize = options.fontsize || 20;
 
 		var self = this;
@@ -137,7 +140,7 @@ addButton({x:100, y:180, text:'Toggle4', script:'d4=!d4;print d4'});
 addButton({x:100, y:260, text:'Toggle7', script:'d7=!d7;print d7'});
 addButton({x:100, y:340, text:'Toggle8', script:'d8=!d8;print d8'});
 addButton({x:100, y:420, text:'Toggle12', script:'d12=!d12;print d12'});
-addButton({x:100, y:500, text:'Toggle13', script:'d13=!d13;if d13 print "blue"; else print "red";'});
+addButton({x:100, y:500, text:'Toggle13', script:'d13=!d13;print d13'});
 
 
 //////////
@@ -161,7 +164,7 @@ Slider.prototype = {
 		this.fill = options.fill || 'black';
 		this.fill_highlight = options.fill_highlight || 'white';
 		this.stroke = options.stroke || face_color;
-		this['stroke-width'] = options['stroke-width'] || 5;
+		this['stroke-width'] = options['stroke-width'] || control_stroke;
 		this.fontsize = options.fontsize || 20;
 
 		this.min = options.min || 0;
@@ -177,7 +180,7 @@ Slider.prototype = {
 		var self = this;
 
 		this.outerrect = paper.rect(this.x, this.y, this.w, this.h + this.slideh, 10)
-			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width':5});
+			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width':control_stroke});
 
 		this.bar = paper.rect(this.x + (this.w-this.barw)/2, this.y, this.barw, this.barh + this.slideh)
 			.attr({fill:this.stroke, stroke:this.stroke})
@@ -269,7 +272,7 @@ Monitor.prototype = {
 		this.fill = options.fill || 'black';
 		this.fill_highlight = options.fill_highlight || 'white';
 		this.stroke = options.stroke || face_color;
-		this['stroke-width'] = options['stroke-width'] || 5;
+		this['stroke-width'] = options['stroke-width'] || control_stroke;
 		this.fontsize = options.fontsize || 20;
 
 		var self = this;
@@ -314,18 +317,18 @@ function addMonitor(options) {
 	controls[monitor.id] = monitor;
 }
 
-addMonitor({x:350, y:400, text:'millis', script:'print millis'});
-addMonitor({x:350, y:480, text:'random', script:'print random(1000)'});
+//addMonitor({x:350, y:400, text:'millis', script:'print millis'});
+//addMonitor({x:350, y:480, text:'random', script:'print random(1000)'});
 
-addMonitor({x:500, y:400, text:'a0', script:'print a0'});
-addMonitor({x:500, y:480, text:'a1', script:'print a1'});
-addMonitor({x:500, y:560, text:'a2', script:'print a2'});
-addMonitor({x:500, y:640, text:'a3', script:'print a3'});
+addMonitor({x:350, y:400, text:'a0', script:'print a0'});
+addMonitor({x:500, y:400, text:'a1', script:'print a1'});
+addMonitor({x:650, y:400, text:'a2', script:'print a2'});
+addMonitor({x:800, y:400, text:'a3', script:'print a3'});
 
-addMonitor({x:650, y:400, text:'a4', script:'print a4'});
-addMonitor({x:650, y:480, text:'a5', script:'print a5'});
-addMonitor({x:650, y:560, text:'a6', script:'print a6'});
-addMonitor({x:650, y:640, text:'a7', script:'print a7'});
+addMonitor({x:350, y:480, text:'a4', script:'print a4'});
+addMonitor({x:500, y:480, text:'a5', script:'print a5'});
+addMonitor({x:650, y:480, text:'a6', script:'print a6'});
+addMonitor({x:800, y:480, text:'a7', script:'print a7'});
 
 
 
