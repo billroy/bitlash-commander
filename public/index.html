@@ -56,7 +56,7 @@ var face_height = 1 * $(window).height();
 var face_topleft_x = ($(window).width() - face_width)/2;
 var face_topleft_y = ($(window).height() - face_height)/2;
 
-var face_color = 'aqua';
+var face_color = 'greenyellow';
 var face_fill = 'black';
 var face_stroke = face_color;
 
@@ -67,6 +67,9 @@ var paper = Raphael(0, 0, $(window).width(), $(window).height());
 
 var face = paper.rect(face_topleft_x, face_topleft_y, face_width, face_height, 20)
 	.attr({stroke: face_stroke, fill: face_fill, 'stroke-width': 2*control_stroke});
+
+var logo = paper.text(face_topleft_x + (face_width/2), face_topleft_y + 50, 'Bitlash Commander')
+	.attr({fill:face_stroke, stroke:face_stroke, 'font-size': 36});
 
 var controls = {};
 
@@ -95,6 +98,8 @@ Button.prototype = {
 		this.fontsize = options.fontsize || 20;
 		this.replies = [];
 		this.times = [];
+		this.repeat = options.repeat || 0;
+		this.running = 0;
 
 		var self = this;
 		this.elt = paper.rect(this.x, this.y, this.w, this.h, button_corner)
@@ -113,14 +118,32 @@ Button.prototype = {
 	},
 
 	handleClick: function(e) {
+		if (this.repeat) {
+			if (this.running) {
+				this.running = false;
+				clearInterval(this.intervalid);
+				delete this.intervalid;
+			} else {
+				this.running = true;
+				this.exec();
+			}
+		}
+		else this.exec();
 		e.preventDefault();
 		e.stopPropagation();
+		return false;
+	},
+
+	exec: function() {
 		var cmd = Mustache.render(this.script, this);
 		console.log('button exec:', cmd);
 		socket.emit('exec', {'cmd': cmd});
 		var self = this;
 		reply_handler = function(reply) { self.handleReply.call(self, reply); };
-		return false;
+		if (this.repeat && !this.intervalid) {
+			var self = this;
+			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
+		}
 	},
 
 	handleReply: function(reply) {
@@ -150,12 +173,12 @@ addButton({x:100, y:180, text:'Toggle4', script:'d4=!d4;print d4'});
 addButton({x:100, y:260, text:'Toggle7', script:'d7=!d7;print d7'});
 addButton({x:100, y:340, text:'Toggle8', script:'d8=!d8;print d8'});
 addButton({x:100, y:420, text:'Toggle12', script:'d12=!d12;print d12'});
-addButton({x:100, y:500, text:'Toggle13', script:'d13=!d13;print d13'});
+addButton({x:100, y:500, text:'Toggle13', script:'d13=!d13;print d13', repeat:1000});
 
 //addButton({x:350, y:400, text:'millis', script:'print millis'});
 //addButton({x:350, y:480, text:'random', script:'print random(1000)'});
 
-addButton({x:350, y:400, text:'a0', script:'print a0'});
+addButton({x:350, y:400, text:'a0', script:'print a0', repeat:125});
 addButton({x:500, y:400, text:'a1', script:'print a1'});
 addButton({x:650, y:400, text:'a2', script:'print a2'});
 addButton({x:800, y:400, text:'a3', script:'print a3'});

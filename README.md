@@ -23,20 +23,35 @@ Right now, to add new controls you can add your own addButton and addSlider init
 
 Buttons and Sliders display the value returned by Bitlash in their label.
 
+## The "Script" field
+
+The script field of a control contains the Bitlash code you want executed when the button is pressed or the slider is moved.  The text of the script field is sent to Bitlash, and any reply from Bitlash is displayed by the control.
+
+Here is an example that toggles pin 13 and returns the value of pin 13 by printing it:
+
+	{script:'d13=!d13;print d13'}
+
+
+### Text substitution using Mustache
+
+You can customize the script sent to Bitlash based on the current value of the control.
+
+Here is an example that sets analog output 5 to the current value of the slider:
+
+	{script:'a5={{value}}'}
+
+You can use any field of the control object in {{}}.
 
 
 ## To Do
 
-- don't need monitor control, get rid of it
-
 - button
 	- periodic update
-	- click to update
-	- highlight while pressed using lighter()
+	- click to start/stop
 	- inherit from eventemitter for side effects like color changes
 
 - reorganize svg-controls.js
-- Controls()
+- Controls(c, y, w, h, fill, stroke, ...)
 	.addButton()
 	.addSlider()
 
@@ -55,7 +70,6 @@ Buttons and Sliders display the value returned by Bitlash in their label.
 	- edit
 	- delete
 
-- separate the control library
 - named control sets
 	- save
 	- load
