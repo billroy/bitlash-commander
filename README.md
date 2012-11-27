@@ -24,8 +24,6 @@
 	- save
 	- load
 
-- apply click handling to the text label too
-
 - send text command from keyboard
 
 - sound

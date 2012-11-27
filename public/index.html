@@ -16,6 +16,7 @@
 $(document).ready(function() {
 
 var socket;
+var next_id = 0;
 var reply_handler;
 
 function initSocketIO() {
@@ -75,7 +76,7 @@ function Button(options) {
 Button.prototype = {
 
 	init: function(options) {
-		this.id = options.id || 'Unnamed' + Math.floor(Math.random()*10000),
+		this.id = options.id || 'Button' + next_id++;
 		this.x = face_topleft_x + (options.x || 50);
 		this.y = face_topleft_y + (options.y || 50);
 		this.w = options.w || 125;
@@ -91,31 +92,41 @@ Button.prototype = {
 		var self = this;
 		this.elt = paper.rect(this.x, this.y, this.w, this.h, button_corner)
 			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
-			.click(function(e) {
-				e.preventDefault();
-				e.stopPropagation();
-				var cmd = Mustache.render(self.script, self);
-				//console.log('button exec:', cmd);
-				socket.emit('exec', {'cmd': cmd});
-				reply_handler = function(reply) { self.handleReply.call(self, reply); };
-				return true;
-			});
+			.click(function(e) { return self.handleClick.call(self, e); });
 
 		this.label = paper.text(this.x + (this.w/2), this.y + (this.h/2), this.text)
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize});
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+			.click(function(e) { return self.handleClick.call(self, e); });
 
 		return this;
 	},
 
+	handleClick: function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		var cmd = Mustache.render(this.script, this);
+		console.log('button exec:', cmd);
+		socket.emit('exec', {'cmd': cmd});
+		var self = this;
+		reply_handler = function(reply) { self.handleReply.call(self, reply); };
+		return false;
+	},
+
 	handleReply: function(reply) {
 		//console.log('Handle:', reply, typeof reply, this);
-		if (!reply) return;
-		this.setColor(reply);
+		if (reply === undefined) return;
+		if ((typeof reply != 'string') || (reply.length == 0)) {
+			console.log('Odd reply:', typeof reply, reply);
+			return;
+		}
+		this.setColor(reply.trim());
 	},
 	
 	setColor: function(color) {
 		if (color == '0') color = this.fill;
 		else if (color == '1') color = this.fill_highlight;
+console.log('color:', color, typeof color, color.length, this.id, color=='0', color=='1');
+console.log('0:', color.charAt(0), '1:', color.charAt(1));
 		this.elt.attr({fill:color});
 	}
 }
@@ -144,7 +155,7 @@ function Slider(options) {
 Slider.prototype = {
 
 	init: function(options) {
-		this.id = options.id || 'Unnamed' + Math.floor(Math.random()*10000),
+		this.id = options.id || 'Slider' + next_id++;
 		this.x = face_topleft_x + (options.x || 50);
 		this.y = face_topleft_y + (options.y || 50);
 		this.w = options.w || 80;
