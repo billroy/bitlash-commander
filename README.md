@@ -28,9 +28,18 @@ Sliders discard the value returned by Bitlash.
 
 ## To Do
 
-- gauge control, v1: text value getter
+- don't need monitor control, get rid of it
+
+- button
 	- periodic update
 	- click to update
+	- inherit from eventemitter for side effects like color changes
+
+
+- reorganize svg-controls.js
+- Controls()
+	.addButton()
+	.addSlider()
 
 - sync sliders and other statuses at startup
 - broadcast slider updates
