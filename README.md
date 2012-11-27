@@ -4,7 +4,18 @@ Bitlash Commander is a node.js web interface toolkit for your Bitlash-powered Ar
 
 ![screenshot](https://raw.github.com/billroy/bitlash-commander/master/screenshot.png)
 
-## Install
+## Install: Arduino
+
+You need to upload Bitlash to the Arduino.  Install Bitlash (see https://github.com/billroy/bitlash/wiki/install) , then (after restarting the Arduino IDE), connect your arduino and perform these commands in the Arduino IDE:
+
+	File -> Examples -> bitlash -> bitlashdemo
+	File -> Upload.
+
+## Install: PC
+
+You need node.js (http://nodejs.org) and git (http://git-scm.com).
+
+In a new terminal window:
 
 	$ git clone http://github.com/billroy/bitlash-commander
 	$ cd bitlash-commander
