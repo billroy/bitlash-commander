@@ -1,4 +1,0 @@
-curl -X POST -H 'Content-Type:application/json' -d @testmsg.json localhost:3000/tx
-curl -X POST -H 'Content-Type:application/json' -d @test2.json localhost:3000/tx
-curl -X POST -H 'Content-Type:application/json' -d @test3.json localhost:3000/tx
-curl -X POST -H 'Content-Type:application/json' -d @test4.json localhost:3000/tx
