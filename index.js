@@ -41,7 +41,7 @@ app.get('/', function(req, res) {
 var bitlash_ready = false;
 
 var Bitlash = require('./lib/bitlash.js');
-var bitlash = new Bitlash.Bitlash({port:argv.serialport, debug:false, echo:false}, function (readytext) {
+var bitlash = new Bitlash.Bitlash({port:argv.serialport, debug:true, echo:true}, function (readytext) {
 	console.log('Ready:', readytext);
 	bitlash_ready = true;
 });

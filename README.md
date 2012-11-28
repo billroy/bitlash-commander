@@ -98,8 +98,10 @@ You can use any field of the control object in {{}}.
 - put labels below buttons?
 	- full face in color with readout
 
-- BUG: reply_handler race
+- BUG: reply_handler race between bitlash.exec() and reply firing
 	- each control should have its own reply handler
+	- need a way to handle command attempts while busy
+		- retry?
 
 - BUG: interpage update leak
 	- Panel.id?  Panel.channel?
