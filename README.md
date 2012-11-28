@@ -11,6 +11,13 @@ You need to upload Bitlash to the Arduino.  Install Bitlash (see https://github.
 	File -> Examples -> bitlash -> bitlashdemo
 	File -> Upload.
 
+NOTE: The default control panel requires you to enter this startup function on the Arduino in order for the buttons in the Toggle column to work correctly.  In a serial monitor,Copy and paste this into Bitlash:
+
+	> function startup {pinmode(2,1);pinmode(4,1);pinmode(7,1);pinmode(8,1);pinmode(12,1);};
+
+You only need to do this once.
+
+
 ## Install: PC
 
 You need node.js (http://nodejs.org) and git (http://git-scm.com).
