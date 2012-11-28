@@ -130,19 +130,38 @@ Button.prototype = {
 		this.repeat = options.repeat || 0;
 		this.running = 0;
 		this.corner = options.corner || this.parent.button_corner;
+		this.shape = options.shape || '';	// default to rectangle
+		this.r = options.r || undefined;
 
 		var self = this;
-		this.elt = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.corner)
-			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
+
+		if (this.shape == 'circle') {
+			this.elt = this.parent.paper.circle(this.x, this.y, this.r)
+				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});});
+
+		this.label = this.parent.paper.text(this.x, this.y, this.text)
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
 			.mouseup(function(e) { self.elt.attr({fill:self.fill});});
+		} 
+		else {	
+			this.elt = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.corner)
+				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});});
 
 		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + (this.h/2), this.text)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-			.mouseup(function(e) { self.elt.attr({fill:self.fill});});
+			.mouseup(function(e) { self.elt.attr({fill:self.fill});});	
+		}
+
 
 		return this;
 	},
