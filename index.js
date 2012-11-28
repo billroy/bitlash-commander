@@ -8,6 +8,8 @@ var opt = require('optimist');
 var argv = opt.usage('Usage: $0 [flags]')
 	.alias('p', 'port')
 	.describe('p', 'port for the http server')
+	.alias('s', 'serialport')
+	.describe('s', 'port for usbserial arduino connection')
 	.argv;
 
 if (argv.help) {
@@ -39,7 +41,7 @@ app.get('/', function(req, res) {
 var bitlash_ready = false;
 
 var Bitlash = require('./lib/bitlash.js');
-var bitlash = new Bitlash.Bitlash({debug:false,echo:false}, function (readytext) {
+var bitlash = new Bitlash.Bitlash({port:argv.serialport, debug:false, echo:false}, function (readytext) {
 	console.log('Ready:', readytext);
 	bitlash_ready = true;
 });

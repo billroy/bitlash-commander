@@ -35,6 +35,19 @@ To start the web server on a different port:
 
 	$ node index.js -p 8080
 
+To specify a serial port:
+
+	$ node index.js -s /dev/tty.usbserial-F00D2321
+
+For help:	
+	
+	$ node index.js --help
+	Usage: node ./index.js [flags]
+	
+	Options:
+	  -p, --port        port for the http server             
+	  -s, --serialport  port for usbserial arduino connection
+
 ## Customize
 
 Copy public/index.html to public/new.html and edit new.html to add your controls following the addButton / addSlider examples you will see there.  Then open new.html for testing:
