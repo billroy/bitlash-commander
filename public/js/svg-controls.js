@@ -41,6 +41,7 @@ ControlPanel.prototype = {
 		this.controls = {};
 		this.next_id = 0;
 		this.initSocketIO();
+		this.sync();
 		return this;
 	},
 
@@ -58,8 +59,11 @@ ControlPanel.prototype = {
 			}
 		});
 		this.socket.on('update', function(data) {
-			//console.log('Update:', data.id, data.value);
-			if (self.controls[data.id]) self.controls[data.id].setValue(data.value);
+			//console.log('Update:', data.id, data.value,);
+			if (typeof data[0] == 'undefined') data = [data];
+			for (var i=0; i < data.length; i++) {
+				if (self.controls[data[i].id]) self.controls[data[i].id].setValue(data[i].value);
+			}
 		});
 		this.socket.on('pong', function(data) {
 			var rtt = new Date().getTime() - data.timestamp;
@@ -70,9 +74,13 @@ ControlPanel.prototype = {
 			window.setTimeout(initSocketIO, 200);
 		});
 
-		window.setInterval(function() {
+		if (0) window.setInterval(function() {
 			self.socket.emit('ping', {'timestamp': new Date().getTime()});
 		}, 10000);
+	},
+	
+	sync: function() {
+		this.socket.emit('sync', {});
 	},
 
 	addButton: function(options) {
@@ -159,7 +167,7 @@ Button.prototype = {
 	exec: function() {
 		var cmd = Mustache.render(this.script, this);
 		console.log('button exec:', cmd);
-		this.parent.socket.emit('exec', {'cmd': cmd});
+		this.parent.socket.emit('exec', {'cmd': cmd, 'id':this.id});
 		var self = this;
 		reply_handler = function(reply) { self.handleReply.call(self, reply); };
 		if (this.repeat && !this.intervalid) {
@@ -265,7 +273,7 @@ Slider.prototype = {
 		e.stopPropagation();
 		var cmd = Mustache.render(this.script, this);
 		//console.log('slider exec:', cmd);
-		this.parent.socket.emit('exec', {'cmd': cmd});
+		this.parent.socket.emit('exec', {'cmd': cmd, 'id':this.id});
 		var self = this;
 		reply_handler = function(reply) { self.handleReply.call(self, reply); };
 		return true;

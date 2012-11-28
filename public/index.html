@@ -24,7 +24,7 @@ $(document).ready(function() {
 		.addButton({x:100, y:260, text:'Toggle7', script:'d7=!d7;print d7'})
 		.addButton({x:100, y:340, text:'Toggle8', script:'d8=!d8;print d8'})
 		.addButton({x:100, y:420, text:'Toggle12', script:'d12=!d12;print d12'})
-		.addButton({x:100, y:500, text:'Toggle13', script:'d13=!d13;print d13', repeat:1000})
+		.addButton({x:100, y:500, text:'Blink13', script:'d13=!d13;print d13', repeat:1000})
 		
 		.addButton({x:350, y:400, text:'a0', script:'print a0', repeat:125})
 		.addButton({x:500, y:400, text:'a1', script:'print a1'})
@@ -36,12 +36,12 @@ $(document).ready(function() {
 		.addButton({x:650, y:480, text:'a6', script:'print a6'})
 		.addButton({x:800, y:480, text:'a7', script:'print a7'})
 
-		.addSlider({x:350,y:100,text:'PWM3',script:'a3={{value}}'})
-		.addSlider({x:450,y:100,text:'PWM5',script:'a5={{value}}'})
-		.addSlider({x:550,y:100,text:'PWM6',script:'a6={{value}}'})
-		.addSlider({x:650,y:100,text:'PWM9',script:'a9={{value}}'})
-		.addSlider({x:750,y:100,text:'PWM10',script:'a10={{value}}'})
-		.addSlider({x:850,y:100,text:'PWM11',script:'a11={{value}}'});
+		.addSlider({x:350,y:100,text:'PWM3',script:'a3={{value}};print {{value}}'})
+		.addSlider({x:450,y:100,text:'PWM5',script:'a5={{value}};print {{value}}'})
+		.addSlider({x:550,y:100,text:'PWM6',script:'a6={{value}};print {{value}}'})
+		.addSlider({x:650,y:100,text:'PWM9',script:'a9={{value}};print {{value}}'})
+		.addSlider({x:750,y:100,text:'PWM10',script:'a10={{value}};print {{value}}'})
+		.addSlider({x:850,y:100,text:'PWM11',script:'a11={{value}};print {{value}}'});
 
 }); 	// document.ready
 </script>

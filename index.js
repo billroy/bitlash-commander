@@ -39,7 +39,7 @@ app.get('/', function(req, res) {
 var bitlash_ready = false;
 
 var Bitlash = require('./lib/bitlash.js');
-var bitlash = new Bitlash.Bitlash({debug:true,echo:true}, function (readytext) {
+var bitlash = new Bitlash.Bitlash({debug:false,echo:false}, function (readytext) {
 	console.log('Ready:', readytext);
 	bitlash_ready = true;
 });
@@ -59,12 +59,18 @@ if (1 || heroku) {
 }
 io.set('log level', 1);
 
+// BUG: leaks control id's across rooms
+// BUG: confuses control ID's across rooms
+var reply_cache = {};		// caches latest update per id
+
 io.sockets.on('connection', function (socket) {
 	console.log('Client connected via', socket.transport);
 	socket.on('exec', function (data) {
 		console.log('Exec:', data, typeof data, bitlash_ready);
 		if (bitlash_ready) {
 			bitlash.exec(data.cmd + '\n', function(reply) {
+				reply_cache[data.id] = reply.trim();
+console.log('Cache:', reply_cache);
 				console.log('bitlash reply:', reply);
 				io.sockets.emit('reply', reply);
 			});
@@ -73,6 +79,15 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on('update', function(data) {
 		socket.broadcast.emit('update', data);
+	});
+	socket.on('sync', function(data) {
+		var response = [];
+		for (var id in reply_cache) {
+			response.push({id:id, value:reply_cache[id]});
+		}
+console.log('Sync:', response);
+		// only to requester
+		socket.emit('update', response);
 	});
 	socket.on('ping', function(data) {
 		socket.emit('pong', data);

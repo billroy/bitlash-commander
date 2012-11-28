@@ -66,9 +66,18 @@ You can use any field of the control object in {{}}.
 
 - chart
 - BUG: control-C doesn't quit the server
+	- use Control-]
+
+- BUG: reply_handler race
+
+- initialize controls at startup
+	- server could cache values it sees and send them as value commands
+	- client command to trigger ('sync'?)
 
 - reconnect serial port on close
 	- reconnect button
+
+- highlight slider on mousedown
 
 - revisit default sizes as % parent width/height
 
@@ -78,10 +87,9 @@ You can use any field of the control object in {{}}.
 	- drag
 	- edit
 	- delete
-
-- named control sets
-	- save
-	- load
+	- named control sets
+		- save
+		- load
 
 - send text command from keyboard
 - sound
