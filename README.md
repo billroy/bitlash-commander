@@ -9,7 +9,7 @@ Bitlash Commander is a node.js web interface toolkit for Arduino.  It serves a w
 You need to upload Bitlash to the Arduino.  Install Bitlash (see https://github.com/billroy/bitlash/wiki/install) , then (after restarting the Arduino IDE), connect your arduino and perform these commands in the Arduino IDE:
 
 	File -> Examples -> bitlash -> bitlashdemo
-	File -> Upload.
+	File -> Upload
 
 NOTE: The default control panel requires you to enter this startup function on the Arduino in order for the buttons in the Toggle column to work correctly.  In a serial monitor,Copy and paste this into Bitlash:
 
@@ -69,22 +69,43 @@ You can use any field of the control object in {{}}.
 
 - button
 	- inherit from eventemitter for side effects like color changes
-	- display indication that a repeat button is repeating
+	- BUG: no display indication that a repeat button is repeating
 
-- chart
-- BUG: control-C doesn't quit the server
-	- use Control-]
+- push
+	- bitlash sends JSON update:
+		{id:'Button1', fill:'green'}
+	- '{' intercepts it out of the stream for processing
+	- arrives as unsolicited input
+	- no callback handler should be set
+	- or if one is, it's a race
+	
+	- should repeat even be happening on the PC side?
+		- start a task to send updates
+
+- put labels below buttons?
+	- full face in color with readout
 
 - BUG: reply_handler race
+	- each control should have its own reply handler
 
-- initialize controls at startup
-	- server could cache values it sees and send them as value commands
-	- client command to trigger ('sync'?)
+- BUG: interpage update leak
+	- Panel.id?  Panel.channel?
+	- channels design
+		- exec/update cycle
+		- on('update')
+
+- BUG: click on text of repeating button doesn't stop it
+
+- startup initialization
+	- pinmode / startup script / functions on bitlash
+	- initial control values
 
 - reconnect serial port on close
 	- reconnect button
 
-- highlight slider on mousedown
+- controls
+	- chart
+	- LED bargraph
 
 - revisit default sizes as % parent width/height
 
@@ -99,5 +120,11 @@ You can use any field of the control object in {{}}.
 		- load
 
 - send text command from keyboard
+- allow operation without arduino connected
+- authorization / password protection
+
 - sound
+	- remote doorbell
+	- would benefit from arduino push
+
 - scrolling log panel

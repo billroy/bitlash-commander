@@ -86,7 +86,6 @@ ControlPanel.prototype = {
 	addButton: function(options) {
 		options.parent = this;
 		var button = new Button(options);
-		//button.parent = this;
 		this.controls[button.id] = button;
 		return this;
 	},
@@ -94,7 +93,6 @@ ControlPanel.prototype = {
 	addSlider: function(options) {
 		options.parent = this;
 		var slider = new Slider(options);
-		//slider.parent = this;
 		this.controls[slider.id] = slider;
 		return this;
 	}
@@ -142,24 +140,28 @@ Button.prototype = {
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});});
 
-		this.label = this.parent.paper.text(this.x, this.y, this.text)
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-			.mouseup(function(e) { self.elt.attr({fill:self.fill});});
+			this.label = this.parent.paper.text(this.x, this.y, this.text)
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});});
 		} 
-		else {	
+		else {		// default rectangular button
 			this.elt = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.corner)
 				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});});
 
-		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + (this.h/2), this.text)
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-			.mouseup(function(e) { self.elt.attr({fill:self.fill});});	
+			//$(this.elt).node.bind('contextmenu', function(e){
+			//    alert('right click');
+			//});
+
+			this.label = this.parent.paper.text(this.x + (this.w/2), this.y + (this.h/2), this.text)
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});});	
 		}
 
 
@@ -178,6 +180,7 @@ Button.prototype = {
 			}
 		}
 		else this.exec();
+
 		e.preventDefault();
 		e.stopPropagation();
 		return false;
@@ -274,7 +277,7 @@ Slider.prototype = {
 	},
 
 	dragStart: function(x, y, event) {
-		//this.dragy = y;
+		this.slide.attr({fill:this.fill_highlight});
 	},
 
 	dragMove: function(dx, dy, x, y, e) {
@@ -284,10 +287,15 @@ Slider.prototype = {
 		var fraction = (y - this.y) / this.h;
 		var value = Math.floor(this.min + (1.0 - fraction) * (this.max - this.min));
 		this.setValue(value);
-		this.dragEnd(e);
+		return this.dragFinish(e);
 	},
 
 	dragEnd: function(e) {
+		this.slide.attr({fill:this.stroke});
+		return this.dragFinish(e);
+	},
+	
+	dragFinish: function(e) {
 		e.preventDefault();
 		e.stopPropagation();
 		var cmd = Mustache.render(this.script, this);
@@ -295,7 +303,7 @@ Slider.prototype = {
 		this.parent.socket.emit('exec', {'cmd': cmd, 'id':this.id});
 		var self = this;
 		reply_handler = function(reply) { self.handleReply.call(self, reply); };
-		return true;
+		return false;
 	},
 
 	slideYPos: function() {

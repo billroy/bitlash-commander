@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<!-- Copyright 2012 by Bill Roy - MIT license - See LICENSE file -->
+<html><head>
+	<title>Bitlash Commander</title>
+	<script type='text/javascript' src='js/jquery-1.8.2.min.js'></script>
+	<script type='text/javascript' src='/js/fastclick.js'></script>
+	<script type='text/javascript' src='/js/raphael.js'></script>
+	<script type='text/javascript' src='/js/g.raphael-min.js'></script>
+	<script type='text/javascript' src='/js/g.line-min.js'></script>
+	<script type='text/javascript' src='js/mustache.js'></script>
+	<script type='text/javascript' src='/socket.io/socket.io.js'></script>
+	<script type='text/javascript' src='/js/svg-controls.js'></script>
+</head><body style='background:gray'>
+
+<script type='text/javascript' charset='utf8'>
+
+$(document).ready(function() {
+
+	document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
+	
+	var Panel = new ControlPanel({title: "Don't Panic!", color: 'red'});
+
+	Panel.addButton({
+		x: Panel.x + Panel.w/2, 
+		y: Panel.y + Panel.h/2,
+		text: 'PANIC',
+		shape: 'circle',
+		r: Panel.h/3, 
+		fontsize: 36,
+		script: 'r=!r; if r print "RED ALERT"; else print "ALL CLEAR";'
+	});
+
+}); 	// document.ready
+</script>
+</body></html>
