@@ -108,7 +108,7 @@ io.sockets.on('connection', function (socket) {
 		if (bitlash.ready) {
 			bitlash.exec(data.cmd + '\n', function(reply) {
 				addCache(data.id, reply.trim());
-console.log('Cache:', data_cache);
+				//console.log('Cache:', data_cache);
 				console.log('sending reply:', reply);
 				io.sockets.emit('reply', reply);
 			});
