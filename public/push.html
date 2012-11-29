@@ -20,8 +20,12 @@ $(document).ready(function() {
 	
 	var Panel = new ControlPanel({color:'turquoise'})
 		.addButton({id:'millis', x:100, y:100, w:250, text:'millis', script:'print millis'})
-		.addButton({x:100, y:180, text:'ls', script:'ls'})
-		.addButton({x:100, y:260, text:'peep', script:'peep'});
+		.addButton({id:'clock',  x:100, y:180, w:250, text:'clock', script:''});
+
+	Panel.controls['millis'].on('update', function(data) {
+		Panel.controls['clock'].setValue(data.value);
+	});
+
 
 /*
 		.addButton({x:100, y:340, text:'Toggle8', script:'d8=!d8;print d8'})

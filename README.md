@@ -110,31 +110,15 @@ If you copy and paste those functions to your Bitlash, you can open the "push.ht
 ## To Do
 
 - BUG: reply_handler race between bitlash.exec() and reply firing
-	- each control should have its own reply handler
-	- need a way to handle command attempts while busy
-		- retry?
-	- ERROR: call while busy is the symptom.
-		- can we queue the command and the callback?
-		- nextCommand()
-			
-- push (document)
-	- bitlash sends JSON update using printf()
-		function pm {printf("{\"id\":\"millis\",\"value\":%d}\n", millis);};
-		{"id":"millis","value":6458}
-
-	- should repeat even be happening on the PC side?
-		- start a task to send updates
-		- perhaps remove repeat
+	- still happens under load
 
 - button
 	- inherit from eventemitter for side effects like color changes
+		addbutton(...).on('update')...
+
 	- BUG: no display indication that a repeat button is repeating
-
-- only send exec if there's a script
-
-- put labels below buttons?
-	- full face in color with readout
-
+	- put labels below buttons?
+		- full face in color with readout
 
 - BUG: interpage update leak
 	- Panel.id?  Panel.channel?
@@ -144,9 +128,20 @@ If you copy and paste those functions to your Bitlash, you can open the "push.ht
 
 - BUG: click on text of repeating button doesn't stop it
 
+
 - startup initialization
 	- pinmode / startup script / functions on bitlash
 	- initial control values
+
+- collect data cache on server
+	- avoid rebroadcast on sync
+	- handle per-channel sync
+	- enables server-driven charting across all nodes
+
+- doc:
+	- panel options
+	- button and slider options	
+	- link to Commander on bitlash.net
 
 - reconnect serial port on close
 	- reconnect button

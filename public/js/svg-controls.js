@@ -192,6 +192,7 @@ Button.prototype = {
 	},
 
 	exec: function() {
+		if (!this.script) return;
 		var cmd = Mustache.render(this.script, this);
 		console.log('button exec:', cmd);
 		var self = this;
@@ -209,7 +210,9 @@ Button.prototype = {
 		this.reply = reply.trim();
 		if (this.reply.length == 0) return;
 		this.setValue(this.reply);
-		this.parent.sendUpdate('update', {id: this.id, value: this.value});
+		var update = {id: this.id, value: this.value};
+		this.parent.sendUpdate('update', update);
+		this.fire('update', update);
 	},
 	
 	setValue: function(value) {
@@ -217,7 +220,23 @@ Button.prototype = {
 		this.replies.push(this.value);
 		this.times.push(new Date().getTime());
 		this.label.attr({text: this.text + ': ' + this.value});
-	}		
+	},
+
+	listeners: {},	// hash of arrays of listeners, keyed by eventname
+
+	on: function(eventname, listener) {
+		if (!this.listeners[eventname]) this.listeners[eventname] = [];
+		this.listeners[eventname].push(listener);
+	},
+
+	fire: function(eventname, data) {
+		var listeners = this.listeners[eventname];
+		if (!listeners) return;
+		for (var i=0; i<listeners.length; i++) {
+			var func = listeners[i];
+			func(data);
+		}
+	}	
 }
 
 
@@ -309,6 +328,7 @@ Slider.prototype = {
 	},
 
 	exec: function() {
+		if (!this.script) return;
 		var cmd = Mustache.render(this.script, this);
 		console.log('button exec:', cmd);
 		var self = this;
@@ -334,5 +354,21 @@ Slider.prototype = {
 		this.readout.attr({text: ''+this.value});
 		var slidey = this.slideYPos();
 		this.slide.attr({y:slidey});
-	}		
+	},
+	
+	listeners: {},	// hash of arrays of listeners, keyed by eventname
+
+	on: function(eventname, listener) {
+		if (!this.listeners[eventname]) this.listeners[eventname] = [];
+		this.listeners[eventname].push(listener);
+	},
+
+	fire: function(eventname, data) {
+		var listeners = this.listeners[eventname];
+		if (!listeners) return;
+		for (var i=0; i<listeners.length; i++) {
+			var func = listeners[i];
+			func(data);
+		}
+	}	
 }
