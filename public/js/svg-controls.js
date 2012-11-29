@@ -51,7 +51,7 @@ ControlPanel.prototype = {
 		this.socket.on('reply', function (data) {
 			console.log('Bitlash reply:', data);
 			var reply_handler = self.reply_handlers.pop();
-			reply_handler(data);
+			if (reply_handler) reply_handler(data);
 		});
 		this.socket.on('update', function(data) {
 			//console.log('Update:', data.id, data.value,);

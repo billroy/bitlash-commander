@@ -77,9 +77,8 @@ var data_cache = {};		// caches updates per id by time
 function addCache(id, value) {
 	if (!data_cache[id]) data_cache[id] = [];	// array of objects: {id:<id>, t:<time>, value:<value>}
 	data_cache[id].push({
-		id: id,
-		value: value,
-		time: new Date().getTime()
+		time: new Date().getTime(),
+		value: value
 	});
 }
 
@@ -98,6 +97,7 @@ console.log('Cache:', data_cache);
 		else io.sockets.emit('reply','ERROR');		// emit error here
 	});
 	socket.on('update', function(data) {
+console.log('Update:', data);
 		//addCache(data.id, data.value);
 		socket.broadcast.emit('update', data);
 	});
@@ -105,7 +105,7 @@ console.log('Cache:', data_cache);
 		var response = [];
 		for (var id in data_cache) {
 			var datalist = data_cache[id];
-			if (datalist.length) response.push({id:id, value:datalist[datalist.length-1]});
+			if (datalist.length) response.push({id:id, value:datalist[datalist.length-1].value});
 		}
 console.log('Sync:', response);
 		// only to requester
