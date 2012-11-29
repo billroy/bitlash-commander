@@ -1,7 +1,8 @@
 {
 	"name": "bitlash-commander", 
 	"version": "0.0.1",
-	"private": true, 
+	"private": true,
+	"preferGlobal": false, 
 	"author": "Bill Roy <bill@bitlash.net>",
 	"description": "Bitlash Commander",
 	"scripts": {
@@ -9,6 +10,7 @@
 		"stop": "forever stop index.js"
 	}, 
 	"dependencies": {
+		"express": ">=3.0.3",
 		"optimist": ">=0.3.5",
 		"request": ">=2.12.0",
 		"socket.io": ">=0.9.11",

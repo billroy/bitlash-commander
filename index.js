@@ -20,8 +20,10 @@ if (argv.help) {
 var port = argv.port || 3000;
 
 var express = require('express');
-var app = module.exports = express.createServer().listen(port);
-var io = require('socket.io').listen(app);
+var app = express();
+var http = require('http')
+var server = http.createServer(app)
+var io = require('socket.io').listen(server);
 
 app.configure(function () {
 	app.use(express.logger());
@@ -40,6 +42,23 @@ app.get('/datacache', function(req, res) {
 app.get('/data/:id', function(req, res) {
 	res.send(data_cache[req.params.id]);
 });
+
+app.get('/charts', function(req, res) {
+	var charts = {};
+	for (var id in data_cache) {
+		var times = [];
+		var values = [];
+		var data = data_cache[id];
+		if (data.length < 3) continue;
+		for (var i=0; i<data.length; i++) {
+			times.push(data[i].time);
+			values.push(data[i].value);		
+		}
+		charts[id] = {times: times, values:values};
+	}
+	res.send(charts);
+});
+server.listen(port);
 
 //////////
 //
