@@ -89,16 +89,18 @@ To update a control using the upstream JSON channel you must know the control's 
 
 To update this control from Bitlash you would print a line of this form from a repeating background function:
 
-	{"id":"millis","value":33861}
+	{"id":"millis","value":"33861"}
 
 ...where 'id' is the id of the control, millis in this case, and 'value' is the new value for the control.
 
-Here is an example Bitlash function to properly format the JSON output, and the startup function required to trigger it every 1000 ms:
+Here is a Bitlash utility function to properly format JSON output for any id and value.   Copy and paste this definition into your Bitlash so you can use it below:
 
-	function pm {printf("{\"id\":\"millis\",\"value\":%d}\n", millis);};
+	function update {printf("{\"id\":\"%s\",\"value\":\"%d\"}\n", arg(1), arg(2));};
+
+Here is an example of how to call update, and a startup function to trigger it every 1000 ms; copy and paste these, too:
+
+	function pm { update("millis", millis); }
 	function startup {run pm,1000;}
-
-Note that the quotation marks within the strings in the pm function must be escaped by putting '\' before them, and the string must end with '\n'.
 
 If you copy and paste those functions to your Bitlash, you can open the "push.html" file in the distribution to see the millis counter update in action.
 
