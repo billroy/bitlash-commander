@@ -19,10 +19,11 @@ $(document).ready(function() {
 	document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
 	
 	var Panel = new ControlPanel({color:'turquoise'})
-		.addButton({id:'millis', x:100, y:100, w:250, text:'millis', script:'print millis'});
+		.addButton({id:'millis', x:100, y:100, w:250, text:'millis', script:'print millis'})
+		.addButton({x:100, y:180, text:'ls', script:'ls'})
+		.addButton({x:100, y:260, text:'peep', script:'peep'});
+
 /*
-		.addButton({x:100, y:180, text:'Toggle4', script:'d4=!d4;print d4'})
-		.addButton({x:100, y:260, text:'Toggle7', script:'d7=!d7;print d7'})
 		.addButton({x:100, y:340, text:'Toggle8', script:'d8=!d8;print d8'})
 		.addButton({x:100, y:420, text:'Toggle12', script:'d12=!d12;print d12'})
 		.addButton({x:100, y:500, text:'Blink13', script:'d13=!d13;print d13', repeat:1000})

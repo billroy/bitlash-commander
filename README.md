@@ -78,6 +78,33 @@ Here is an example that sets analog output 5 to the current value of the slider:
 You can use any field of the control object in {{}}.
 
 
+## Pushing data from Bitlash
+
+It is desirable to be able to update indicators on the control panel without action from the operator.  To do this, Bitlash Commander provides an upstream data channel from Bitlash to the controls on the various web pages open on the server.
+
+To update a control using the upstream JSON channel you must know the control's id.  The easiest way is to assign one when you create the button in the .html file.  In this example from public/push.html, the button has the id 'millis':
+
+	var Panel = new ControlPanel({color:'turquoise'})
+		.addButton({id:'millis', x:100, y:100, w:250, text:'millis'});
+
+To update this control from Bitlash you would print a line of this form from a repeating background function:
+
+	{"id":"millis","value":33861}
+
+...where 'id' is the id of the control, millis in this case, and 'value' is the new value for the control.
+
+Here is an example Bitlash function to properly format the JSON output, and the startup function required to trigger it every 1000 ms:
+
+	function pm {printf("{\"id\":\"millis\",\"value\":%d}\n", millis);};
+	function startup {run pm,1000;}
+
+Note that the quotation marks within the strings in the pm function must be escaped by putting '\' before them, and the string must end with '\n'.
+
+If you copy and paste those functions to your Bitlash, you can open the "push.html" file in the distribution to see the millis counter update in action.
+
+	http://localhost:3000/push.html
+
+
 ## To Do
 
 - BUG: reply_handler race between bitlash.exec() and reply firing
@@ -88,12 +115,10 @@ You can use any field of the control object in {{}}.
 		- can we queue the command and the callback?
 		- nextCommand()
 			
-- push
-	- bitlash sends JSON update:
-		{id:'Button1', value:'green'}
-	- '{' intercepts it out of the stream for processing
-	- arrives as unsolicited input
-	- push to json_callback function	
+- push (document)
+	- bitlash sends JSON update using printf()
+		function pm {printf("{\"id\":\"millis\",\"value\":%d}\n", millis);};
+		{"id":"millis","value":6458}
 
 	- should repeat even be happening on the PC side?
 		- start a task to send updates
@@ -103,6 +128,7 @@ You can use any field of the control object in {{}}.
 	- inherit from eventemitter for side effects like color changes
 	- BUG: no display indication that a repeat button is repeating
 
+- only send exec if there's a script
 
 - put labels below buttons?
 	- full face in color with readout
