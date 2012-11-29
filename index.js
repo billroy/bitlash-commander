@@ -41,10 +41,15 @@ app.get('/', function(req, res) {
 var bitlash_ready = false;
 
 var Bitlash = require('./lib/bitlash.js');
-var bitlash = new Bitlash.Bitlash({port:argv.serialport, debug:true, echo:true}, function (readytext) {
-	console.log('Ready:', readytext);
-	bitlash_ready = true;
-});
+var bitlash = new Bitlash.Bitlash({
+		debug: true, 
+		echo: true,
+		port: argv.serialport,
+		json_callback: broadcastJSONUpdate
+	}, function (readytext) {
+		console.log('Ready:', readytext);
+		bitlash_ready = true;
+	});
 
 
 //////////
@@ -95,6 +100,10 @@ console.log('Sync:', response);
 		socket.emit('pong', data);
 	});
 });
+
+function broadcastJSONUpdate(data) {
+	io.sockets.emit('update', data);
+}
 
 
 

@@ -80,28 +80,33 @@ You can use any field of the control object in {{}}.
 
 ## To Do
 
-- button
-	- inherit from eventemitter for side effects like color changes
-	- BUG: no display indication that a repeat button is repeating
-
-- push
-	- bitlash sends JSON update:
-		{id:'Button1', fill:'green'}
-	- '{' intercepts it out of the stream for processing
-	- arrives as unsolicited input
-	- no callback handler should be set
-	- or if one is, it's a race
-	
-	- should repeat even be happening on the PC side?
-		- start a task to send updates
-
-- put labels below buttons?
-	- full face in color with readout
-
 - BUG: reply_handler race between bitlash.exec() and reply firing
 	- each control should have its own reply handler
 	- need a way to handle command attempts while busy
 		- retry?
+	- ERROR: call while busy is the symptom.
+		- can we queue the command and the callback?
+		- nextCommand()
+			
+- push
+	- bitlash sends JSON update:
+		{id:'Button1', value:'green'}
+	- '{' intercepts it out of the stream for processing
+	- arrives as unsolicited input
+	- push to json_callback function	
+
+	- should repeat even be happening on the PC side?
+		- start a task to send updates
+		- perhaps remove repeat
+
+- button
+	- inherit from eventemitter for side effects like color changes
+	- BUG: no display indication that a repeat button is repeating
+
+
+- put labels below buttons?
+	- full face in color with readout
+
 
 - BUG: interpage update leak
 	- Panel.id?  Panel.channel?
