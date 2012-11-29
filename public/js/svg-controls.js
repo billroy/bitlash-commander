@@ -26,7 +26,8 @@ ControlPanel.prototype = {
 		this.button_corner = options.button_corner || 10;
 		this.control_stroke = options.control_stroke || 3;
 		this.title = options.title || 'Bitlash Commander';
-		
+		this.channel = options.channel || '';
+
 		this.paper = Raphael(0, 0, $(window).width(), $(window).height());
 
 		this.face = this.paper.rect(this.x, this.y, this.w, this.h, this.face_corner)
@@ -117,6 +118,7 @@ Button.prototype = {
 	init: function(options) {
 		this.parent = options.parent;
 		this.id = options.id || 'Button' + this.parent.next_id++;
+		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
 		this.x = this.parent.x + (options.x || 50);
 		this.y = this.parent.y + (options.y || 50);
 		this.w = options.w || 125;
@@ -253,6 +255,7 @@ Slider.prototype = {
 	init: function(options) {
 		this.parent = options.parent;
 		this.id = options.id || 'Slider' + this.parent.next_id++;
+		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
 		this.x = this.parent.x + (options.x || 50);
 		this.y = this.parent.y + (options.y || 50);
 		this.w = options.w || 80;

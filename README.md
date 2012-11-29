@@ -113,25 +113,20 @@ If you copy and paste those functions to your Bitlash, you can open the "push.ht
 	- still happens under load
 
 - button
-	- inherit from eventemitter for side effects like color changes
-		addbutton(...).on('update')...
-
 	- BUG: no display indication that a repeat button is repeating
-	- put labels below buttons?
-		- full face in color with readout
 
-- BUG: interpage update leak
-	- Panel.id?  Panel.channel?
-	- channels design
-		- exec/update cycle
-		- on('update')
-
+- reply from bitlash should have
+	id
+	value: (value of reply)
+	where to fit channel id
+	
 - BUG: click on text of repeating button doesn't stop it
-
 
 - startup initialization
 	- pinmode / startup script / functions on bitlash
 	- initial control values
+	- or is it just another button?
+	- auto-run specified buttons at startup
 
 - collect data cache on server
 	- avoid rebroadcast on sync
@@ -139,7 +134,9 @@ If you copy and paste those functions to your Bitlash, you can open the "push.ht
 	- enables server-driven charting across all nodes
 
 - doc:
+	- button.on(), slider.on()
 	- panel options
+		- channel
 	- button and slider options	
 	- link to Commander on bitlash.net
 
@@ -162,9 +159,9 @@ If you copy and paste those functions to your Bitlash, you can open the "push.ht
 		- save
 		- load
 
+- authorization / password protection
 - send text command from keyboard
 - allow operation without arduino connected
-- authorization / password protection
 
 - sound
 	- remote doorbell
