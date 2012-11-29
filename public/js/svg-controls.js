@@ -4,9 +4,6 @@
 //	Copyright 2012 Bill Roy (MIT License; see LICENSE file)
 //
 
-var reply_handler;
-
-
 //////////
 //
 //	ControlPanel object
@@ -51,12 +48,9 @@ ControlPanel.prototype = {
 
 		var self = this;
 		this.socket.on('reply', function (data) {
-			//console.log('Bitlash reply:', data);
-			if (reply_handler) {
-				var temp_reply_handler = reply_handler;
-				reply_handler = undefined;
-				temp_reply_handler(data);
-			}
+			console.log('Bitlash reply:', data);
+			var reply_handler = self.reply_handlers.pop();
+			reply_handler(data);
 		});
 		this.socket.on('update', function(data) {
 			//console.log('Update:', data.id, data.value,);
@@ -95,6 +89,17 @@ ControlPanel.prototype = {
 		var slider = new Slider(options);
 		this.controls[slider.id] = slider;
 		return this;
+	},
+
+	reply_handlers: [],
+
+	sendCommand: function(command, data, reply_handler) {
+		this.reply_handlers.push(reply_handler);
+		this.socket.emit(command, data);
+	},
+	
+	sendUpdate: function(cmd, data) {
+		this.socket.emit(cmd, data);
 	}
 }
 
@@ -189,9 +194,10 @@ Button.prototype = {
 	exec: function() {
 		var cmd = Mustache.render(this.script, this);
 		console.log('button exec:', cmd);
-		this.parent.socket.emit('exec', {'cmd': cmd, 'id':this.id});
 		var self = this;
-		reply_handler = function(reply) { self.handleReply.call(self, reply); };
+		var reply_handler = function(reply) { self.handleReply.call(self, reply); };
+		this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id}, reply_handler);
+
 		if (this.repeat && !this.intervalid) {
 			var self = this;
 			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
@@ -203,7 +209,7 @@ Button.prototype = {
 		this.reply = reply.trim();
 		if (this.reply.length == 0) return;
 		this.setValue(this.reply);
-		this.parent.socket.emit('update', {id: this.id, value: this.value});
+		this.parent.sendUpdate('update', {id: this.id, value: this.value});
 	},
 	
 	setValue: function(value) {
@@ -298,12 +304,16 @@ Slider.prototype = {
 	dragFinish: function(e) {
 		e.preventDefault();
 		e.stopPropagation();
+		this.exec();
+		return false;
+	},
+
+	exec: function() {
 		var cmd = Mustache.render(this.script, this);
-		//console.log('slider exec:', cmd);
-		this.parent.socket.emit('exec', {'cmd': cmd, 'id':this.id});
+		console.log('button exec:', cmd);
 		var self = this;
 		reply_handler = function(reply) { self.handleReply.call(self, reply); };
-		return false;
+		this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id}, reply_handler);
 	},
 
 	slideYPos: function() {
@@ -314,13 +324,9 @@ Slider.prototype = {
 	},
 
 	handleReply: function(reply) {		// reply is ignored for slider
-		//if (reply === undefined) return;
-		//this.reply = reply.trim();
-		//if (this.reply.length == 0) return;
-		//this.setValue();
-		this.parent.socket.emit('update', {id: this.id, value: this.value});
+		this.parent.sendUpdate('update', {id: this.id, value: this.value});
 	},
-	
+
 	setValue: function(value) {
 		this.value = value;
 		this.replies.push(this.value);
