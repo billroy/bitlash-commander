@@ -54,7 +54,7 @@ ControlPanel.prototype = {
 			if (reply_handler) reply_handler(data);
 		});
 		this.socket.on('update', function(data) {
-			//console.log('Update:', data.id, data.value,);
+console.log('Update:', data);
 			if (typeof data[0] == 'undefined') data = [data];
 			for (var i=0; i < data.length; i++) {
 				if (self.controls[data[i].id]) self.controls[data[i].id].setValue(data[i].value);
@@ -130,13 +130,13 @@ Button.prototype = {
 		this.stroke = options.stroke || this.parent.color;
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
 		this.fontsize = options.fontsize || 20;
-		this.replies = [];
-		this.times = [];
 		this.repeat = options.repeat || 0;
 		this.running = 0;
 		this.corner = options.corner || this.parent.button_corner;
 		this.shape = options.shape || '';	// default to rectangle
 		this.r = options.r || undefined;
+
+		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
 		var self = this;
 
@@ -208,6 +208,8 @@ Button.prototype = {
 	},
 
 	handleReply: function(reply) {
+		console.log("UNEXPECTED REPLY");
+/*
 		if (reply === undefined) return;
 		this.reply = reply.trim();
 		if (this.reply.length == 0) return;
@@ -215,27 +217,29 @@ Button.prototype = {
 		var update = {id: this.id, value: this.value};
 		this.parent.sendUpdate('update', update);
 		this.fire('update', update);
+*/
 	},
 	
 	setValue: function(value) {
 		this.value = value;
-		this.replies.push(this.value);
-		this.times.push(new Date().getTime());
 		this.label.attr({text: this.text + ': ' + this.value});
+		var update = {id: this.id, value: this.value};
+		this.fire('update', update);
 	},
-
-	listeners: {},	// hash of arrays of listeners, keyed by eventname
 
 	on: function(eventname, listener) {
 		if (!this.listeners[eventname]) this.listeners[eventname] = [];
 		this.listeners[eventname].push(listener);
+console.log('On:', this.id, this.listeners.length, this.listeners);
 	},
 
 	fire: function(eventname, data) {
 		var listeners = this.listeners[eventname];
+console.log('listeners:', listeners);
 		if (!listeners) return;
 		for (var i=0; i<listeners.length; i++) {
 			var func = listeners[i];
+console.log('firing listener', i, data);
 			func(data);
 		}
 	}	
@@ -267,8 +271,8 @@ Slider.prototype = {
 		this.stroke = options.stroke || this.parent.color;
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
 		this.fontsize = options.fontsize || 20;
-		this.replies = [];
-		this.times = [];
+
+		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
 		this.min = options.min || 0;
 		this.max = options.max || 255;
@@ -305,6 +309,7 @@ Slider.prototype = {
 	},
 
 	dragStart: function(x, y, event) {
+		this.dragging = true;
 		this.slide.attr({fill:this.fill_highlight});
 	},
 
@@ -326,6 +331,7 @@ Slider.prototype = {
 	dragFinish: function(e) {
 		e.preventDefault();
 		e.stopPropagation();
+		this.dragging = false;
 		this.exec();
 		return false;
 	},
@@ -351,15 +357,12 @@ Slider.prototype = {
 	},
 
 	setValue: function(value) {
+		if (this.dragging) return;	// be the boss: ignore updates while dragging
 		this.value = value;
-		this.replies.push(this.value);
-		this.times.push(new Date().getTime());
 		this.readout.attr({text: ''+this.value});
 		var slidey = this.slideYPos();
 		this.slide.attr({y:slidey});
 	},
-	
-	listeners: {},	// hash of arrays of listeners, keyed by eventname
 
 	on: function(eventname, listener) {
 		if (!this.listeners[eventname]) this.listeners[eventname] = [];

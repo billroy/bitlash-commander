@@ -20,15 +20,19 @@ $(document).ready(function() {
 	
 	var Panel = new ControlPanel({color:'turquoise'})
 		.addButton({id:'millis', x:100, y:100, w:250, text:'millis', script:'print millis'})
-		.addButton({id:'clock',  x:100, y:180, w:250, text:'clock', script:''});
+		.addButton({id:'clock',  x:100, y:180, w:250, text:'clock', script:''})
+		.addButton({id:'clock2', x:100, y:260, w:250, text:'clock2', script:''});
 
 	Panel.controls['millis'].on('update', function(data) {
+console.log('update AAA', data);
 		Panel.controls['clock'].setValue(data.value);
 	});
 
+	Panel.controls['clock'].on('update', function(data) {
+		Panel.controls['clock2'].setValue(data.value);
+	});
 
 /*
-		.addButton({x:100, y:340, text:'Toggle8', script:'d8=!d8;print d8'})
 		.addButton({x:100, y:420, text:'Toggle12', script:'d12=!d12;print d12'})
 		.addButton({x:100, y:500, text:'Blink13', script:'d13=!d13;print d13', repeat:1000})
 		
