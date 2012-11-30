@@ -54,7 +54,7 @@ ControlPanel.prototype = {
 			if (reply_handler) reply_handler(data);
 		});
 		this.socket.on('update', function(data) {
-console.log('Update:', data);
+			//console.log('Update:', data);
 			if (typeof data[0] == 'undefined') data = [data];
 			for (var i=0; i < data.length; i++) {
 				if (self.controls[data[i].id]) self.controls[data[i].id].setValue(data[i].value);
@@ -65,8 +65,9 @@ console.log('Update:', data);
 			window.status = 'RTT: ' + rtt + 'ms';
 		});
 		this.socket.on('disconnect', function (data) {
+			console.log('Socket Disconnected:', data);
 			//connection_indicator.attr({stroke: 'darkgreen', fill: 'darkgreen'});		
-			window.setTimeout(initSocketIO, 200);
+			window.setTimeout(self.initSocketIO, 200);
 		});
 
 		if (0) window.setInterval(function() {
@@ -230,16 +231,16 @@ Button.prototype = {
 	on: function(eventname, listener) {
 		if (!this.listeners[eventname]) this.listeners[eventname] = [];
 		this.listeners[eventname].push(listener);
-console.log('On:', this.id, this.listeners.length, this.listeners);
+		//console.log('On:', this.id, this.listeners.length, this.listeners);
 	},
 
 	fire: function(eventname, data) {
 		var listeners = this.listeners[eventname];
-console.log('listeners:', listeners);
+		//console.log('listeners:', listeners);
 		if (!listeners) return;
 		for (var i=0; i<listeners.length; i++) {
 			var func = listeners[i];
-console.log('firing listener', i, data);
+			//console.log('firing listener', i, data);
 			func(data);
 		}
 	}	

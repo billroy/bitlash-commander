@@ -107,19 +107,21 @@ If you copy and paste those functions to your Bitlash, you can open the "push.ht
 	http://localhost:3000/push.html
 
 
-## To Do
+## To Do / Bugs
 
 - BUG: reply_handler race between bitlash.exec() and reply firing
 	- still happens under load
 
+- remove reply handler infra
+
+- redraw()?
+- button.attr() and slider.attr()
+	- iterates across subelements
+	- svg group?
+
 - button
 	- BUG: no display indication that a repeat button is repeating
 
-- reply from bitlash should have
-	id
-	value: (value of reply)
-	where to fit channel id
-	
 - BUG: click on text of repeating button doesn't stop it
 
 - startup initialization
@@ -128,24 +130,22 @@ If you copy and paste those functions to your Bitlash, you can open the "push.ht
 	- or is it just another button?
 	- auto-run specified buttons at startup
 
-- collect data cache on server
-	- avoid rebroadcast on sync
-	- handle per-channel sync
-	- enables server-driven charting across all nodes
-
 - doc:
+	- big picture system data flow
 	- button.on(), slider.on()
 	- panel options
 		- channel
 	- button and slider options	
 	- link to Commander on bitlash.net
 
-- reconnect serial port on close
+- detect serial port closure and reconnect
 	- reconnect button
+- detect socket.io port closure and reconnect
 
 - controls
 	- chart
 	- LED bargraph
+	- scrolling text panel
 
 - revisit default sizes as % parent width/height
 
@@ -165,6 +165,6 @@ If you copy and paste those functions to your Bitlash, you can open the "push.ht
 
 - sound
 	- remote doorbell
-	- would benefit from arduino push
+	- lunch bell
 
-- scrolling log panel
+- examples

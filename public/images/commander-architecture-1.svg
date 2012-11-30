@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<svg width="1280" height="600" xmlns="http://www.w3.org/2000/svg" xmlns:se="http://svg-edit.googlecode.com">
+ <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
+ <g>
+  <title>Layer 1</title>
+  <polyline se:connector="svg_1 svg_6" id="svg_16" points="321.5,231.41058349609375 399,231.9962158203125 476.5,232.5818634033203" stroke="#000000" stroke-width="5" fill="none"/>
+  <rect ry="10" rx="10" id="svg_1" height="269.00001" width="236.00001" y="96" x="83" stroke-width="5" stroke="#000000" fill="#2f95b7"/>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" id="svg_2" y="130" x="148" stroke-width="0" stroke="#000000" fill="#000000"/>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" id="svg_3" y="420" x="195" stroke-width="0" stroke="#000000" fill="#000000">Arduino</text>
+  <rect ry="10" rx="10" height="151" width="172" y="132" x="118" stroke-width="5" stroke="#000000" fill="#ffffff" id="svg_4"/>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" y="259" x="205" stroke-width="0" stroke="#000000" fill="#000000" id="svg_5">Bitlash</text>
+  <rect ry="10" rx="10" height="287" width="238.00001" y="90" x="479" stroke-width="5" stroke="#000000" fill="#007fff" id="svg_6"/>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" y="422" x="622" stroke-width="0" stroke="#000000" fill="#000000" id="svg_7">PC Serving</text>
+  <rect ry="10" rx="10" height="151" width="172" y="133" x="516" stroke-width="5" stroke="#000000" fill="#ffffff" id="svg_8"/>
+  <rect ry="10" rx="10" height="287" width="238.00001" y="39" x="988" stroke-width="5" stroke="#000000" fill="#00ff7f" id="svg_11"/>
+  <rect ry="10" rx="10" height="287" width="238.00001" y="69" x="959" stroke-width="5" stroke="#000000" fill="#00ff7f" id="svg_12"/>
+  <rect ry="10" rx="10" height="287" width="238.00001" y="98" x="931" stroke-width="5" stroke="#000000" fill="#00ff00" id="svg_13"/>
+  <rect ry="10" rx="10" height="151" width="172" y="129" x="962" stroke-width="5" stroke="#000000" fill="#ffffff" id="svg_10"/>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" y="428" x="1058" stroke-width="0" stroke="#000000" fill="#000000" id="svg_14">PCs Viewing</text>
+  <polyline se:connector="svg_6 svg_13" id="svg_15" points="719.5,235.6504364013672 824,237.5 928.5,239.3495635986328" stroke="#000000" stroke-width="5" fill="none"/>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" y="258" x="600" stroke-width="0" stroke="#000000" fill="#000000" id="svg_17">node index.js</text>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" y="260" x="1043" stroke-width="0" stroke="#000000" fill="#000000" id="svg_18">browser</text>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" y="169" x="396" stroke-width="0" stroke="#000000" fill="#000000" id="svg_19">&lt;-- commands</text>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" y="201" x="396" stroke-width="0" stroke="#000000" fill="#000000" id="svg_20">replies --&gt;</text>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" y="316" x="396" stroke-width="0" stroke="#000000" fill="#000000" id="svg_21">updates --&gt;</text>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" y="196" x="814" stroke-width="0" stroke="#000000" fill="#000000" id="svg_22">&lt;--http--&gt;</text>
+  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" y="288" x="816" stroke-width="0" stroke="#000000" fill="#000000" id="svg_23">&lt;--socket.io--&gt;</text>
+  <text id="svg_24" xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" y="518" x="600" stroke-width="0" stroke="#000000" fill="#000000">Bitlash Commander Architecture</text>
+ </g>
+</svg>
