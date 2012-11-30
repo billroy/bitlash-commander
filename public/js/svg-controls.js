@@ -43,6 +43,12 @@ ControlPanel.prototype = {
 		return this;
 	},
 
+	attr: function(attrs) {
+		this.face.attr(attrs);
+		this.logo.attr(attrs);
+		for (var id in this.controls) this.controls[id].attr(attrs);
+	},
+
 	initSocketIO: function() {
 		this.socket = io.connect();
 		console.log('Socket connected', this.socket);
