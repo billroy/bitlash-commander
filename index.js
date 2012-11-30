@@ -107,10 +107,13 @@ io.sockets.on('connection', function (socket) {
 		console.log('Exec:', data, typeof data, bitlash.ready);
 		if (bitlash.ready) {
 			bitlash.exec(data.cmd + '\n', function(reply) {
-				addCache(data.id, reply.trim());
-				//console.log('Cache:', data_cache);
+				reply = reply.trim();
+				addCache(data.id, reply);
 				console.log('sending reply:', reply);
-				io.sockets.emit('reply', reply);
+				//io.sockets.emit('reply', reply);
+				data.value = reply;
+				//delete data.cmd;
+				io.sockets.emit('update', data);
 			});
 		}
 		else io.sockets.emit('reply','ERROR');		// emit error here
@@ -118,7 +121,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on('update', function(data) {
 console.log('Update:', data);
 		//addCache(data.id, data.value);
-		socket.broadcast.emit('update', data);
+		socket.broadcast.emit('update', data);	// everyone but requester
 	});
 	socket.on('sync', function(data) {
 		var response = [];
