@@ -17,10 +17,12 @@
 $(document).ready(function() {
 
 	document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
-	
-	var Panel = new ControlPanel({title: "Don't Panic!", color: 'red', channel:'panic'});
+
+	// open a Panel with a channel specifier ('panic') to segregate update traffic
+	var Panel = new ControlPanel({title: "Don't Panic!", color: 'white', channel:'panic'});
 
 	Panel.addButton({
+		id: 'panic',
 		x: Panel.x + Panel.w/2, 
 		y: Panel.y + Panel.h/2,
 		text: 'PANIC',
@@ -30,6 +32,14 @@ $(document).ready(function() {
 		script: 'r=!r; if r print "RED ALERT"; else print "ALL CLEAR";'
 	});
 
+	var panicbutton = Panel.controls['panic.panic'];	// mind the channel.control syntax
+	panicbutton.on('update', function(data) {
+		var color;
+		if (data.value == 'RED ALERT') color = 'red';
+		else color = panicbutton.parent.fill;
+		panicbutton.attr({fill: color});
+	});
+		
 }); 	// document.ready
 </script>
 </body></html>

@@ -106,6 +106,26 @@ If you copy and paste those functions to your Bitlash, you can open the "push.ht
 
 	http://localhost:3000/push.html
 
+## Listening for control updates
+
+You can implement side-effects (like playing sounds or updating secondary controls) by listening for control updates.  
+
+The push example in the file public/push.html shows event listeners in use:
+
+	var Panel = new ControlPanel({color:'turquoise'})
+		.addButton({id:'millis', x:100, y:100, w:250, text:'millis', script:'print millis'})
+		.addButton({id:'clock',  x:100, y:180, w:250, text:'clock', script:''})
+		.addButton({id:'clock2', x:100, y:260, w:250, text:'clock2', script:''});
+
+	Panel.controls['millis'].on('update', function(data) {
+		Panel.controls['clock'].setValue(data.value);
+	});
+
+	Panel.controls['clock'].on('update', function(data) {
+		Panel.controls['clock2'].setValue(data.value);
+	});
+
+
 
 ## To Do / Bugs
 
@@ -115,9 +135,6 @@ If you copy and paste those functions to your Bitlash, you can open the "push.ht
 - remove reply handler infra
 
 - redraw()?
-- button.attr() and slider.attr()
-	- iterates across subelements
-	- svg group?
 
 - button
 	- BUG: no display indication that a repeat button is repeating
@@ -132,11 +149,13 @@ If you copy and paste those functions to your Bitlash, you can open the "push.ht
 
 - doc:
 	- big picture system data flow
-	- button.on(), slider.on()
 	- panel options
 		- channel
 	- button and slider options	
 	- link to Commander on bitlash.net
+	- button.attr() and slider.attr()
+		- iterates across subelements
+		- svg group?
 
 - detect serial port closure and reconnect
 	- reconnect button

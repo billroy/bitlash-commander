@@ -175,6 +175,11 @@ Button.prototype = {
 
 		return this;
 	},
+	
+	attr: function(attrs) {
+		this.elt.attr(attrs);
+		//this.label.attr(attrs);
+	},
 
 	handleClick: function(e) {
 		if (this.repeat) {
@@ -307,6 +312,14 @@ Slider.prototype = {
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2});
 
 		return this;
+	},
+
+	attr: function(attrs) {
+		this.outerrect.attr(attrs);
+		this.bar.attr(attrs);
+		this.slide.attr(attrs);
+		this.label.attr(attrs);
+		this.readout.attr(attrs);
 	},
 
 	dragStart: function(x, y, event) {
