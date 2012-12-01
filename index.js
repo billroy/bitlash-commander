@@ -89,6 +89,21 @@ var bitlash = new Bitlash.Bitlash({
 
 //////////
 //
+//	Initialize the Redis Store for Socket.io, if needed
+//
+var redis_url = process.env.REDISTOGO_URL || argv.redis || undefined;
+var redis_pub, redis_sub, redis_client, RedisStore;
+if (redis_url) {
+	self.log("Connecting to Redis at " + redis_url);
+	var redis_url = require('redis-url');
+	redis_pub = redis-url.connect(redis_url);
+	redis_sub = redis-url.connect(redis_url);
+	redis_client = redis-url.connect(redis_url);
+	RedisStore = require('socket.io/lib/stores/redis');
+}
+
+//////////
+//
 //	Initialize Socket.io
 //
 // for heroku,
@@ -97,6 +112,10 @@ if (1 || heroku) {
 	io.configure(function () { 
 		io.set("transports", ["xhr-polling"]); 
 		io.set("polling duration", 10); 
+		if (RedisStore) {
+			console.log('Starting RedisStore');
+			io.set('store', new RedisStore({redisPub: redis_pub, redisSub: redis_sub, redisClient: redis_client}));
+		}
 	});
 }
 io.set('log level', 1);

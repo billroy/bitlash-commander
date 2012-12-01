@@ -15,7 +15,8 @@
 		"request": ">=2.12.0",
 		"socket.io": ">=0.9.11",
 		"shelljs": ">=0.0.8",
-		"serialport": ">=1.0.8"
+		"serialport": ">=1.0.8",
+		"redis-url": ">=0.1.0"
 	},
 	"engines": {
 		"node": "0.8.x",
