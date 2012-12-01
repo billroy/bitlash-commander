@@ -45,7 +45,7 @@ ControlPanel.prototype = {
 
 	attr: function(attrs) {
 		this.face.attr(attrs);
-		this.logo.attr(attrs);
+		//this.logo.attr(attrs);
 		for (var id in this.controls) this.controls[id].attr(attrs);
 	},
 
@@ -89,6 +89,7 @@ ControlPanel.prototype = {
 		options.parent = this;
 		var button = new Button(options);
 		this.controls[button.id] = button;
+		if (button.autorun) button.handleClick();
 		return this;
 	},
 
@@ -96,6 +97,14 @@ ControlPanel.prototype = {
 		options.parent = this;
 		var slider = new Slider(options);
 		this.controls[slider.id] = slider;
+		return this;
+	},
+
+	addChart: function(options) {
+		options.parent = this;
+		var chart = new Chart(options);
+		this.controls[chart.id] = chart;
+		if (chart.autorun) chart.handleClick();
 		return this;
 	},
 
@@ -141,7 +150,8 @@ Button.prototype = {
 		this.running = 0;
 		this.corner = options.corner || this.parent.button_corner;
 		this.shape = options.shape || '';	// default to rectangle
-		this.r = options.r || undefined;
+		this.r = options.r || this.w/2;
+		this.autorun = options.autorun || false;
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
@@ -200,13 +210,18 @@ Button.prototype = {
 		}
 		else this.exec();
 
-		e.preventDefault();
-		e.stopPropagation();
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
 		return false;
 	},
 
 	exec: function() {
-		if (!this.script) return;
+		if (!this.script) {
+			this.setValue(!this.value);		// unscripted buttons toggle and gossip
+			return;
+		}
 		var cmd = Mustache.render(this.script, this);
 		console.log('button exec:', cmd);
 		var self = this;
@@ -394,6 +409,207 @@ Slider.prototype = {
 		if (!listeners) return;
 		for (var i=0; i<listeners.length; i++) {
 			var func = listeners[i];
+			func(data);
+		}
+	}	
+}
+
+
+//////////
+//
+//	Chart control
+//
+function Chart(options) {
+	return this.init(options || {});
+}
+
+Chart.prototype = {
+
+	init: function(options) {
+		this.parent = options.parent;
+		this.id = options.id || 'Chart' + this.parent.next_id++;
+		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
+		this.x = this.parent.x + (options.x || 50);
+		this.y = this.parent.y + (options.y || 50);
+		this.w = options.w || 250;
+		this.h = options.h || 100;
+		this.text = options.text || 'Untitled';
+		this.script = options.script || '';
+		this.fill = options.fill || 'black';
+		this.fill_highlight = options.fill_highlight || 'white';
+		this.stroke = options.stroke || this.parent.color;
+		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
+		this.fontsize = options.fontsize || 20;
+		this.repeat = options.repeat || 0;
+		this.running = 0;
+		this.corner = options.corner || this.parent.Chart_corner;
+		this.shape = options.shape || '';	// default to rectangle
+		this.r = options.r || this.w/2;
+		this.autorun = options.autorun || false;
+
+		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
+
+		this.target = options.target || this.id;
+		this.render();		// render D3 chart
+		return this;
+	},
+	
+	render: function() {
+
+		//var margin = {top: 20, right: 80, bottom: 30, left: 50};
+		//var width = 960 - margin.left - margin.right;
+		//var height = 500 - margin.top - margin.bottom;
+		var margin = {top: 5, right: 5, bottom: 5, left: 5};
+		var width = this.w;
+		var height = this.h;
+
+		var x = d3.scale.linear().range([0, width]);
+		var y = d3.scale.linear().range([height, 0]);
+		var color = d3.scale.category10();
+		var xAxis = d3.svg.axis().scale(x).orient('bottom');
+		var yAxis = d3.svg.axis().scale(y).orient('left');
+
+		var line = d3.svg.line().interpolate('basis')
+				.x(function(d) { return x(d.time); })
+				.y(function(d) { return y(d.value); });
+
+		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.parent.button_corner)
+			.attr({fill: this.fill, stroke: this.stroke});
+
+		this.svg = d3.select(this.parent.paper.canvas).append('g')
+				.attr('width', width + margin.left + margin.right)
+				.attr('height', height + margin.top + margin.bottom)
+			.append('g')
+				.attr('transform', 'translate(' + (this.x+margin.left) + ',' + (this.y+margin.top) + ')');
+
+		var self = this;
+		d3.json('d3/' + this.target, function(data) {
+
+console.log('d3:', typeof data, data);
+
+			color.domain(d3.keys(data[0]).filter(function(key) { return key !== 'time'; }));
+			var values = color.domain().map(function(name) {
+				return {
+					name: name,
+					values: data.map(function(d) {
+						return {time: d.time, value: +d[name]};
+					})
+				};
+			});
+		
+			x.domain(d3.extent(data, function(d) { return d.time; }));
+			y.domain([
+				d3.min(values, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
+				d3.max(values, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
+			]);
+		
+			self.svg.append('g')
+					.attr('class', 'x axis')
+					.attr('transform', 'translate(0,' + height + ')')
+					.style('stroke', this.stroke)
+					.style('fill', this.stroke)
+//					.attr('stroke', this.stroke)
+//					.attr('fill', this.fill)
+					.call(xAxis);
+		
+			self.svg.append('g')
+					.attr('class', 'y axis')
+					.call(yAxis)
+				.append('text')
+					.attr('transform', 'rotate(-90)')
+					.attr('y', 6)
+					.attr('dy', '.71em')
+					.style('text-anchor', 'end')
+					.text(' ');
+		
+			var value = self.svg.selectAll('.value')
+					.data(values)
+				.enter().append('g')
+					.attr('class', 'value');
+		
+			value.append('path')
+					.attr('class', 'line')
+					.attr('d', function(d) { return line(d.values); })
+					.style('stroke', function(d) { return color(d.name); });
+		
+			value.append('text')
+					.datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+					.attr('transform', function(d) { return 'translate(' + x(d.value.time) + ',' + y(d.value.value) + ')'; })
+					.attr('x', 3)
+					.attr('dy', '.35em')
+					.text(function(d) { return d.name; });
+		});
+	},
+	
+	handleClick: function(e) {
+		if (this.repeat) {
+			if (this.running) {
+				this.running = false;
+				clearInterval(this.intervalid);
+				delete this.intervalid;
+			} else {
+				this.running = true;
+				this.exec();
+			}
+		}
+		else this.exec();
+
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		return false;
+	},
+
+	exec: function() {
+		if (!this.script) {
+			return;
+		}
+		var cmd = Mustache.render(this.script, this);
+		console.log('Chart exec:', cmd);
+		var self = this;
+		var reply_handler = function(reply) { self.handleReply.call(self, reply); };
+		this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id}, reply_handler);
+
+		if (this.repeat && !this.intervalid) {
+			var self = this;
+			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
+		}
+	},
+
+	handleReply: function(reply) {
+		console.log("UNEXPECTED REPLY");
+/*
+		if (reply === undefined) return;
+		this.reply = reply.trim();
+		if (this.reply.length == 0) return;
+		this.setValue(this.reply);
+		var update = {id: this.id, value: this.value};
+		this.parent.sendUpdate('update', update);
+		this.fire('update', update);
+*/
+	},
+	
+	setValue: function(value) {
+		this.value = value;
+		this.label.attr({text: this.text + ': ' + this.value});
+		var update = {id: this.id, value: this.value};
+		this.fire('update', update);
+	},
+
+	on: function(eventname, listener) {
+		if (!this.listeners[eventname]) this.listeners[eventname] = [];
+		this.listeners[eventname].push(listener);
+		//console.log('On:', this.id, this.listeners.length, this.listeners);
+	},
+
+	fire: function(eventname, data) {
+		var listeners = this.listeners[eventname];
+		//console.log('listeners:', listeners);
+		if (!listeners) return;
+		for (var i=0; i<listeners.length; i++) {
+			var func = listeners[i];
+			//console.log('firing listener', i, data);
 			func(data);
 		}
 	}	

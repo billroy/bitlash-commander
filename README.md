@@ -4,6 +4,13 @@ Bitlash Commander is a node.js web interface toolkit for Arduino.  It serves a w
 
 ![screenshot](https://raw.github.com/billroy/bitlash-commander/master/screenshot.png)
 
+Here is an overview of the architecture of Bitlash Commander:
+
+![architecture](https://raw.github.com/billroy/bitlash-commander/master/public/images/commander-architecture.png)
+
+The PC Serving and PC Viewing can be, and usually are, on the same PC; the server requires very modest system resources.
+
+
 ## Install: Arduino
 
 You need to upload Bitlash to the Arduino.  Install Bitlash (see https://github.com/billroy/bitlash/wiki/install) , then (after restarting the Arduino IDE), connect your arduino and perform these commands in the Arduino IDE:
@@ -145,6 +152,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- pinmode / startup script / functions on bitlash
 	- initial control values
 	- or is it just another button?
+		script limit 80 chars
 	- auto-run specified buttons at startup
 
 - doc:
@@ -152,6 +160,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- panel options
 		- channel
 	- button and slider options	
+		- autorun
 	- link to Commander on bitlash.net
 	- button.attr() and slider.attr()
 		- iterates across subelements
@@ -167,6 +176,9 @@ The push example in the file public/push.html shows event listeners in use:
 	- scrolling text panel
 
 - revisit default sizes as % parent width/height
+
+- better {{}} object for templates
+	- date and time
 
 - edit mode
 	- edit mode toggle

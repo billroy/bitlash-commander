@@ -5,8 +5,7 @@
 	<script type='text/javascript' src='js/jquery-1.8.2.min.js'></script>
 	<script type='text/javascript' src='/js/fastclick.js'></script>
 	<script type='text/javascript' src='/js/raphael.js'></script>
-	<script type='text/javascript' src='/js/g.raphael-min.js'></script>
-	<script type='text/javascript' src='/js/g.line-min.js'></script>
+	<script type='text/javascript' src='/js/d3.v2.min.js'></script>
 	<script type='text/javascript' src='js/mustache.js'></script>
 	<script type='text/javascript' src='/socket.io/socket.io.js'></script>
 	<script type='text/javascript' src='/js/svg-controls.js'></script>
@@ -18,7 +17,7 @@ $(document).ready(function() {
 
 	document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
 	
-	var Panel = new ControlPanel({color:'turquoise'})
+	var Panel = new ControlPanel({color:'turquoise', fill:'white'})
 		.addButton({x:100, y:100, text:'Toggle2', script:'d2=!d2;print d2'})
 		.addButton({x:100, y:180, text:'Toggle4', script:'d4=!d4;print d4'})
 		.addButton({x:100, y:260, text:'Toggle7', script:'d7=!d7;print d7'})
@@ -26,7 +25,7 @@ $(document).ready(function() {
 		.addButton({x:100, y:420, text:'Toggle12', script:'d12=!d12;print d12'})
 		.addButton({x:100, y:500, text:'Blink13', script:'d13=!d13;print d13', repeat:1000})
 		
-		.addButton({x:350, y:400, text:'a0', script:'print a0', repeat:125})
+		.addButton({x:350, y:400, text:'a0', script:'print a0', id:'a0', repeat:125})
 		.addButton({x:500, y:400, text:'a1', script:'print a1'})
 		.addButton({x:650, y:400, text:'a2', script:'print a2'})
 		.addButton({x:800, y:400, text:'a3', script:'print a3'})
@@ -36,12 +35,20 @@ $(document).ready(function() {
 		.addButton({x:650, y:480, text:'a6', script:'print a6'})
 		.addButton({x:800, y:480, text:'a7', script:'print a7'})
 
-		.addSlider({x:350,y:100,text:'PWM3',script:'a3={{value}};print {{value}}'})
-		.addSlider({x:450,y:100,text:'PWM5',script:'a5={{value}};print {{value}}'})
-		.addSlider({x:550,y:100,text:'PWM6',script:'a6={{value}};print {{value}}'})
-		.addSlider({x:650,y:100,text:'PWM9',script:'a9={{value}};print {{value}}'})
-		.addSlider({x:750,y:100,text:'PWM10',script:'a10={{value}};print {{value}}'})
-		.addSlider({x:850,y:100,text:'PWM11',script:'a11={{value}};print {{value}}'});
+		.addSlider({x:350, y:100, text:'PWM3', script:'a3={{value}};print {{value}}'})
+		.addSlider({x:450, y:100, text:'PWM5', script:'a5={{value}};print {{value}}'})
+		.addSlider({x:550, y:100, text:'PWM6', script:'a6={{value}};print {{value}}'})
+		.addSlider({x:650, y:100, text:'PWM9', script:'a9={{value}};print {{value}}'})
+		.addSlider({x:750, y:100, text:'PWM10', script:'a10={{value}};print {{value}}'})
+		.addSlider({x:850, y:100, text:'PWM11', script:'a11={{value}};print {{value}}'})
+
+		.addChart({id:'chart-a0', x:1000, y:100, text:'Chart', script:'print random(1000)',
+			target: '$random',	// id of control whose data we chart
+			autorun: false,
+			repeat: 500,
+			redraw: 5000
+		});
+
 
 }); 	// document.ready
 </script>

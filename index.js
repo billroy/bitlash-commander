@@ -1,5 +1,5 @@
 //
-// index.js: run the arduino commander server
+// index.js: Run the Bitlash Commander server
 //
 //	Copyright 2012 Bill Roy (MIT License; see LICENSE file)
 //
@@ -35,29 +35,32 @@ app.get('/', function(req, res) {
 	res.sendfile(__dirname + '/public/index.html');
 });
 
-app.get('/datacache', function(req, res) {
+app.get('/data', function(req, res) {
 	res.send(data_cache);
 });
 
-app.get('/data/:id', function(req, res) {
-	res.send(data_cache[req.params.id]);
+app.get('/d3/:id', function(req, res) {
+	console.log('D3Get:', req.params.id, data_cache);
+	var output = []; 			// array of {time:23432, value:dsjklfjsd}
+	if (data_cache[req.params.id]) {
+		var data = data_cache[req.params.id];
+		for (var i=0; i<data.length; i++) {
+			var point = {time: data[i].time};
+			point[req.params.id] = data[i].value;
+			output.push(point);
+		}
+	}
+	else if (req.params.id == '$random') {
+		for (var i=0; i<100; i++) {
+			var point = {time: i};
+			point[req.params.id] = Math.floor(Math.random()*1000);
+			output.push(point);
+		}
+	}
+	console.log('D3Out:', output);
+	res.send(output);
 });
 
-app.get('/charts', function(req, res) {
-	var charts = {};
-	for (var id in data_cache) {
-		var times = [];
-		var values = [];
-		var data = data_cache[id];
-		if (data.length < 3) continue;
-		for (var i=0; i<data.length; i++) {
-			times.push(data[i].time);
-			values.push(data[i].value);		
-		}
-		charts[id] = {times: times, values:values};
-	}
-	res.send(charts);
-});
 server.listen(port);
 
 //////////

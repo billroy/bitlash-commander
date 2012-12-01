@@ -17,30 +17,25 @@
 $(document).ready(function() {
 
 	document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
+	
+	var Panel = new ControlPanel({title:'Buttons!', color:'turquoise'});
 
-	// open a Panel with a channel specifier ('panic') to segregate update traffic
-	var Panel = new ControlPanel({title: "Don't Panic!", color: 'white', channel:'panic'});
-
-	Panel.addButton({
-		id: 'panic',
-		x: Panel.x + Panel.w/2, 
-		y: Panel.y + Panel.h/2,
-		text: 'PANIC',
-		shape: 'circle',
-		r: Panel.h/3, 
-		fontsize: 36,
-		script: 'r=!r; if r print "RED ALERT"; else print "ALL CLEAR";'
-	});
-
-	var panicbutton = Panel.controls['panic.panic'];	// mind the channel.control syntax
-	panicbutton.on('update', function(data) {
-		var color;
-		if (data.value == 'RED ALERT') color = 'red';
-		else color = panicbutton.parent.fill;
-		panicbutton.attr({fill: color});
-		//Panel.attr({fill: color});
-	});
+		var bx;
+		var bw = 50;
+		var bm = 10;
+		var by = 100;
+		var bh = 50;
+		var count = 1;
 		
+		while ((by + bh + bm) < (Panel.y + Panel.h)) {
+			bx = Panel.x + bm;
+			while ((bx + bw + bm) < (Panel.x + Panel.w)) {
+				Panel.addButton({x:bx, y:by, w: bw, h: bh, stroke: Raphael.getColor(), text:''+ count++})
+				bx += (bw + bm);
+			}
+			by += (bh + bm);
+		}
+
 }); 	// document.ready
 </script>
 </body></html>
