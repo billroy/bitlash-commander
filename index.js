@@ -5,6 +5,7 @@
 //
 
 var opt = require('optimist');
+var url = require('url');
 var argv = opt.usage('Usage: $0 [flags]')
 	.alias('p', 'port')
 	.describe('p', 'port for the http server')
@@ -94,13 +95,19 @@ var bitlash = new Bitlash.Bitlash({
 //	Initialize the Redis Store for Socket.io, if needed
 //
 var redis_url = process.env.REDISTOGO_URL || argv.redis || undefined;
-var redis_pub, redis_sub, redis_client, RedisStore, RedisURL;
+var redis, redis_pub, redis_sub, redis_client, RedisStore, RedisURL;
 if (redis_url) {
-	console.log("Connecting to Redis at " + redis_url);
-	RedisURL = require('redis-url');
-	redis_pub = RedisURL.connect(redis_url);
-	redis_sub = RedisURL.connect(redis_url);
-	redis_client = RedisURL.connect(redis_url);
+	var parsed_url = url.parse(redis_url);
+	console.log('Connecting to Redis at:', redis_url, parsed_url, parsed_url.auth.split(":")[1]);
+	redis = require('redis');
+	redis_pub = redis.createClient(parsed_url.port, parsed_url.hostname);
+	redis_sub = redis.createClient(parsed_url.port, parsed_url.hostname);
+	redis_client = redis.createClient(parsed_url.port, parsed_url.hostname);
+
+	redis_pub.auth(parsed_url.auth.split(':')[1]);
+	redis_sub.auth(parsed_url.auth.split(':')[1]);
+	redis_client.auth(parsed_url.auth.split(':')[1]);
+
 	RedisStore = require('socket.io/lib/stores/redis');
 }
 
@@ -112,11 +119,11 @@ if (redis_url) {
 // per https://devcenter.heroku.com/articles/using-socket-io-with-node-js-on-heroku
 if (1 || heroku) {
 	io.configure(function () { 
-		io.set("transports", ["xhr-polling"]); 
-		io.set("polling duration", 10); 
+		io.set('transports', ['xhr-polling']); 
+		io.set('polling duration', 10); 
 		if (RedisStore) {
 			console.log('Starting RedisStore');
-			io.set('store', new RedisStore({redisPub: redis_pub, redisSub: redis_sub, redisClient: redis_client}));
+			io.set('store', new RedisStore({redis: redis, redisPub: redis_pub, redisSub: redis_sub, redisClient: redis_client}));
 		}
 	});
 }
