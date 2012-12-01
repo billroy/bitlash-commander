@@ -449,6 +449,7 @@ Chart.prototype = {
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
+		this.ticks = options.ticks || 5;
 		this.target = options.target || this.id;
 		this.refresh = options.refresh || 0;
 		this.render();		// render D3 chart
@@ -472,15 +473,21 @@ Chart.prototype = {
 		var x = d3.scale.linear().range([0, width]);
 		var y = d3.scale.linear().range([height, 0]);
 		var color = d3.scale.category10();
-		var xAxis = d3.svg.axis().scale(x).orient('bottom');
-		var yAxis = d3.svg.axis().scale(y).orient('left');
+		var xAxis = d3.svg.axis().scale(x).ticks(this.ticks).orient('bottom');
+		var yAxis = d3.svg.axis().scale(y).ticks(this.ticks).orient('left');
 
 		var line = d3.svg.line().interpolate('basis')
 				.x(function(d) { return x(d.time); })
 				.y(function(d) { return y(d.value); });
 
-//		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.parent.button_corner)
-//			.attr({fill: this.fill, stroke: this.stroke, 'stroke-width':this.parent.control_stroke});
+		var self = this;
+		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.parent.button_corner)
+			.attr({fill: this.fill, stroke: this.stroke, 'stroke-width':this.parent.control_stroke})
+			.click(function() { self.redraw(); });
+
+		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize*2, this.text)
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+			.click(function() { self.redraw(); });
 
 		this.svg = d3.select(this.parent.paper.canvas).append('g')
 				.attr('width', width + margin.left + margin.right)
@@ -488,7 +495,6 @@ Chart.prototype = {
 			.append('g')
 				.attr('transform', 'translate(' + (this.x+margin.left) + ',' + (this.y+margin.top) + ')');
 
-		var self = this;
 		d3.json('d3/' + this.target, function(data) {
 
 			// console.log('d3:', typeof data, data);
@@ -613,7 +619,7 @@ Chart.prototype = {
 	
 	setValue: function(value) {
 		this.value = value;
-		this.label.attr({text: this.text + ': ' + this.value});
+		//this.label.attr({text: this.text + ': ' + this.value});
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
 	},

@@ -40,7 +40,7 @@ app.get('/data', function(req, res) {
 });
 
 app.get('/d3/:id', function(req, res) {
-	console.log('D3Get:', req.params.id, data_cache);
+	//console.log('D3Get:', req.params.id, data_cache);
 	var output = []; 			// array of {time:23432, value:dsjklfjsd}
 	if (data_cache[req.params.id]) {
 		var data = data_cache[req.params.id];
@@ -57,7 +57,7 @@ app.get('/d3/:id', function(req, res) {
 			output.push(point);
 		}
 	}
-	console.log('D3Out:', output);
+	//console.log('D3Out:', output);
 	res.send(output);
 });
 

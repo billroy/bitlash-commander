@@ -17,7 +17,7 @@ $(document).ready(function() {
 
 	//document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
 	
-	var Panel = new ControlPanel({color:'turquoise'})
+	var Panel = new ControlPanel({color:'yellow'})
 		.addButton({x:100, y:100, text:'Toggle2', script:'d2=!d2;print d2'})
 		.addButton({x:100, y:180, text:'Toggle4', script:'d4=!d4;print d4'})
 		.addButton({x:100, y:260, text:'Toggle7', script:'d7=!d7;print d7'})
@@ -43,16 +43,18 @@ $(document).ready(function() {
 		.addSlider({x:850, y:100, text:'PWM11', script:'a11={{value}};print {{value}}'})
 
 		.addChart({id:'chart-a0', x:1000, y:100, text:'Chart', script:'print random(1000)',
+			text: 'random(1000)',
 			target: '$random',	// id of control whose data we chart
 			autorun: false,
 			//repeat: 500,
-			refresh: 3000
+			refresh: 0
 		})
 		.addChart({id:'chart-a1', x:1000, y:350, text:'Chart', script:'print random(1000)',
-			target: 'a0',	// id of control whose data we chart
-			autorun: false,
+			target: 'chart-a1',	// id of control whose data we chart
+			text: 'a0',
+			//autorun: true,
 			//repeat: 500,
-			refresh: 5000
+			refresh: 0
 		});
 
 }); 	// document.ready

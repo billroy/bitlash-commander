@@ -137,23 +137,27 @@ The push example in the file public/push.html shows event listeners in use:
 ## To Do / Bugs
 
 - chart control
-	- own data source
 		- data source periodic run 
-			- where to display replies?
-			- live on the chart?
-		- repeat: chart redraw
-		- autorun
+		- click to run (data source vs. chart update)
+		- where to display replies?
+		- chart label
+			- centered under chart
+		- time axis values ick
+		- y axis min/max options
+		- multiple data sources [a0,d1,random(100)]
+			- best handled with push to the control id
+			- control can ignore the update or note it to trigger refresh
 
+- BUG: index.html canvas is not wide enough for iPad/iPhone
 
 - BUG: reply_handler race between bitlash.exec() and reply firing
 	- still happens under load
 
 - remove reply handler infra
 
-- redraw()?
-
 - button
 	- BUG: no display indication that a repeat button is repeating
+	- invisible button for setup
 
 - BUG: click on text of repeating button doesn't stop it
 
@@ -180,9 +184,15 @@ The push example in the file public/push.html shows event listeners in use:
 - detect socket.io port closure and reconnect
 
 - controls
-	- chart
 	- LED bargraph
 	- scrolling text panel
+	- knob
+	- redlight
+
+- examples
+	- trafficlight
+	- elevator
+	- security alarm system
 
 - revisit default sizes as % parent width/height
 
@@ -206,5 +216,3 @@ The push example in the file public/push.html shows event listeners in use:
 - sound
 	- remote doorbell
 	- lunch bell
-
-- examples
