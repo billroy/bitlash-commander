@@ -136,6 +136,15 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+- chart control
+	- own data source
+		- data source periodic run 
+			- where to display replies?
+			- live on the chart?
+		- repeat: chart redraw
+		- autorun
+
+
 - BUG: reply_handler race between bitlash.exec() and reply firing
 	- still happens under load
 

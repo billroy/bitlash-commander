@@ -431,8 +431,8 @@ Chart.prototype = {
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
 		this.x = this.parent.x + (options.x || 50);
 		this.y = this.parent.y + (options.y || 50);
-		this.w = options.w || 250;
-		this.h = options.h || 100;
+		this.w = options.w || 300;
+		this.h = options.h || 150;
 		this.text = options.text || 'Untitled';
 		this.script = options.script || '';
 		this.fill = options.fill || 'black';
@@ -450,7 +450,11 @@ Chart.prototype = {
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
 		this.target = options.target || this.id;
+		this.refresh = options.refresh || 0;
 		this.render();		// render D3 chart
+		
+		var self = this;
+		if (this.refresh) setInterval(function() { self.redraw.call(self); }, this.refresh);
 		return this;
 	},
 	
@@ -459,9 +463,11 @@ Chart.prototype = {
 		//var margin = {top: 20, right: 80, bottom: 30, left: 50};
 		//var width = 960 - margin.left - margin.right;
 		//var height = 500 - margin.top - margin.bottom;
-		var margin = {top: 5, right: 5, bottom: 5, left: 5};
-		var width = this.w;
-		var height = this.h;
+		//var margin = {top: 5, right: 5, bottom: 5, left: 5};
+
+		var margin = {top: 0, right: 0, bottom: 0, left: 0};
+		var width = this.w - margin.left - margin.right;
+		var height = this.h - margin.top - margin.bottom;
 
 		var x = d3.scale.linear().range([0, width]);
 		var y = d3.scale.linear().range([height, 0]);
@@ -473,8 +479,8 @@ Chart.prototype = {
 				.x(function(d) { return x(d.time); })
 				.y(function(d) { return y(d.value); });
 
-		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.parent.button_corner)
-			.attr({fill: this.fill, stroke: this.stroke});
+//		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.parent.button_corner)
+//			.attr({fill: this.fill, stroke: this.stroke, 'stroke-width':this.parent.control_stroke});
 
 		this.svg = d3.select(this.parent.paper.canvas).append('g')
 				.attr('width', width + margin.left + margin.right)
@@ -485,7 +491,7 @@ Chart.prototype = {
 		var self = this;
 		d3.json('d3/' + this.target, function(data) {
 
-console.log('d3:', typeof data, data);
+			// console.log('d3:', typeof data, data);
 
 			color.domain(d3.keys(data[0]).filter(function(key) { return key !== 'time'; }));
 			var values = color.domain().map(function(name) {
@@ -506,22 +512,25 @@ console.log('d3:', typeof data, data);
 			self.svg.append('g')
 					.attr('class', 'x axis')
 					.attr('transform', 'translate(0,' + height + ')')
-					.style('stroke', this.stroke)
-					.style('fill', this.stroke)
-//					.attr('stroke', this.stroke)
-//					.attr('fill', this.fill)
+					.attr('stroke', self.stroke)
+					.attr('fill', self.stroke)
 					.call(xAxis);
 		
 			self.svg.append('g')
 					.attr('class', 'y axis')
+					.attr('stroke', self.stroke)
+					.attr('fill', self.stroke)
 					.call(yAxis)
+/* y axis label
 				.append('text')
 					.attr('transform', 'rotate(-90)')
 					.attr('y', 6)
 					.attr('dy', '.71em')
 					.style('text-anchor', 'end')
+					.attr('stroke', self.stroke)
+					.attr('fill', self.stroke)
 					.text(' ');
-		
+*/		
 			var value = self.svg.selectAll('.value')
 					.data(values)
 				.enter().append('g')
@@ -530,17 +539,29 @@ console.log('d3:', typeof data, data);
 			value.append('path')
 					.attr('class', 'line')
 					.attr('d', function(d) { return line(d.values); })
-					.style('stroke', function(d) { return color(d.name); });
+					.style('stroke', function(d) { return color(d.name); })
+					.style('stroke-width', self['stroke-width']);
 		
 			value.append('text')
 					.datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
 					.attr('transform', function(d) { return 'translate(' + x(d.value.time) + ',' + y(d.value.value) + ')'; })
 					.attr('x', 3)
 					.attr('dy', '.35em')
+					.attr('stroke', self.stroke)
+					.attr('fill', self.stroke)
 					.text(function(d) { return d.name; });
 		});
 	},
-	
+
+	redraw: function() {
+		if (this.svg) {
+			var doomed_svg = this.svg;
+			delete this.svg;
+			this.render();
+			doomed_svg.remove();
+		}
+	},
+
 	handleClick: function(e) {
 		if (this.repeat) {
 			if (this.running) {
