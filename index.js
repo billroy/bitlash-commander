@@ -10,6 +10,8 @@ var argv = opt.usage('Usage: $0 [flags]')
 	.describe('p', 'port for the http server')
 	.alias('s', 'serialport')
 	.describe('s', 'port for usbserial arduino connection')
+	.alias('r', 'redis')
+	.describe('r', 'redis server url in redis-url format')
 	.argv;
 
 if (argv.help) {
@@ -92,13 +94,13 @@ var bitlash = new Bitlash.Bitlash({
 //	Initialize the Redis Store for Socket.io, if needed
 //
 var redis_url = process.env.REDISTOGO_URL || argv.redis || undefined;
-var redis_pub, redis_sub, redis_client, RedisStore;
+var redis_pub, redis_sub, redis_client, RedisStore, RedisURL;
 if (redis_url) {
-	self.log("Connecting to Redis at " + redis_url);
-	var redis_url = require('redis-url');
-	redis_pub = redis-url.connect(redis_url);
-	redis_sub = redis-url.connect(redis_url);
-	redis_client = redis-url.connect(redis_url);
+	console.log("Connecting to Redis at " + redis_url);
+	RedisURL = require('redis-url');
+	redis_pub = RedisURL.connect(redis_url);
+	redis_sub = RedisURL.connect(redis_url);
+	redis_client = RedisURL.connect(redis_url);
 	RedisStore = require('socket.io/lib/stores/redis');
 }
 
