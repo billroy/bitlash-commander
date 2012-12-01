@@ -91,14 +91,14 @@ It is desirable to be able to update indicators on the control panel without act
 
 To update a control using the upstream JSON channel you must know the control's id.  The easiest way is to assign one when you create the button in the .html file.  In this example from public/push.html, the button has the id 'millis':
 
-	var Panel = new ControlPanel({color:'turquoise'})
-		.addButton({id:'millis', x:100, y:100, w:250, text:'millis'});
+	var Panel = new ControlPanel({color:'turquoise'});
+	Panel.addButton({id:'millis', x:100, y:100, w:250, text:'millis'});
 
 To update this control from Bitlash you would print a line of this form from a repeating background function:
 
 	{"id":"millis","value":"33861"}
 
-...where 'id' is the id of the control, millis in this case, and 'value' is the new value for the control.
+...where 'id' is the id of the control, "millis' in this case, and 'value' is the new value for the control.
 
 Here is a Bitlash utility function to properly format JSON output for any id and value.   Copy and paste this definition into your Bitlash so you can use it below:
 
@@ -119,10 +119,11 @@ You can implement side-effects (like playing sounds or updating secondary contro
 
 The push example in the file public/push.html shows event listeners in use:
 
-	var Panel = new ControlPanel({color:'turquoise'})
-		.addButton({id:'millis', x:100, y:100, w:250, text:'millis', script:'print millis'})
-		.addButton({id:'clock',  x:100, y:180, w:250, text:'clock', script:''})
-		.addButton({id:'clock2', x:100, y:260, w:250, text:'clock2', script:''});
+	var Panel = new ControlPanel({color:'turquoise'});
+
+	Panel.addButton({id:'millis', x:100, y:100, w:250, text:'millis', script:'print millis'})
+	Panel.addButton({id:'clock',  x:100, y:180, w:250, text:'clock', script:''})
+	Panel.addButton({id:'clock2', x:100, y:260, w:250, text:'clock2', script:''});
 
 	Panel.controls['millis'].on('update', function(data) {
 		Panel.controls['clock'].setValue(data.value);
@@ -147,6 +148,8 @@ The push example in the file public/push.html shows event listeners in use:
 		- multiple data sources [a0,d1,random(100)]
 			- best handled with push to the control id
 			- control can ignore the update or note it to trigger refresh
+
+- BUG: sounds only play once
 
 - BUG: index.html canvas is not wide enough for iPad/iPhone
 

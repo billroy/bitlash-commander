@@ -47,6 +47,7 @@ ControlPanel.prototype = {
 		this.face.attr(attrs);
 		//this.logo.attr(attrs);
 		for (var id in this.controls) this.controls[id].attr(attrs);
+		return this;
 	},
 
 	initSocketIO: function() {
@@ -90,14 +91,14 @@ ControlPanel.prototype = {
 		var button = new Button(options);
 		this.controls[button.id] = button;
 		if (button.autorun) button.handleClick();
-		return this;
+		return button;
 	},
 
 	addSlider: function(options) {
 		options.parent = this;
 		var slider = new Slider(options);
 		this.controls[slider.id] = slider;
-		return this;
+		return slider;
 	},
 
 	addChart: function(options) {
@@ -105,7 +106,7 @@ ControlPanel.prototype = {
 		var chart = new Chart(options);
 		this.controls[chart.id] = chart;
 		if (chart.autorun) chart.handleClick();
-		return this;
+		return chart;
 	},
 
 	reply_handlers: [],
@@ -187,7 +188,6 @@ Button.prototype = {
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});});	
 		}
-
 
 		return this;
 	},
@@ -460,11 +460,6 @@ Chart.prototype = {
 	},
 	
 	render: function() {
-
-		//var margin = {top: 20, right: 80, bottom: 30, left: 50};
-		//var width = 960 - margin.left - margin.right;
-		//var height = 500 - margin.top - margin.bottom;
-		//var margin = {top: 5, right: 5, bottom: 5, left: 5};
 
 		var margin = {top: 0, right: 0, bottom: 0, left: 0};
 		var width = this.w - margin.left - margin.right;
