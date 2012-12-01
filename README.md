@@ -149,7 +149,7 @@ The push example in the file public/push.html shows event listeners in use:
 			- best handled with push to the control id
 			- control can ignore the update or note it to trigger refresh
 
-- BUG: sounds only play once
+- redis/socket.io syndication experiment
 
 - BUG: index.html canvas is not wide enough for iPad/iPhone
 

@@ -17,7 +17,15 @@ if (argv.help) {
 	process.exit();
 } 
 
-var port = argv.port || 3000;
+var port;
+var heroku;
+if (argv.port) port = argv.port;
+else if (process && process.env && process.env.PORT) {
+	heroku = true;
+	port = process.env.PORT;
+}
+else port = 3000;
+
 
 var express = require('express');
 var app = express();
@@ -62,6 +70,7 @@ app.get('/d3/:id', function(req, res) {
 });
 
 server.listen(port);
+console.log('Listening on port ', port);
 
 //////////
 //
@@ -103,6 +112,16 @@ function addCache(id, value) {
 		value: value
 	});
 }
+
+// for heroku,
+// per https://devcenter.heroku.com/articles/using-socket-io-with-node-js-on-heroku
+if (heroku) {
+	io.configure(function () { 
+		io.set("transports", ["xhr-polling"]); 
+		io.set("polling duration", 10); 
+	});
+}
+io.set('log level', 1);
 
 io.sockets.on('connection', function (socket) {
 	console.log('Client connected via', socket.transport);
