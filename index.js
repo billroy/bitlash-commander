@@ -151,26 +151,29 @@ if (heroku) {
 }
 io.set('log level', 1);
 
+
+function executeBitlash(data) {
+	console.log('Exec:', data, typeof data, bitlash.ready);
+	if (bitlash.ready) {
+		bitlash.exec(data.cmd + '\n', function(reply) {
+			reply = reply.trim();
+			addCache(data.id, reply);
+			console.log('sending update:', reply);
+			data.value = reply;
+			io.sockets.emit('update', data);
+		});
+	}
+	else if (redis_url) io.sockets.emit('rexec', data);		// emit error here
+	else console.log('Busy, dropping:', data);
+}
+
+
 io.sockets.on('connection', function (socket) {
 	console.log('Client connected via', socket.transport);
-	socket.on('exec', function (data) {
-		console.log('Exec:', data, typeof data, bitlash.ready);
-		if (bitlash.ready) {
-			bitlash.exec(data.cmd + '\n', function(reply) {
-				reply = reply.trim();
-				addCache(data.id, reply);
-				console.log('sending reply:', reply);
-				//io.sockets.emit('reply', reply);
-				data.value = reply;
-				//delete data.cmd;
-				io.sockets.emit('update', data);
-			});
-		}
-		else io.sockets.emit('reply','ERROR');		// emit error here
-	});
+	socket.on('exec', executeBitlash);
+	socket.on('rexec', executeBitlash);
 	socket.on('update', function(data) {
-console.log('Update:', data);
-		//addCache(data.id, data.value);
+		console.log('Update????:', data);
 		socket.broadcast.emit('update', data);	// everyone but requester
 	});
 	socket.on('sync', function(data) {
@@ -179,7 +182,7 @@ console.log('Update:', data);
 			var datalist = data_cache[id];
 			if (datalist.length) response.push({id:id, value:datalist[datalist.length-1].value});
 		}
-console.log('Sync:', response);
+		//console.log('Sync:', response);
 		// only to requester
 		socket.emit('update', response);
 	});

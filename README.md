@@ -150,6 +150,8 @@ The push example in the file public/push.html shows event listeners in use:
 			- control can ignore the update or note it to trigger refresh
 
 - redis/socket.io syndication experiment
+	- if bitlash isn't ready, send an exec command via socket.io
+	- listeners with bitlash respond to exec
 
 - BUG: index.html canvas is not wide enough for iPad/iPhone
 
