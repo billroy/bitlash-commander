@@ -21,6 +21,7 @@ ControlPanel.prototype = {
 		this.y = options.y || ($(window).height() - this.h)/2;
 		this.color = options.color || 'greenyellow';
 		this.fill = options.fill || 'black';
+		this.fill_highlight = options.fill_highlight || 'white';
 		this.stroke = options.stroke || this.color;
 		this.face_corner = options.face_corner || 20;
 		this.button_corner = options.button_corner || 10;
@@ -36,9 +37,19 @@ ControlPanel.prototype = {
 		this.logo = this.paper.text(this.x + (this.w/2), this.y + 50, this.title)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': 36});
 
+		var self = this;
+		this.editbutton = this.paper.path('M25.31,2.872l-3.384-2.127c-0.854-0.536-1.979-0.278-2.517,0.576l-1.334,2.123l6.474,4.066l1.335-2.122C26.42,4.533,26.164,3.407,25.31,2.872zM6.555,21.786l6.474,4.066L23.581,9.054l-6.477-4.067L6.555,21.786zM5.566,26.952l-0.143,3.819l3.379-1.787l3.14-1.658l-6.246-3.925L5.566,26.952z')
+			.transform('T25,25')
+			.attr({fill:this.fill, stroke: this.stroke})
+			.click(function(e) { 
+				self.editing = !self.editing;
+				if (self.editing) self.editbutton.attr({fill:self.stroke, stroke:self.stroke});
+				else self.editbutton.attr({fill:self.fill, stroke: self.stroke});
+			});
+
 		this.controls = {};
 		this.next_id = 0;
-		this.editing = true;
+		this.editing = options.editing || false;
 		this.initSocketIO();
 		this.sync();
 		return this;
@@ -678,7 +689,8 @@ console.log('Drag start:', x, y, event);
 		console.log('move:',dx,dy,x,y,e);
 		this.outerrect.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
 		this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h + this.fontsize*2});
-		this.svg.attr({x:x - this.drag.xoff, y:y - this.drag.yoff});
+		this.svg.attr('x', x - this.drag.xoff);
+		this.svg.attr('y', y - this.drag.yoff);
 		return this.dragFinish(e);
 	},
 
