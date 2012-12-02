@@ -163,7 +163,7 @@ function executeBitlash(data) {
 			io.sockets.emit('update', data);
 		});
 	}
-	else if (redis_url) io.sockets.emit('rexec', data);		// emit error here
+	else if (heroku) io.sockets.emit('rexec', data);
 	else console.log('Busy, dropping:', data);
 }
 
