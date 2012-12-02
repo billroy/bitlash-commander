@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!-- Copyright 2012 by Bill Roy - MIT license - See LICENSE file -->
+<html><head>
+	<title>Color Lab</title>
+	<script type='text/javascript' src='js/jquery-1.8.2.min.js'></script>
+	<script type='text/javascript' src='/js/fastclick.js'></script>
+	<script type='text/javascript' src='/js/raphael.js'></script>
+	<script type='text/javascript' src='/js/d3.v2.min.js'></script>
+	<script type='text/javascript' src='js/mustache.js'></script>
+	<script type='text/javascript' src='/socket.io/socket.io.js'></script>
+	<script type='text/javascript' src='/js/svg-controls.js'></script>
+</head><body style='background:gray'>
+
+<script type='text/javascript' charset='utf8'>
+
+$(document).ready(function() {
+
+	document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
+	
+	var Panel = new ControlPanel({title:'Color Lab', color:'yellow'});
+
+	Panel.addSlider({x:350, y:100, id: 'fr', text:'Fill-Red', 	script:'print {{value}}'});
+	Panel.addSlider({x:450, y:100, id: 'fg', text:'Fill-Green',	script:'print {{value}}'});
+	Panel.addSlider({x:550, y:100, id: 'fb', text:'Fill-Blue', 	script:'print {{value}}'});
+	Panel.addSlider({x:650, y:100, id: 'sr', text:'Stroke-Red', script:'print {{value}}'});
+	Panel.addSlider({x:750, y:100, id: 'sg', text:'Stroke-Green', script:'print {{value}}'});
+	Panel.addSlider({x:850, y:100, id: 'sb', text:'Stroke-Blue', script:'print {{value}}'});
+
+	function hex(value) {
+		if (typeof value == 'string') value = parseInt(value);
+		if (typeof value == 'number') return value.toString(16);
+		return ''+value;
+	}
+
+	function getFill() {
+		var fill = ['#', 
+			hex(Panel.controls['fr'].value.toString(16)),
+			hex(Panel.controls['fg'].value.toString(16)),
+			hex(Panel.controls['fb'].value.toString(16))
+		].join('');
+		console.log('fill:', fill);
+		return fill
+	}
+
+	function getStroke() {
+		return ['#', 
+			hex(Panel.controls['sr'].value.toString(16)),
+			hex(Panel.controls['sg'].value.toString(16)),
+			hex(Panel.controls['sb'].value.toString(16))
+		].join('');
+	}
+
+	for (var id in Panel.controls) {
+		Panel.controls[id].on('update', function(data) {
+console.log('Upd:', data);
+			Panel.attr({stroke: getStroke()});
+		});
+	}
+}); 	// document.ready
+</script>
+</body></html>

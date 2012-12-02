@@ -141,8 +141,6 @@ The push example in the file public/push.html shows event listeners in use:
 		- data source periodic run 
 		- click to run (data source vs. chart update)
 		- where to display replies?
-		- chart label
-			- centered under chart
 		- time axis values ick
 		- y axis min/max options
 		- multiple data sources [a0,d1,random(100)]
@@ -152,6 +150,10 @@ The push example in the file public/push.html shows event listeners in use:
 - redis/socket.io syndication experiment
 	- if bitlash isn't ready, send an exec command via socket.io
 	- listeners with bitlash respond to exec
+	- need a way for the server to relay the answer to another server
+	- currently socket.io has no api for this even though the server handles the message
+
+- inherit from BaseControl before adding a lot of controls
 
 - BUG: index.html canvas is not wide enough for iPad/iPhone
 

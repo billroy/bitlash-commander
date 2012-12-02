@@ -398,6 +398,8 @@ Slider.prototype = {
 		this.readout.attr({text: ''+this.value});
 		var slidey = this.slideYPos();
 		this.slide.attr({y:slidey});
+		var update = {id: this.id, value: this.value};
+		this.fire('update', update);
 	},
 
 	on: function(eventname, listener) {
