@@ -163,7 +163,10 @@ function executeBitlash(data) {
 			io.sockets.emit('update', data);
 		});
 	}
-	else if (heroku) io.sockets.emit('rexec', data);
+	else if (heroku) {
+		console.log('Rexec:', data);
+		io.sockets.emit('rexec', data);
+	}
 	else console.log('Busy, dropping:', data);
 }
 
@@ -171,7 +174,10 @@ function executeBitlash(data) {
 io.sockets.on('connection', function (socket) {
 	console.log('Client connected via', socket.transport);
 	socket.on('exec', executeBitlash);
-	socket.on('rexec', executeBitlash);
+	socket.on('rexec', function(data) {
+		console.log('rexec:', data);
+		executeBitlash(data)
+	});
 	socket.on('update', function(data) {
 		console.log('Update????:', data);
 		socket.broadcast.emit('update', data);	// everyone but requester
