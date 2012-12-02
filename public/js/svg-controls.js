@@ -69,7 +69,7 @@ ControlPanel.prototype = {
 		});
 		this.socket.on('rexec', function(data) {
 			console.log('rexec:', data);
-			this.sendCommand('exec', data);
+			self.sendCommand('exec', data);		// ugly kludge, fixing...
 		});
 		this.socket.on('pong', function(data) {
 			var rtt = new Date().getTime() - data.timestamp;
@@ -235,9 +235,9 @@ Button.prototype = {
 		}
 	},
 
+/*
 	handleReply: function(reply) {
 		console.log("UNEXPECTED REPLY");
-/*
 		if (reply === undefined) return;
 		this.reply = reply.trim();
 		if (this.reply.length == 0) return;
@@ -245,8 +245,8 @@ Button.prototype = {
 		var update = {id: this.id, value: this.value};
 		this.parent.sendUpdate('update', update);
 		this.fire('update', update);
-*/
 	},
+*/
 	
 	setValue: function(value) {
 		this.value = value;
@@ -388,9 +388,9 @@ Slider.prototype = {
 		return Math.floor(this.y + this.h * (1.0 - fraction));
 	},
 
-	handleReply: function(reply) {		// reply is ignored for slider
-		this.parent.sendUpdate('update', {id: this.id, value: this.value});
-	},
+//	handleReply: function(reply) {		// reply is ignored for slider
+//		this.parent.sendUpdate('update', {id: this.id, value: this.value});
+//	},
 
 	setValue: function(value) {
 		if (this.dragging) return;	// be the boss: ignore updates while dragging
@@ -600,9 +600,9 @@ Chart.prototype = {
 		}
 	},
 
+/*
 	handleReply: function(reply) {
 		console.log("UNEXPECTED REPLY");
-/*
 		if (reply === undefined) return;
 		this.reply = reply.trim();
 		if (this.reply.length == 0) return;
@@ -610,8 +610,8 @@ Chart.prototype = {
 		var update = {id: this.id, value: this.value};
 		this.parent.sendUpdate('update', update);
 		this.fire('update', update);
-*/
 	},
+*/
 	
 	setValue: function(value) {
 		this.value = value;
