@@ -30,7 +30,8 @@ $(document).ready(function() {
 		shape: 'circle',
 		r: Panel.h/3, 
 		fontsize: 36,
-		script: 'r=!r; if r print "RED ALERT"; else print "ALL CLEAR";'
+		//script: 'r=!r; if r print "RED ALERT"; else print "ALL CLEAR";'
+		script: 'javascript: if (this.value=="RED ALERT") this.setValue("ALL CLEAR"); else this.setValue("RED ALERT");'
 	});
 
 	var panicbutton = Panel.controls['panic.panic'];	// mind the channel.control syntax

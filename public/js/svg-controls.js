@@ -227,8 +227,14 @@ console.log('Drag start:', x, y, event);
 		console.log('move:',dx,dy,x,y,e);
 		this.x = this.drag.x + dx;
 		this.y = this.drag.y + dy;
-		this.elt.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
-		this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h/2});
+		if (this.shape == 'circle') {
+			this.elt.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});
+			this.label.attr({x:x - this.drag.xoff, y:y - this.drag.yoff});
+		}
+		else {
+			this.elt.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
+			this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h/2});
+		}
 		return this.dragFinish(e);
 	},
 

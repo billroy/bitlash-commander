@@ -138,14 +138,14 @@ The push example in the file public/push.html shows event listeners in use:
 ## To Do / Bugs
 
 - chart control
-		- data source periodic run 
-		- click to run (data source vs. chart update)
-		- where to display replies?
-		- time axis values ick
-		- y axis min/max options
-		- multiple data sources [a0,d1,random(100)]
-			- best handled with push to the control id
-			- control can ignore the update or note it to trigger refresh
+	- data source periodic run 
+	- click to run (data source vs. chart update)
+	- where to display replies?
+	- time axis values ick
+	- y axis min/max options
+	- multiple data sources [a0,d1,random(100)]
+		- best handled with push to the control id
+		- control can ignore the update or note it to trigger refresh
 
 - redis/socket.io syndication experiment
 	- if bitlash isn't ready, send an exec command via socket.io
@@ -155,11 +155,8 @@ The push example in the file public/push.html shows event listeners in use:
 
 - inherit from BaseControl before adding a lot of controls
 
-- run javascript: scripts with 'this' set to owning control
-
 - dragging:
-	- slider: slide is in wrong place
-	- chart: svg doesn't move
+	- BUG: chart: svg doesn't move on drag
 
 - BUG: index.html canvas is not wide enough for iPad/iPhone
 
@@ -173,13 +170,6 @@ The push example in the file public/push.html shows event listeners in use:
 	- invisible button for setup
 
 - BUG: click on text of repeating button doesn't stop it
-
-- startup initialization
-	- pinmode / startup script / functions on bitlash
-	- initial control values
-	- or is it just another button?
-		script limit 80 chars
-	- auto-run specified buttons at startup
 
 - doc:
 	- big picture system data flow
@@ -211,13 +201,8 @@ The push example in the file public/push.html shows event listeners in use:
 
 - revisit default sizes as % parent width/height
 
-- better {{}} object for templates
-	- date and time
-
 - edit mode
-	- edit mode toggle
 	- new
-	- drag
 	- edit
 	- delete
 	- named control sets
