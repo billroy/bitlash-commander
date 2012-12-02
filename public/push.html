@@ -22,6 +22,7 @@ $(document).ready(function() {
 	Panel.addButton({id:'clock',  x:100, y:180, w:250, text:'clock', script:''});
 	Panel.addButton({id:'clock2', x:100, y:260, w:250, text:'clock2', script:''});
 	Panel.addButton({id:'alert',  x:100, y:340, w:250, text:'alert', script:'javascript:alert("hello");'});
+	Panel.addButton({id:'time', x:100, y:420, w:250, text:'time', script:'javascript:self.setValue(new Date());'});
 
 	Panel.controls['millis'].on('update', function(data) {
 		Panel.controls['clock'].setValue(data.value);

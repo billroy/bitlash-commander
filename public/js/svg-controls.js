@@ -275,7 +275,9 @@ console.log('Drag start:', x, y, event);
 
 		if (cmd.match(/^javascript\:/)) {			// javascript command
 			cmd = cmd.replace('javascript:', '');
-			eval(cmd);
+// huh?			var evaltext = 'var self=Panel.controls["' + this.id + '"];' + cmd;
+			console.log('Eval:', evaltext);
+			eval(evaltext);
 		}
 		else {										// bitlash command
 			var self = this;
