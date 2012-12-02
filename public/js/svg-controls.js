@@ -69,7 +69,7 @@ ControlPanel.prototype = {
 		});
 		this.socket.on('rexec', function(data) {
 			console.log('rexec:', data);
-			self.sendCommand('exec', data);		// ugly kludge, fixing...
+			//self.sendCommand('exec', data);		// ugly kludge, fixing...
 		});
 		this.socket.on('pong', function(data) {
 			var rtt = new Date().getTime() - data.timestamp;
