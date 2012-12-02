@@ -38,7 +38,7 @@ ControlPanel.prototype = {
 
 		this.controls = {};
 		this.next_id = 0;
-		this.editing = false;
+		this.editing = true;
 		this.initSocketIO();
 		this.sync();
 		return this;
@@ -60,7 +60,7 @@ ControlPanel.prototype = {
 //			console.log('Bitlash reply???:', data);
 //			var reply_handler = self.reply_handlers.pop();
 //			if (reply_handler) reply_handler(data);
-		});
+//		});
 		this.socket.on('update', function(data) {
 			//console.log('Update:', data);
 			if (typeof data[0] == 'undefined') data = [data];
@@ -165,20 +165,23 @@ Button.prototype = {
 				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-				.mouseup(function(e) { self.elt.attr({fill:self.fill});});
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 			this.label = this.parent.paper.text(this.x, this.y, this.text)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-				.mouseup(function(e) { self.elt.attr({fill:self.fill});});
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 		} 
 		else {		// default rectangular button
 			this.elt = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.corner)
 				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-				.mouseup(function(e) { self.elt.attr({fill:self.fill});});
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 			//$(this.elt).node.bind('contextmenu', function(e){
 			//    alert('right click');
@@ -188,7 +191,8 @@ Button.prototype = {
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-				.mouseup(function(e) { self.elt.attr({fill:self.fill});});	
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 		}
 
 		return this;
@@ -197,6 +201,37 @@ Button.prototype = {
 	attr: function(attrs) {
 		this.elt.attr(attrs);
 		//this.label.attr(attrs);
+	},
+
+	dragStart: function(x, y, event) {
+console.log('Drag start:', x, y, event);
+		if (!this.parent.editing) return true;
+		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
+		this.dragging = true;
+		this.elt.attr({fill:this.fill_highlight}).toFront();
+		this.label.toFront();
+	},
+
+	dragMove: function(dx, dy, x, y, e) {
+		console.log('move:',dx,dy,x,y,e);
+		this.x = this.drag.x + dx;
+		this.y = this.drag.y + dy;
+		this.elt.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
+		this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h/2});
+		return this.dragFinish(e);
+	},
+
+	dragEnd: function(e) {
+		this.elt.attr({fill:this.fill});
+		delete this.drag;
+		this.dragging = false;
+		return this.dragFinish(e);
+	},
+	
+	dragFinish: function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		return false;
 	},
 
 	handleClick: function(e) {
@@ -322,23 +357,27 @@ Slider.prototype = {
 		var self = this;
 
 		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h + this.slideh, 10)
-			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width':this.parent.control_stroke});
+			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width':this.parent.control_stroke})
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		this.bar = this.parent.paper.rect(this.x + (this.w-this.barw)/2, this.y, this.barw, this.barh + this.slideh)
 			.attr({fill:this.stroke, stroke:this.stroke})
 			.click(function(e) {
 				console.log('bar click:', e);
-			});
+			})
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		this.slide = this.parent.paper.rect(this.x + (this.w - this.slidew)/2, this.slideYPos(), this.slidew, this.slideh, 5)
 			.attr({fill:this.stroke, stroke:this.stroke, 'stroke-width': this['stroke-width']})
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			.drag(this.slideMove, this.slideStart, this.slideEnd, this, this, this);
 
 		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.slideh + this.fontsize*2, this.text)
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize});
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.slideh + this.fontsize, ''+this.value)
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2});
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		return this;
 	},
@@ -352,29 +391,72 @@ Slider.prototype = {
 	},
 
 	dragStart: function(x, y, event) {
+console.log('Drag start:', x, y, event);
+		if (!this.parent.editing) return true;
+		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
-		this.slide.attr({fill:this.fill_highlight});
+		this.outerrect.attr({fill:this.fill_highlight}).toFront();
+		this.bar.toFront();
+		this.slide.toFront();
+		this.label.toFront();
+		this.readout.toFront();
 	},
 
 	dragMove: function(dx, dy, x, y, e) {
-		//console.log('move:',dx,dy,x,y,e)
-		if (y < this.y) y = this.y;
-		else if (y > this.y + this.h) y = this.y + this.h;
-		var fraction = (y - this.y) / this.h;
-		var value = Math.floor(this.min + (1.0 - fraction) * (this.max - this.min));
-		this.setValue(value);
+		console.log('move:',dx,dy,x,y,e);
+		this.x = this.drag.x + dx;
+		this.y = this.drag.y + dy;
+
+		this.outerrect.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
+		this.bar.attr({x:x-this.drag.xoff + (this.w-this.barw)/2, y:y-this.drag.yoff});
+		this.slide.attr({x:x-this.drag.xoff + (this.w - this.slidew)/2, y:this.slideYPos()});
+
+		this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h + this.slideh + this.fontsize*2});
+		this.readout.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h + this.slideh + this.fontsize});
 		return this.dragFinish(e);
 	},
 
 	dragEnd: function(e) {
-		this.slide.attr({fill:this.stroke});
+		this.outerrect.attr({fill:this.fill});
+		//this.bar.attr({fill:this.fill});
+		//this.label.attr({fill:this.fill});
+		//this.readout.attr({fill:this.fill});
+		delete this.drag;
+		this.dragging = false;
 		return this.dragFinish(e);
 	},
 	
 	dragFinish: function(e) {
 		e.preventDefault();
 		e.stopPropagation();
-		this.dragging = false;
+		return false;
+	},
+
+
+	slideStart: function(x, y, event) {
+		this.sliding = true;
+		this.slide.attr({fill:this.fill_highlight});
+	},
+
+	slideMove: function(dx, dy, x, y, e) {
+		//console.log('move:',dx,dy,x,y,e)
+		if (y < this.y) y = this.y;
+		else if (y > this.y + this.h) y = this.y + this.h;
+		var fraction = (y - this.y) / this.h;
+		var value = Math.floor(this.min + (1.0 - fraction) * (this.max - this.min));
+		this.setValue(value);
+		return this.slideFinish(e);
+	},
+
+	slideEnd: function(e) {
+		this.slide.attr({fill:this.stroke});
+		return this.slideFinish(e);
+	},
+	
+	slideFinish: function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		this.sliding = false;
 		this.exec();
 		return false;
 	},
@@ -495,11 +577,13 @@ Chart.prototype = {
 		var self = this;
 		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.parent.button_corner)
 			.attr({fill: this.fill, stroke: this.stroke, 'stroke-width':this.parent.control_stroke})
-			.click(function() { self.redraw(); });
+			.click(function() { self.redraw(); })
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize*2, this.text)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
-			.click(function() { self.redraw(); });
+			.click(function() { self.redraw(); })
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		this.svg = d3.select(this.parent.paper.canvas).append('g')
 				.attr('width', width + margin.left + margin.right)
@@ -578,6 +662,37 @@ Chart.prototype = {
 			this.render();
 			doomed_svg.remove();
 		}
+	},
+
+	dragStart: function(x, y, event) {
+console.log('Drag start:', x, y, event);
+		if (!this.parent.editing) return true;
+		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
+		this.dragging = true;
+		this.outerrect.attr({fill:this.fill_highlight}).toFront();
+		this.label.toFront();
+		this.svg.toFront();		
+	},
+
+	dragMove: function(dx, dy, x, y, e) {
+		console.log('move:',dx,dy,x,y,e);
+		this.outerrect.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
+		this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h + this.fontsize*2});
+		this.svg.attr({x:x - this.drag.xoff, y:y - this.drag.yoff});
+		return this.dragFinish(e);
+	},
+
+	dragEnd: function(e) {
+		this.outerrect.attr({fill:this.fill});
+		delete this.drag;
+		this.dragging = false;
+		return this.dragFinish(e);
+	},
+	
+	dragFinish: function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		return false;
 	},
 
 	handleClick: function(e) {

@@ -155,6 +155,12 @@ The push example in the file public/push.html shows event listeners in use:
 
 - inherit from BaseControl before adding a lot of controls
 
+- run javascript: scripts with 'this' set to owning control
+
+- dragging:
+	- slider: slide is in wrong place
+	- chart: svg doesn't move
+
 - BUG: index.html canvas is not wide enough for iPad/iPhone
 
 - BUG: reply_handler race between bitlash.exec() and reply firing
