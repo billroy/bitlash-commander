@@ -171,8 +171,12 @@ function executeBitlash(data) {
 }
 
 
+
 io.sockets.on('connection', function (socket) {
 	console.log('Client connected via', socket.transport);
+	socket.on('message', function(data) {
+		console.log('Message:', data);
+	});
 	socket.on('exec', executeBitlash);
 	socket.on('rexec', function(data) {
 		console.log('rexec:', data);

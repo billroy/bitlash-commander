@@ -56,9 +56,9 @@ ControlPanel.prototype = {
 
 		var self = this;
 		this.socket.on('reply', function (data) {
-			console.log('Bitlash reply:', data);
-			var reply_handler = self.reply_handlers.pop();
-			if (reply_handler) reply_handler(data);
+			console.log('Bitlash reply???:', data);
+//			var reply_handler = self.reply_handlers.pop();
+//			if (reply_handler) reply_handler(data);
 		});
 		this.socket.on('update', function(data) {
 			//console.log('Update:', data);
@@ -66,6 +66,10 @@ ControlPanel.prototype = {
 			for (var i=0; i < data.length; i++) {
 				if (self.controls[data[i].id]) self.controls[data[i].id].setValue(data[i].value);
 			}
+		});
+		this.socket.on('rexec', function(data) {
+			console.log('rexec:', data);
+			this.sendCommand('exec', data);
 		});
 		this.socket.on('pong', function(data) {
 			var rtt = new Date().getTime() - data.timestamp;
@@ -109,15 +113,12 @@ ControlPanel.prototype = {
 		return chart;
 	},
 
-	reply_handlers: [],
-
 	sendCommand: function(command, data, reply_handler) {
-		this.reply_handlers.push(reply_handler);
 		this.socket.emit(command, data);
 	},
-	
-	sendUpdate: function(cmd, data) {
-		this.socket.emit(cmd, data);
+
+	sendUpdate: function(command, data) {
+		this.socket.emit(command, data);
 	}
 }
 
