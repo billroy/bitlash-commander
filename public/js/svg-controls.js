@@ -38,6 +38,7 @@ ControlPanel.prototype = {
 
 		this.controls = {};
 		this.next_id = 0;
+		this.editing = false;
 		this.initSocketIO();
 		this.sync();
 		return this;
@@ -55,8 +56,8 @@ ControlPanel.prototype = {
 		console.log('Socket connected', this.socket);
 
 		var self = this;
-		this.socket.on('reply', function (data) {
-			console.log('Bitlash reply???:', data);
+//		this.socket.on('reply', function (data) {
+//			console.log('Bitlash reply???:', data);
 //			var reply_handler = self.reply_handlers.pop();
 //			if (reply_handler) reply_handler(data);
 		});
@@ -225,10 +226,16 @@ Button.prototype = {
 		}
 		var cmd = Mustache.render(this.script, this);
 		console.log('button exec:', cmd);
-		var self = this;
-		var reply_handler = function(reply) { self.handleReply.call(self, reply); };
-		this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id}, reply_handler);
 
+		if (cmd.match(/^javascript\:/)) {			// javascript command
+			cmd = cmd.replace('javascript:', '');
+			eval(cmd);
+		}
+		else {										// bitlash command
+			var self = this;
+			var reply_handler = function(reply) { self.handleReply.call(self, reply); };
+			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id}, reply_handler);
+		}
 		if (this.repeat && !this.intervalid) {
 			var self = this;
 			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
@@ -376,9 +383,16 @@ Slider.prototype = {
 		if (!this.script) return;
 		var cmd = Mustache.render(this.script, this);
 		console.log('button exec:', cmd);
-		var self = this;
-		reply_handler = function(reply) { self.handleReply.call(self, reply); };
-		this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id}, reply_handler);
+
+		if (cmd.match(/^javascript\:/)) {			// javascript command
+			cmd = cmd.replace('javascript:', '');
+			eval(cmd);
+		}
+		else {										// bitlash command
+			var self = this;
+			reply_handler = function(reply) { self.handleReply.call(self, reply); };
+			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id}, reply_handler);
+		}
 	},
 
 	slideYPos: function() {
@@ -592,9 +606,16 @@ Chart.prototype = {
 		}
 		var cmd = Mustache.render(this.script, this);
 		console.log('Chart exec:', cmd);
-		var self = this;
-		var reply_handler = function(reply) { self.handleReply.call(self, reply); };
-		this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id}, reply_handler);
+
+		if (cmd.match(/^javascript\:/)) {			// javascript command
+			cmd = cmd.replace('javascript:', '');
+			eval(cmd);
+		}
+		else {										// bitlash command
+			var self = this;
+			var reply_handler = function(reply) { self.handleReply.call(self, reply); };
+			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id}, reply_handler);
+		}
 
 		if (this.repeat && !this.intervalid) {
 			var self = this;

@@ -158,7 +158,7 @@ The push example in the file public/push.html shows event listeners in use:
 - BUG: index.html canvas is not wide enough for iPad/iPhone
 
 - BUG: reply_handler race between bitlash.exec() and reply firing
-	- still happens under load
+	- possibly fixed, monitoring
 
 - remove reply handler infra
 
@@ -181,6 +181,7 @@ The push example in the file public/push.html shows event listeners in use:
 		- channel
 	- button and slider options	
 		- autorun
+	- javascript: scripts
 	- link to Commander on bitlash.net
 	- button.attr() and slider.attr()
 		- iterates across subelements
@@ -191,6 +192,7 @@ The push example in the file public/push.html shows event listeners in use:
 - detect socket.io port closure and reconnect
 
 - controls
+	- dropdown button
 	- LED bargraph
 	- scrolling text panel
 	- knob
