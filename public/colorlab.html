@@ -19,17 +19,19 @@ $(document).ready(function() {
 	
 	var Panel = new ControlPanel({title:'Color Lab', color:'yellow'});
 
-	Panel.addSlider({x:350, y:100, id: 'fr', text:'Fill-Red', 	script:'print {{value}}'});
-	Panel.addSlider({x:450, y:100, id: 'fg', text:'Fill-Green',	script:'print {{value}}'});
-	Panel.addSlider({x:550, y:100, id: 'fb', text:'Fill-Blue', 	script:'print {{value}}'});
-	Panel.addSlider({x:650, y:100, id: 'sr', text:'Stroke-Red', script:'print {{value}}'});
-	Panel.addSlider({x:750, y:100, id: 'sg', text:'Stroke-Green', script:'print {{value}}'});
-	Panel.addSlider({x:850, y:100, id: 'sb', text:'Stroke-Blue', script:'print {{value}}'});
+	Panel.addSlider({x:350, y:100, id: 'fr', text:'Fill-Red', 	script:'javascript: this.setValue({{value}});'});
+	Panel.addSlider({x:450, y:100, id: 'fg', text:'Fill-Green',	script:'javascript: this.setValue({{value}});'});
+	Panel.addSlider({x:550, y:100, id: 'fb', text:'Fill-Blue', 	script:'javascript: this.setValue({{value}});'});
+	Panel.addSlider({x:650, y:100, id: 'sr', text:'Stroke-Red', script:'javascript: this.setValue({{value}});'});
+	Panel.addSlider({x:750, y:100, id: 'sg', text:'Stroke-Green', script:'javascript: this.setValue({{value}});'});
+	Panel.addSlider({x:850, y:100, id: 'sb', text:'Stroke-Blue', script:'javascript: this.setValue({{value}});'});
 
 	function hex(value) {
-		if (typeof value == 'string') value = parseInt(value);
-		if (typeof value == 'number') return value.toString(16);
-		return ''+value;
+		var retval;
+		if (!isNaN(value)) retval = parseInt(value).toString(16);
+		else retval = value;
+		while (retval.length < 2) retval = '0' + retval;
+		return retval;
 	}
 
 	function getFill() {
@@ -43,17 +45,19 @@ $(document).ready(function() {
 	}
 
 	function getStroke() {
-		return ['#', 
+		var stroke = ['#', 
 			hex(Panel.controls['sr'].value.toString(16)),
 			hex(Panel.controls['sg'].value.toString(16)),
 			hex(Panel.controls['sb'].value.toString(16))
 		].join('');
+		console.log('stroke:', stroke);
+		return stroke;
 	}
 
 	for (var id in Panel.controls) {
 		Panel.controls[id].on('update', function(data) {
 console.log('Upd:', data);
-			Panel.attr({stroke: getStroke()});
+			Panel.attr({stroke: getStroke(), fill: getFill()});
 		});
 	}
 }); 	// document.ready

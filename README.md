@@ -138,9 +138,9 @@ The push example in the file public/push.html shows event listeners in use:
 ## To Do / Bugs
 
 - chart control
+	- BUG: chart: svg doesn't move on drag
 	- data source periodic run 
 	- click to run (data source vs. chart update)
-	- where to display replies?
 	- time axis values ick
 	- y axis min/max options
 	- multiple data sources [a0,d1,random(100)]
@@ -152,12 +152,10 @@ The push example in the file public/push.html shows event listeners in use:
 	- listeners with bitlash respond to exec
 	- need a way for the server to relay the answer to another server
 	- currently socket.io has no api for this even though the server handles the message
-	https://github.com/remy/Socket.io-node-client
+
+		https://github.com/remy/Socket.io-node-client
 
 - inherit from BaseControl before adding a lot of controls
-
-- dragging:
-	- BUG: chart: svg doesn't move on drag
 
 - BUG: index.html canvas is not wide enough for iPad/iPhone
 
@@ -168,12 +166,11 @@ The push example in the file public/push.html shows event listeners in use:
 
 - button
 	- BUG: no display indication that a repeat button is repeating
-	- invisible button for setup
+	- shape = 'path' for icons
 
 - BUG: click on text of repeating button doesn't stop it
 
 - doc:
-	- big picture system data flow
 	- panel options
 		- channel
 	- button and slider options	
@@ -190,22 +187,27 @@ The push example in the file public/push.html shows event listeners in use:
 
 - controls
 	- dropdown button
+	- svg path button
 	- LED bargraph
 	- scrolling text panel
 	- knob
 	- redlight
+	- syschat
 
 - examples
 	- piano
 	- trafficlight
 	- elevator
 	- security alarm system
+	- train set
+	- remote doorbell
+	- lunch bell
 
 - revisit default sizes as % parent width/height
 
 - edit mode
 	- new
-	- edit
+	- edit: https://github.com/warpech/jquery-handsontable	
 	- delete
 	- named control sets
 		- save
@@ -214,7 +216,3 @@ The push example in the file public/push.html shows event listeners in use:
 - authorization / password protection
 - send text command from keyboard
 - allow operation without arduino connected
-
-- sound
-	- remote doorbell
-	- lunch bell

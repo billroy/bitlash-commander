@@ -167,6 +167,8 @@ Button.prototype = {
 		this.r = options.r || this.w/2;
 		this.autorun = options.autorun || false;
 		this.value = options.value || 0;
+		this.path = options.path || undefined;
+		this.scale = options.scale || 1;
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
@@ -193,7 +195,40 @@ Button.prototype = {
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
-		} 
+		}
+		else if (this.shape == 'path') {	// path button
+			var translation = ['t', this.x, ',', this.y, 's', this.scale].join('');
+			//var translation = ['T600,600'].join('');
+console.log('Path:', translation, this.x, this.y, this.scale);
+
+			this.elt = this.parent.paper.path(this.path)
+				.transform(translation)
+				//.scale(this.scale)
+				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+			var bbox = this.elt.getBBox();
+			this.w = bbox.width;
+			this.h = bbox.height;
+			var labely = bbox.y + this.h + this.fontsize;
+
+			this.label = this.parent.paper.text(this.x, labely, this.text)
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+			this.readout = this.parent.paper.text(this.x, this.y, this.value)
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+		}
 		else {		// default rectangular button
 			this.elt = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.corner)
 				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
@@ -575,6 +610,7 @@ Chart.prototype = {
 		this.shape = options.shape || '';	// default to rectangle
 		this.r = options.r || this.w/2;
 		this.autorun = options.autorun || false;
+		this.interpolate = options.interpolate || 'step-after';		// 'basis'
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
@@ -600,7 +636,7 @@ Chart.prototype = {
 		var xAxis = d3.svg.axis().scale(x).ticks(this.ticks).orient('bottom');
 		var yAxis = d3.svg.axis().scale(y).ticks(this.ticks).orient('left');
 
-		var line = d3.svg.line().interpolate('basis')
+		var line = d3.svg.line().interpolate(this.interpolate)
 				.x(function(d) { return x(d.time); })
 				.y(function(d) { return y(d.value); });
 
