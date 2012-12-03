@@ -18,23 +18,23 @@ $(document).ready(function() {
 	//document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
 	
 	var Panel = new ControlPanel({color:'turquoise'});
-	Panel.addButton({x:100, y:40,  text:'Setup', script:'pinmode(2,1);pinmode(4,1);pinmode(7,1);pinmode(8,1);pinmode(12,1);print "GO"'});
+	Panel.addButton({x:100, y: 20, text:'Setup', script:'pinmode(2,1);pinmode(4,1);pinmode(7,1);pinmode(8,1);pinmode(12,1);print "GO"'});
 	Panel.addButton({x:100, y:120, text:'Toggle2', script:'d2=!d2;print d2'});
-	Panel.addButton({x:100, y:200, text:'Toggle4', script:'d4=!d4;print d4'});
-	Panel.addButton({x:100, y:280, text:'Toggle7', script:'d7=!d7;print d7'});
-	Panel.addButton({x:100, y:360, text:'Toggle8', script:'d8=!d8;print d8'});
-	Panel.addButton({x:100, y:440, text:'Toggle12', script:'d12=!d12;print d12'});
-	Panel.addButton({x:100, y:520, text:'Blink13', script:'d13=!d13;print d13', repeat:1000});
+	Panel.addButton({x:100, y:220, text:'Toggle4', script:'d4=!d4;print d4'});
+	Panel.addButton({x:100, y:320, text:'Toggle7', script:'d7=!d7;print d7'});
+	Panel.addButton({x:100, y:420, text:'Toggle8', script:'d8=!d8;print d8'});
+	Panel.addButton({x:100, y:520, text:'Toggle12', script:'d12=!d12;print d12'});
+	Panel.addButton({x:100, y:620, text:'Blink13', script:'d13=!d13;print d13', repeat:1000});
 
 	Panel.addButton({x:350, y:400, text:'a0', script:'print a0', id:'a0', repeat:125});
 	Panel.addButton({x:500, y:400, text:'a1', script:'print a1'});
 	Panel.addButton({x:650, y:400, text:'a2', script:'print a2'});
 	Panel.addButton({x:800, y:400, text:'a3', script:'print a3'});
 	
-	Panel.addButton({x:350, y:480, text:'a4', script:'print a4'});
-	Panel.addButton({x:500, y:480, text:'a5', script:'print a5'});
-	Panel.addButton({x:650, y:480, text:'a6', script:'print a6'});
-	Panel.addButton({x:800, y:480, text:'a7', script:'print a7'});
+	Panel.addButton({x:350, y:500, text:'a4', script:'print a4'});
+	Panel.addButton({x:500, y:500, text:'a5', script:'print a5'});
+	Panel.addButton({x:650, y:500, text:'a6', script:'print a6'});
+	Panel.addButton({x:800, y:500, text:'a7', script:'print a7'});
 
 	Panel.addSlider({x:350, y:100, text:'PWM3', script:'a3={{value}};print {{value}}'});
 	Panel.addSlider({x:450, y:100, text:'PWM5', script:'a5={{value}};print {{value}}'});

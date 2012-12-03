@@ -166,6 +166,7 @@ Button.prototype = {
 		this.shape = options.shape || '';	// default to rectangle
 		this.r = options.r || this.w/2;
 		this.autorun = options.autorun || false;
+		this.value = options.value || 0;
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
@@ -179,7 +180,14 @@ Button.prototype = {
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-			this.label = this.parent.paper.text(this.x, this.y, this.text)
+			this.label = this.parent.paper.text(this.x + (this.w/2), this.y + 2*this.r + this.fontsize, this.text)
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+			this.readout = this.parent.paper.text(this.x, this.y, this.value)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
@@ -194,15 +202,16 @@ Button.prototype = {
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-			//$(this.elt).node.bind('contextmenu', function(e){
-			//    alert('right click');
-			//});
-
-			this.label = this.parent.paper.text(this.x + (this.w/2), this.y + (this.h/2), this.text)
+			//this.label = this.parent.paper.text(this.x + (this.w/2), this.y + (this.h/2), this.text)
+			this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize, this.text)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+			this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h/2, ''+this.value)
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 		}
 
@@ -220,6 +229,7 @@ console.log('Drag start:', x, y, event);
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
 		this.elt.attr({fill:this.fill_highlight}).toFront();
+		this.readout.toFront();
 		this.label.toFront();
 	},
 
@@ -229,11 +239,13 @@ console.log('Drag start:', x, y, event);
 		this.y = this.drag.y + dy;
 		if (this.shape == 'circle') {
 			this.elt.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});
-			this.label.attr({x:x - this.drag.xoff, y:y - this.drag.yoff});
+			this.label.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});		//??
+			this.readout.attr({x:x - this.drag.xoff, y:y - this.drag.yoff});
 		}
 		else {
 			this.elt.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
-			this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h/2});
+			this.label.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h + this.fontsize});
+			this.readout.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h/2});
 		}
 		return this.dragFinish(e);
 	},
@@ -309,7 +321,8 @@ console.log('Drag start:', x, y, event);
 	
 	setValue: function(value) {
 		this.value = value;
-		this.label.attr({text: this.text + ': ' + this.value});
+		//this.label.attr({text: this.text + ': ' + this.value});
+		this.readout.attr({text: '' + this.value});
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
 	},

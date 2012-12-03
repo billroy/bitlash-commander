@@ -152,6 +152,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- listeners with bitlash respond to exec
 	- need a way for the server to relay the answer to another server
 	- currently socket.io has no api for this even though the server handles the message
+	https://github.com/remy/Socket.io-node-client
 
 - inherit from BaseControl before adding a lot of controls
 
@@ -195,6 +196,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- redlight
 
 - examples
+	- piano
 	- trafficlight
 	- elevator
 	- security alarm system
