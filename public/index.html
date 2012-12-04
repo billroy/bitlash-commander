@@ -47,7 +47,7 @@ $(document).ready(function() {
 	Panel.addSlider({x:750, y:100, text:'pwm10', script:'print a10={{value}}'});
 	Panel.addSlider({x:850, y:100, text:'pwm11', script:'print a11={{value}}'});
 
-	Panel.addChart({id:'chart-a0', x:1000, y:20, text:'Chart', script:'print random(1000)',
+	Panel.addChart({id:'chart-a0', x:1000, y:40, text:'Chart', script:'print random(1000)',
 		text: 'random(1000)',
 		target: '$random',	// id of control whose data we chart
 		autorun: false,
@@ -61,9 +61,11 @@ $(document).ready(function() {
 		//repeat: 500,
 		refresh: 0
 	});
-	Panel.addChart({id:'chart-d0', x:1000, y:520, text:'Chart', script:'print random(1000)',
+	Panel.addChart({id:'chart-d0', x:1000, y:500, text:'Chart', script:'print random(1000)',
 		target: 'blink13',	// id of control whose data we chart
 		text: 'd13',
+		ymax: 1.2,
+		ymin: -0.2,
 		//autorun: true,
 		//repeat: 500,
 		refresh: 0

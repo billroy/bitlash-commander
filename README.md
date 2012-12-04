@@ -159,14 +159,14 @@ The push example in the file public/push.html shows event listeners in use:
 
 - BUG: index.html canvas is not wide enough for iPad/iPhone
 
-- BUG: reply_handler race between bitlash.exec() and reply firing
-	- possibly fixed, monitoring
-
 - remove reply handler infra
 
-- button
+- button control
+	- better highlighting
+		- not white
+		- brighter(this.stroke)
 	- BUG: no display indication that a repeat button is repeating
-	- shape = 'path' for icons
+	- BUT: dragging a path leaves the label and readout in the wrong place
 
 - BUG: click on text of repeating button doesn't stop it
 
@@ -175,24 +175,29 @@ The push example in the file public/push.html shows event listeners in use:
 		- channel
 	- button and slider options	
 		- autorun
+		- button shape = 'path' for svg icons
 	- javascript: scripts
 	- link to Commander on bitlash.net
 	- button.attr() and slider.attr()
 		- iterates across subelements
 		- svg group?
+	- examples
 
 - detect serial port closure and reconnect
 	- reconnect button
 - detect socket.io port closure and reconnect
+- datalogging
+	- limit number of points per series
+	- facility to write to disk
 
 - controls
 	- dropdown button
-	- svg path button
 	- LED bargraph
 	- scrolling text panel
 	- knob
 	- redlight
 	- syschat
+	- image
 
 - examples
 	- piano
@@ -205,14 +210,20 @@ The push example in the file public/push.html shows event listeners in use:
 
 - revisit default sizes as % parent width/height
 
+
+
 - edit mode
 	- new
-	- edit: https://github.com/warpech/jquery-handsontable	
+	- rezize: much better dragging/resizing at http://alias.io/raphael/free_transform/
 	- delete
 	- named control sets
 		- save
 		- load
+	- context menu: http://medialize.github.com/jQuery-contextMenu/demo/dynamic-create.html
+		- edit: https://github.com/warpech/jquery-handsontable	
+		- delete or cut/copy/paste
+		- duplicate
 
 - authorization / password protection
 - send text command from keyboard
-- allow operation without arduino connected
+- improve operation without arduino connected

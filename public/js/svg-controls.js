@@ -131,6 +131,13 @@ ControlPanel.prototype = {
 
 	sendUpdate: function(command, data) {
 		this.socket.emit(command, data);
+	},
+	
+	lighter: function(color) {
+		var rgb = Raphael.getRGB(color);
+		var hsb = Raphael.rgb2hsb(rgb.r, rgb.g, rgb.b);
+		var newb = Math.min(1, hsb.b*2);
+		return Raphael.hsb2rgb(hsb.h, hsb.s, newb).hex;
 	}
 }
 
@@ -155,9 +162,9 @@ Button.prototype = {
 		this.h = options.h || 50;
 		this.text = options.text || 'Untitled';
 		this.script = options.script || '';
-		this.fill = options.fill || 'black';
-		this.fill_highlight = options.fill_highlight || 'white';
 		this.stroke = options.stroke || this.parent.color;
+		this.fill = options.fill || 'black';
+		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
 		this.fontsize = options.fontsize || 20;
 		this.repeat = options.repeat || 0;
@@ -275,12 +282,19 @@ console.log('Drag start:', x, y, event);
 		if (this.shape == 'circle') {
 			this.elt.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});
 			this.label.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});		//??
-			this.readout.attr({x:x - this.drag.xoff, y:y - this.drag.yoff});
+			this.readout.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
+		}
+		else if (this.shape == 'path') {
+			var bbox = this.elt.getBBox();
+			this.elt.transform(['t', this.x-this.drag.xoff, ',', this.y-this.drag.yoff, 's', this.scale].join(''));
+			var labely = bbox.y + this.h + this.fontsize;
+			this.label.attr({x:x-this.drag.xoff, y:labely - this.drag.yoff});
+			this.readout.attr({x:x-this.drag.xoff , y:y-this.drag.yoff});
 		}
 		else {
 			this.elt.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
 			this.label.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h + this.fontsize});
-			this.readout.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h/2});
+			this.readout.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h/2});
 		}
 		return this.dragFinish(e);
 	},
@@ -617,6 +631,8 @@ Chart.prototype = {
 		this.ticks = options.ticks || 5;
 		this.target = options.target || this.id;
 		this.refresh = options.refresh || 0;
+		if (options.ymax) this.ymax = options.ymax;
+		if (options.ymin) this.ymin = options.ymin;
 		this.render();		// render D3 chart
 		
 		var self = this;
@@ -672,7 +688,8 @@ Chart.prototype = {
 			});
 		
 			x.domain(d3.extent(data, function(d) { return d.time; }));
-			y.domain([
+			if (self.ymax != undefined) y.domain([self.ymin, self.ymax]);
+			else y.domain([
 				d3.min(values, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
 				d3.max(values, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
 			]);
