@@ -162,9 +162,6 @@ The push example in the file public/push.html shows event listeners in use:
 - remove reply handler infra
 
 - button control
-	- better highlighting
-		- not white
-		- brighter(this.stroke)
 	- BUG: no display indication that a repeat button is repeating
 	- BUT: dragging a path leaves the label and readout in the wrong place
 
@@ -189,6 +186,7 @@ The push example in the file public/push.html shows event listeners in use:
 - datalogging
 	- limit number of points per series
 	- facility to write to disk
+	- integrate with cosm for upload
 
 - controls
 	- dropdown button
@@ -210,8 +208,6 @@ The push example in the file public/push.html shows event listeners in use:
 
 - revisit default sizes as % parent width/height
 
-
-
 - edit mode
 	- new
 	- rezize: much better dragging/resizing at http://alias.io/raphael/free_transform/
@@ -219,7 +215,8 @@ The push example in the file public/push.html shows event listeners in use:
 	- named control sets
 		- save
 		- load
-	- context menu: http://medialize.github.com/jQuery-contextMenu/demo/dynamic-create.html
+	- context menu:
+		http://medialize.github.com/jQuery-contextMenu/demo/dynamic-create.html
 		- edit: https://github.com/warpech/jquery-handsontable	
 		- delete or cut/copy/paste
 		- duplicate
@@ -227,3 +224,20 @@ The push example in the file public/push.html shows event listeners in use:
 - authorization / password protection
 - send text command from keyboard
 - improve operation without arduino connected
+
+- alert delivery
+	- sms
+	- email
+
+- cosm upload for data updates
+	- cosm auth
+	- stream / id mapping
+
+- remote ethernet- and wifi- connected arduinos
+	- enhanced bitlash web client
+	- client POSTs to /update for the upstream path
+	- server POSTs bitlash commands to arduino
+		- need IP and port for remote bitlash	
+		
+- multiple arduino support
+	- command steering

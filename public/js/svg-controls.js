@@ -415,9 +415,9 @@ Slider.prototype = {
 		this.h = options.h || 200;
 		this.text = options.text || 'Untitled';
 		this.script = options.script || '';
-		this.fill = options.fill || this.parent.fill;
-		this.fill_highlight = options.fill_highlight || 'white';
 		this.stroke = options.stroke || this.parent.color;
+		this.fill = options.fill || 'black';
+		this.fill_highlight = options.fill_highlight || 'white';	// this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
 		this.fontsize = options.fontsize || 20;
 

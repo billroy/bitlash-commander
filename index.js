@@ -13,6 +13,8 @@ var argv = opt.usage('Usage: $0 [flags]')
 	.describe('s', 'port for usbserial arduino connection')
 	.alias('r', 'redis')
 	.describe('r', 'redis server url in redis-url format')
+	.alias('x', 'rexec')
+	.describe('x', 'set true to accept remote bitlash commands on socket.io')
 	.argv;
 
 if (argv.help) {
@@ -73,7 +75,7 @@ app.get('/d3/:id', function(req, res) {
 });
 
 server.listen(port);
-console.log('Listening on port ', port);
+console.log('Listening on port:', port);
 
 //////////
 //
@@ -206,4 +208,28 @@ function broadcastJSONUpdate(data) {
 }
 
 
+//////////
+//
+//	Socket.io client for rexec command
+//
+//	Required because at present socket.io does not provide server-to-server messaging.
+//
+//	Note: disabled for now. can't get io-client to connect
+//
+if (1 && argv.rexec) {
+	console.log('Starting remote client...');
+	var ioclient = require('socket.io/node_modules/socket.io-client');
 
+	var clientsocket = new ioclient.connect('http://localhost:' + port);		//Socket('localhost', port);
+console.log(clientsocket);
+	clientsocket.on('connect', function () {
+		console.log('Client socket connected.');
+	});
+	
+	clientsocket.on('rexec', function (data) {
+		console.log('Incoming Rexec: ', data);
+		executeBitlash(data)
+	});
+	
+	//clientsocket.connect();
+}
