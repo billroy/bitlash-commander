@@ -18,12 +18,6 @@ You need to upload Bitlash to the Arduino.  Install Bitlash (see https://github.
 	File -> Examples -> bitlash -> bitlashdemo
 	File -> Upload
 
-NOTE: The default control panel requires you to enter this startup function on the Arduino in order for the buttons in the Toggle column to work correctly.  In a serial monitor,Copy and paste this into Bitlash:
-
-	> function startup {pinmode(2,1);pinmode(4,1);pinmode(7,1);pinmode(8,1);pinmode(12,1);};
-
-You only need to do this once.
-
 
 ## Install: PC
 
@@ -175,6 +169,12 @@ The push example in the file public/push.html shows event listeners in use:
 		- svg group?
 	- multiple server configurations with -r and -x
 	- examples
+	- credits
+		- jquery
+		- raphael
+		- d3
+		- edit: https://github.com/warpech/jquery-handsontable	
+
 
 - detect serial port closure and reconnect
 	- reconnect button
@@ -214,19 +214,28 @@ The push example in the file public/push.html shows event listeners in use:
 		- load
 	- context menu:
 		http://medialize.github.com/jQuery-contextMenu/demo/dynamic-create.html
-		- edit: https://github.com/warpech/jquery-handsontable	
 		- delete or cut/copy/paste
 		- duplicate
 	- color picker
 
-- editor
-	- disallow edit of first column
+- property editor
 	- actions for save/cancel/add field
 	- delete key?
 	- disallow changing editor focus while edit is up
+	- force id field to be shown even if it's not in opts
+	- disallow edit of id field value
+	- disallow edit of first column
 	- slider needs handleClick
 	- chart needs better click plumbing
-
+	- issues with text/numeric value conversion?
+		- it does convert to string
+		- detect changed values 
+			- and handle this case
+	- broadcast control updates
+		- delete the control, force the id, and broadcast update
+		-- deleting control requires a separate command?  or a null value?
+	- ...self-deleting controls...
+	
 - authorization / password protection
 - send text command from keyboard
 - improve operation without arduino connected

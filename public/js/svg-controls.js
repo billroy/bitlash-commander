@@ -165,7 +165,8 @@ ControlPanel.prototype = {
 	},
 	
 	endEdit: function(save) {
-		console.log('endedit:', save);
+		var data = 	$('#dataTable').handsontable('getData');
+		console.log('endedit:', save, data);
 		$('#dataTable').handsontable('destroy');
 		$('#editor').css('zIndex', 0);
 	},
