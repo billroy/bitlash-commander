@@ -121,8 +121,8 @@ The push example in the file public/push.html shows event listeners in use:
 
 	var Panel = new ControlPanel({color:'turquoise'});
 
-	Panel.addButton({id:'millis', x:100, y:100, w:250, text:'millis', script:'print millis'})
-	Panel.addButton({id:'clock',  x:100, y:180, w:250, text:'clock', script:''})
+	Panel.addButton({id:'millis', x:100, y:100, w:250, text:'millis', script:'print millis'});
+	Panel.addButton({id:'clock',  x:100, y:180, w:250, text:'clock', script:''});
 	Panel.addButton({id:'clock2', x:100, y:260, w:250, text:'clock2', script:''});
 
 	Panel.controls['millis'].on('update', function(data) {
@@ -147,15 +147,6 @@ The push example in the file public/push.html shows event listeners in use:
 		- best handled with push to the control id
 		- control can ignore the update or note it to trigger refresh
 
-- redis/socket.io syndication experiment
-	- if bitlash isn't ready, send an exec command via socket.io
-	- listeners with bitlash respond to exec
-	- need a way for the server to relay the answer to another server
-	- currently socket.io has no api for this even though the server handles the message
-
-		https://github.com/remy/Socket.io-node-client
-
-- inherit from BaseControl before adding a lot of controls
 
 - BUG: index.html canvas is not wide enough for iPad/iPhone
 
@@ -163,9 +154,13 @@ The push example in the file public/push.html shows event listeners in use:
 
 - button control
 	- BUG: no display indication that a repeat button is repeating
-	- BUT: dragging a path leaves the label and readout in the wrong place
+	- BUG: dragging a path leaves the label and readout in the wrong place
+	- inherit from BaseControl before adding a lot of controls
 
 - BUG: click on text of repeating button doesn't stop it
+
+- server:
+	- for viewer nodes: fetch remote data for a chart on demand
 
 - doc:
 	- panel options
@@ -178,6 +173,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- button.attr() and slider.attr()
 		- iterates across subelements
 		- svg group?
+	- multiple server configurations with -r and -x
 	- examples
 
 - detect serial port closure and reconnect
@@ -189,11 +185,12 @@ The push example in the file public/push.html shows event listeners in use:
 	- integrate with cosm for upload
 
 - controls
-	- dropdown button
-	- LED bargraph
+	- image, clickable to start/stop refresh
+	- LED bar, clickable leds with specifiable colors
+		- round/square leds
+		- redlight
 	- scrolling text panel
 	- knob
-	- redlight
 	- syschat
 	- image
 
@@ -220,6 +217,15 @@ The push example in the file public/push.html shows event listeners in use:
 		- edit: https://github.com/warpech/jquery-handsontable	
 		- delete or cut/copy/paste
 		- duplicate
+	- color picker
+
+- editor
+	- disallow edit of first column
+	- actions for save/cancel/add field
+	- delete key?
+	- disallow changing editor focus while edit is up
+	- slider needs handleClick
+	- chart needs better click plumbing
 
 - authorization / password protection
 - send text command from keyboard
@@ -237,7 +243,10 @@ The push example in the file public/push.html shows event listeners in use:
 	- enhanced bitlash web client
 	- client POSTs to /update for the upstream path
 	- server POSTs bitlash commands to arduino
-		- need IP and port for remote bitlash	
-		
+		- how to configure IP and port for remote bitlash	
+		- ip-accept list
+
 - multiple arduino support
 	- command steering
+	- node registry / configuration
+

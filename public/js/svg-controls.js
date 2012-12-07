@@ -52,6 +52,12 @@ ControlPanel.prototype = {
 		this.editing = options.editing || false;
 		this.initSocketIO();
 		this.sync();
+
+		// one-time initialization for editor buttons
+		$('#editsave').click(function() { console.log('save!'); self.endEdit(1); });
+		$('#editcancel').click(function() { self.endEdit(0); });
+		$('#editadd').click(function() { self.editAddField(); });
+
 		return this;
 	},
 
@@ -138,6 +144,47 @@ ControlPanel.prototype = {
 		var hsb = Raphael.rgb2hsb(rgb.r, rgb.g, rgb.b);
 		var newb = Math.min(1, hsb.b*2);
 		return Raphael.hsb2rgb(hsb.h, hsb.s, newb).hex;
+	},
+	
+	edit: function(id) {
+
+		var editor = $('#editor').css('background-color', 'white')
+			.css('zIndex', 9999)
+			.css('position', 'absolute')
+			//.css('width', '50%')
+			.css({left: this.controls[id].x, top: this.controls[id].y});
+
+		var data = this.controlToJSON(id);
+ 		this.edittable = $('#dataTable').handsontable({
+			data: data,
+			startRows: data.length+1,
+			startCols: 2,
+			colHeaders: ['PROPERTY', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;']
+		});
+		console.log('edit table object:', this.edittable);
+	},
+	
+	endEdit: function(save) {
+		console.log('endedit:', save);
+		$('#dataTable').handsontable('destroy');
+		$('#editor').css('zIndex', 0);
+	},
+	
+	editAddField: function() {
+		console.log('addfield:');
+	},
+
+	controlToJSON: function(id) {
+		var data = [];
+		for (var f in this.controls[id].options) {				// for properties in original options
+			if (this.controls[id].options.hasOwnProperty(f)
+				&& (typeof this.controls[id][f] != 'object')
+				&& (typeof this.controls[id][f] != 'function')) {		// push current object value
+				data.push([f, this.controls[id][f]]);
+			}
+		}
+		console.log('toJSON:', id, data);
+		return data;
 	}
 }
 
@@ -154,6 +201,7 @@ Button.prototype = {
 
 	init: function(options) {
 		this.parent = options.parent;
+		this.options = options;
 		this.id = options.id || 'Button' + this.parent.next_id++;
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
 		this.x = this.parent.x + (options.x || 50);
@@ -313,6 +361,9 @@ console.log('Drag start:', x, y, event);
 	},
 
 	handleClick: function(e) {
+		if (e && e.shiftKey) {
+			return this.parent.edit(this.id);
+		}
 		if (this.repeat) {
 			if (this.running) {
 				this.running = false;
@@ -780,6 +831,9 @@ console.log('Drag start:', x, y, event);
 	},
 
 	handleClick: function(e) {
+		if (e && e.shiftKey) {
+			return this.parent.edit(this.id);
+		}
 		if (this.repeat) {
 			if (this.running) {
 				this.running = false;

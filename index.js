@@ -213,23 +213,27 @@ function broadcastJSONUpdate(data) {
 //	Socket.io client for rexec command
 //
 //	Required because at present socket.io does not provide server-to-server messaging.
+//	Activate with the -x flag.
 //
-//	Note: disabled for now. can't get io-client to connect
-//
-if (1 && argv.rexec) {
-	console.log('Starting remote client...');
+if (argv.rexec) {
+	console.log('Starting socket.io client...');
 	var ioclient = require('socket.io/node_modules/socket.io-client');
 
 	var clientsocket = new ioclient.connect('http://localhost:' + port);		//Socket('localhost', port);
-console.log(clientsocket);
+
 	clientsocket.on('connect', function () {
-		console.log('Client socket connected.');
+		console.log('Socket.io client connected.');
 	});
-	
+
+	// A remote Commander, perhaps on the web, without an arduino,
+	// can control an arduino on a local Commander, provided they
+	// are both connected (-r) to the same socket.io/redis store
+	// Here we catch the rexec request and execute it on Bitlash;
+	// the reply is distributed over socket.io in the normal way
+	//  as an update message.
+	//
 	clientsocket.on('rexec', function (data) {
 		console.log('Incoming Rexec: ', data);
 		executeBitlash(data)
 	});
-	
-	//clientsocket.connect();
 }
