@@ -37,6 +37,16 @@ ControlPanel.prototype = {
 		this.logo = this.paper.text(this.x + (this.w/2), this.y + 50, this.title)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': 36});
 
+		this.controls = {};
+		this.next_id = 0;
+		this.editing = options.editing || false;
+		this.next_x = 100;
+		this.next_y = 100;
+		this.next_inc = 50;
+
+		this.initSocketIO();
+		this.sync();
+
 		var self = this;
 		this.editbutton = this.paper.path('M25.31,2.872l-3.384-2.127c-0.854-0.536-1.979-0.278-2.517,0.576l-1.334,2.123l6.474,4.066l1.335-2.122C26.42,4.533,26.164,3.407,25.31,2.872zM6.555,21.786l6.474,4.066L23.581,9.054l-6.477-4.067L6.555,21.786zM5.566,26.952l-0.143,3.819l3.379-1.787l3.14-1.658l-6.246-3.925L5.566,26.952z')
 			.transform('T25,25')
@@ -47,16 +57,18 @@ ControlPanel.prototype = {
 				else self.editbutton.attr({fill:self.fill, stroke: self.stroke});
 			});
 
-		this.controls = {};
-		this.next_id = 0;
-		this.editing = options.editing || false;
-		this.initSocketIO();
-		this.sync();
+		this.addbutton = this.paper.path('M25.31,2.872l-3.384-2.127c-0.854-0.536-1.979-0.278-2.517,0.576l-1.334,2.123l6.474,4.066l1.335-2.122C26.42,4.533,26.164,3.407,25.31,2.872zM6.555,21.786l6.474,4.066L23.581,9.054l-6.477-4.067L6.555,21.786zM5.566,26.952l-0.143,3.819l3.379-1.787l3.14-1.658l-6.246-3.925L5.566,26.952z')
+			.transform('T25,75')
+			.attr({fill:this.fill, stroke: this.stroke})
+			.click(function(e) { 
+				self.addButton({x:self.next_x+=self.next_inc, y:self.next_y+=self.next_inc});
+			});
 
 		// one-time initialization for editor buttons
 		$('#editsave').click(function() { console.log('save!'); self.endEdit(1); });
 		$('#editcancel').click(function() { self.endEdit(0); });
 		$('#editadd').click(function() { self.editAddField(); });
+		$('#editdelete').click(function() { self.editDeleteField(); });
 
 		return this;
 	},
@@ -163,6 +175,7 @@ ControlPanel.prototype = {
 			startCols: 2,
 			colHeaders: ['PROPERTY', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;']
 		});
+		this.editing = id;
 		console.log('edit table object:', this.edittable);
 	},
 	
@@ -171,10 +184,30 @@ ControlPanel.prototype = {
 		console.log('endedit:', save, data);
 		$('#dataTable').handsontable('destroy');
 		$('#editor').css('zIndex', 0);
+		delete this.editing;
 	},
 	
 	editAddField: function() {
-		console.log('addfield:');
+		var id = this.editing;
+		console.log('addfield:', id);
+		var newfield = prompt('New field name:');
+		if (!newfield) return;
+		var newvalue = prompt('Value for new field:');
+		this.controls[id].options[newfield] = newvalue;
+console.log('add:', this.controls[id].options);
+		this.endEdit(0);
+		this.edit(id);
+	},
+	
+	editDeleteField: function() {
+		var id = this.editing;
+		console.log('addfield:', id);
+		var doomedfield = prompt('Field to delete:');
+		if (!doomedfield) return;
+		if (this.controls[id].options.hasOwnProperty(doomedfield))
+			delete this.controls[id].options[doomedfield];
+		this.endEdit(0);
+		this.edit(id);
 	},
 
 	controlToEditFormat: function(id) {
@@ -188,13 +221,11 @@ ControlPanel.prototype = {
 			if (this.controls[id].options.hasOwnProperty(f)
 				&& (typeof this.controls[id][f] != 'object')
 				&& (typeof this.controls[id][f] != 'function')) {		// push current object value
-console.log('adding key:', id);
-				data.push([f, this.controls[id][f]]);
+console.log('adding key:', id, f);
+				data.push([f, this.controls[id][f] || this.controls[id].options[f]]);
 			}
 		}
 		console.log('controlToEdit:', id, data);
-		console.log('controlToStorage:', this.controlsToStorageFormat());
-		console.log('controlToStorage:', JSON.stringify(this.controlsToStorageFormat()));
 		return data;
 	},
 
