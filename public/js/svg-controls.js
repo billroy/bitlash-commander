@@ -118,6 +118,7 @@ ControlPanel.prototype = {
 
 	addSlider: function(options) {
 		options.parent = this;
+		options.type = 'Slider';
 		var slider = new Slider(options);
 		this.controls[slider.id] = slider;
 		return slider;
@@ -125,6 +126,7 @@ ControlPanel.prototype = {
 
 	addChart: function(options) {
 		options.parent = this;
+		options.type = 'Chart';
 		var chart = new Chart(options);
 		this.controls[chart.id] = chart;
 		if (chart.autorun) chart.handleClick();
@@ -154,10 +156,10 @@ ControlPanel.prototype = {
 			//.css('width', '50%')
 			.css({left: this.controls[id].x, top: this.controls[id].y});
 
-		var data = this.controlToJSON(id);
+		var data = this.controlToEditFormat(id);
  		this.edittable = $('#dataTable').handsontable({
 			data: data,
-			startRows: data.length+1,
+			startRows: data.length,
 			startCols: 2,
 			colHeaders: ['PROPERTY', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;']
 		});
@@ -175,16 +177,56 @@ ControlPanel.prototype = {
 		console.log('addfield:');
 	},
 
-	controlToJSON: function(id) {
+	controlToEditFormat: function(id) {
 		var data = [];
+
+		// force the id to be in the edit list, even if it wasn't specified
+		if (!this.controls[id].options.hasOwnProperty('id'))
+			this.controls[id].options['id'] = id;
+
 		for (var f in this.controls[id].options) {				// for properties in original options
 			if (this.controls[id].options.hasOwnProperty(f)
 				&& (typeof this.controls[id][f] != 'object')
 				&& (typeof this.controls[id][f] != 'function')) {		// push current object value
+console.log('adding key:', id);
 				data.push([f, this.controls[id][f]]);
 			}
 		}
-		console.log('toJSON:', id, data);
+		console.log('controlToEdit:', id, data);
+		console.log('controlToStorage:', this.controlsToStorageFormat());
+		console.log('controlToStorage:', JSON.stringify(this.controlsToStorageFormat()));
+		return data;
+	},
+
+	controlToStorageFormat: function(id) {
+		var data = {};
+
+if (!this.controls[id].options) return;
+
+		// force the id to be in the storage list, even if it wasn't specified
+		if (!(this.controls[id].options.hasOwnProperty('id')))
+
+			this.controls[id].options['id'] = id;
+
+		for (var f in this.controls[id].options) {				// for properties in original options
+			if (this.controls[id].options.hasOwnProperty(f)
+				&& (typeof this.controls[id][f] != 'object')
+				&& (typeof this.controls[id][f] != 'function')) {		// push current object value
+				//data.push([f, this.controls[id][f]]);
+				data[f] = this.controls[id][f];
+			}
+		}
+		console.log('controlToStorage:', id, typeof this.controls[id], data);
+		return data;
+	},
+
+	controlsToStorageFormat: function() {
+		var data = [];
+		for (var id in this.controls) {
+			console.log('id:', id);
+			data.push(this.controlToStorageFormat(id));
+		}
+		console.log('Controls.ToStorage:', data);
 		return data;
 	}
 }
@@ -201,6 +243,7 @@ function Button(options) {
 Button.prototype = {
 
 	init: function(options) {
+		this.type = options.type = 'Button';
 		this.parent = options.parent;
 		this.options = options;
 		this.id = options.id || 'Button' + this.parent.next_id++;
@@ -303,6 +346,7 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 
 			this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h/2, ''+this.value)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
+				.click(function(e) { return self.handleClick.call(self, e); })
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 		}
 
@@ -458,7 +502,9 @@ function Slider(options) {
 Slider.prototype = {
 
 	init: function(options) {
+		this.type = options.type = 'Slider';
 		this.parent = options.parent;
+		this.options = options;
 		this.id = options.id || 'Slider' + this.parent.next_id++;
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
 		this.x = this.parent.x + (options.x || 50);
@@ -489,25 +535,27 @@ Slider.prototype = {
 
 		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h + this.slideh, 10)
 			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width':this.parent.control_stroke})
+			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		this.bar = this.parent.paper.rect(this.x + (this.w-this.barw)/2, this.y, this.barw, this.barh + this.slideh)
 			.attr({fill:this.stroke, stroke:this.stroke})
-			.click(function(e) {
-				console.log('bar click:', e);
-			})
+			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		this.slide = this.parent.paper.rect(this.x + (this.w - this.slidew)/2, this.slideYPos(), this.slidew, this.slideh, 5)
 			.attr({fill:this.stroke, stroke:this.stroke, 'stroke-width': this['stroke-width']})
+			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.slideMove, this.slideStart, this.slideEnd, this, this, this);
 
 		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.slideh + this.fontsize*2, this.text)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.slideh + this.fontsize, ''+this.value)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
+			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		return this;
@@ -592,6 +640,29 @@ console.log('Drag start:', x, y, event);
 		return false;
 	},
 
+	handleClick: function(e) {
+		if (e && e.shiftKey) {
+			return this.parent.edit(this.id);
+		}
+		if (this.repeat) {
+			if (this.running) {
+				this.running = false;
+				clearInterval(this.intervalid);
+				delete this.intervalid;
+			} else {
+				this.running = true;
+				this.exec();
+			}
+		}
+		else this.exec();
+
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		return false;
+	},
+
 	exec: function() {
 		if (!this.script) return;
 		var cmd = Mustache.render(this.script, this);
@@ -656,7 +727,9 @@ function Chart(options) {
 Chart.prototype = {
 
 	init: function(options) {
+		this.type = options.type = 'Chart';
 		this.parent = options.parent;
+		this.options = options;
 		this.id = options.id || 'Chart' + this.parent.next_id++;
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
 		this.x = this.parent.x + (options.x || 50);
@@ -711,12 +784,12 @@ Chart.prototype = {
 		var self = this;
 		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.parent.button_corner)
 			.attr({fill: this.fill, stroke: this.stroke, 'stroke-width':this.parent.control_stroke})
-			.click(function() { self.redraw(); })
+			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize*2, this.text)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
-			.click(function() { self.redraw(); })
+			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		this.svg = d3.select(this.parent.paper.canvas).append('g')
@@ -845,7 +918,7 @@ console.log('Drag start:', x, y, event);
 				this.exec();
 			}
 		}
-		else this.exec();
+		else this.redraw();
 
 		if (e) {
 			e.preventDefault();
@@ -876,19 +949,6 @@ console.log('Drag start:', x, y, event);
 			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
 		}
 	},
-
-/*
-	handleReply: function(reply) {
-		console.log("UNEXPECTED REPLY");
-		if (reply === undefined) return;
-		this.reply = reply.trim();
-		if (this.reply.length == 0) return;
-		this.setValue(this.reply);
-		var update = {id: this.id, value: this.value};
-		this.parent.sendUpdate('update', update);
-		this.fire('update', update);
-	},
-*/
 	
 	setValue: function(value) {
 		this.value = value;

@@ -11,19 +11,24 @@ Here is an overview of the architecture of Bitlash Commander:
 The PC Serving and PC Viewing can be, and usually are, on the same PC; the server requires very modest system resources.
 
 
-## Install: Arduino
+## Installing Bitlash on the Arduino
 
-You need to upload Bitlash to the Arduino.  Install Bitlash (see https://github.com/billroy/bitlash/wiki/install) , then (after restarting the Arduino IDE), connect your arduino and perform these commands in the Arduino IDE:
+To start, you need to upload Bitlash to the Arduino.  
+
+First, install the Bitlash library from GitHub into your Arduino library folder(see https://github.com/billroy/bitlash/wiki/install).
+
+Second (after restarting the Arduino IDE), connect your arduino and perform these commands in the Arduino IDE:
 
 	File -> Examples -> bitlash -> bitlashdemo
 	File -> Upload
 
+This wouldn't be a bad time to connect to Bitlash on the arduino using the Serial Monitor (at 57600 baud) and familiarize yourself with Bitlash a bit.  When you're done, close the Serial Monitor and continue here.
 
-## Install: PC
+## Installing Bitlash Commander on the PC
 
-You need node.js (http://nodejs.org) and git (http://git-scm.com).
+Prerequisites: You need node.js (http://nodejs.org) and git (http://git-scm.com).  Do those installs, and return here.
 
-In a new terminal window:
+In a new terminal window, incant:
 
 	$ git clone http://github.com/billroy/bitlash-commander
 	$ cd bitlash-commander
@@ -36,9 +41,11 @@ To start the web server on a different port:
 
 	$ node index.js -p 8080
 
-To specify a serial port:
+To specify a serial port for the arduino you would start it this way:
 
 	$ node index.js -s /dev/tty.usbserial-F00D2321
+
+Windows users will need to specify a com port using -s.  On Mac and Linux, the first usb arduino is used unless -s is specified.
 
 For help:	
 	
@@ -72,9 +79,9 @@ Here is an example that toggles pin 13 and returns the value of pin 13 by printi
 
 You can customize the script sent to Bitlash based on the current value of the control.
 
-Here is an example that sets analog output 5 to the current value of the slider:
+Here is an example that sets analog output 5 to the current value of the slider and prints it back as a response message:
 
-	{script:'a5={{value}}'}
+	{script:'print a5={{value}}'}
 
 You can use any field of the control object in {{}}.
 
@@ -150,8 +157,6 @@ The push example in the file public/push.html shows event listeners in use:
 	- BUG: no display indication that a repeat button is repeating
 	- BUG: dragging a path leaves the label and readout in the wrong place
 	- inherit from BaseControl before adding a lot of controls
-
-- BUG: click on text of repeating button doesn't stop it
 
 - server:
 	- for viewer nodes: fetch remote data for a chart on demand
