@@ -558,7 +558,7 @@ Slider.prototype = {
 		this.value = options.value || this.min;
 
 		this.slidew = .8 * this.w;
-		this.slideh = options.slideh || 1+Math.floor(this.h / 12);
+		this.slideh = options.slideh || 1+Math.floor(this.h / 10);
 
 		this.barw = options.barw || 1;	//1+Math.floor(this.w / 16);
 		this.barh = this.h;

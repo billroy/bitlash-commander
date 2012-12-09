@@ -148,15 +148,10 @@ The push example in the file public/push.html shows event listeners in use:
 		- best handled with push to the control id
 		- control can ignore the update or note it to trigger refresh
 
-
-- BUG: index.html canvas is not wide enough for iPad/iPhone
-
 - remove reply handler infra
 
 - button control
-	- BUG: no display indication that a repeat button is repeating
 	- BUG: dragging a path leaves the label and readout in the wrong place
-	- inherit from BaseControl before adding a lot of controls
 
 - server:
 	- for viewer nodes: fetch remote data for a chart on demand
@@ -179,6 +174,7 @@ The push example in the file public/push.html shows event listeners in use:
 		- raphael
 		- d3
 		- edit: https://github.com/warpech/jquery-handsontable	
+	- auth
 
 
 - detect serial port closure and reconnect
@@ -191,6 +187,7 @@ The push example in the file public/push.html shows event listeners in use:
 
 - controls
 	- image, clickable to start/stop refresh
+	- text label
 	- LED bar, clickable leds with specifiable colors
 		- round/square leds
 		- redlight
@@ -250,10 +247,6 @@ The push example in the file public/push.html shows event listeners in use:
 - alert delivery
 	- sms
 	- email
-
-- cosm upload for data updates
-	- cosm auth
-	- stream / id mapping
 
 - remote ethernet- and wifi- connected arduinos
 	- enhanced bitlash web client

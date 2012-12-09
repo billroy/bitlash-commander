@@ -19,12 +19,14 @@ $(document).ready(function() {
 	
 	var Panel = new ControlPanel({title:'Color Lab', color:'white'});
 
-	Panel.addSlider({x:350, y:100, id: 'fr', text:'Fill-Red', 	script:'javascript: this.setValue({{value}});'});
-	Panel.addSlider({x:450, y:100, id: 'fg', text:'Fill-Green',	script:'javascript: this.setValue({{value}});'});
-	Panel.addSlider({x:550, y:100, id: 'fb', text:'Fill-Blue', 	script:'javascript: this.setValue({{value}});'});
-	Panel.addSlider({x:650, y:100, id: 'sr', text:'Stroke-Red', script:'javascript: this.setValue({{value}});', value:255});
-	Panel.addSlider({x:750, y:100, id: 'sg', text:'Stroke-Green', script:'javascript: this.setValue({{value}});', value: 255});
-	Panel.addSlider({x:850, y:100, id: 'sb', text:'Stroke-Blue', script:'javascript: this.setValue({{value}});', value: 255});
+	var script = 'javascript: this.setValue({{value}});';
+
+	Panel.addSlider({x:300,  y:100, id: 'fr', text:'Fill-Red', 	script:script});
+	Panel.addSlider({x:425,  y:100, id: 'fg', text:'Fill-Green',script:script});
+	Panel.addSlider({x:550,  y:100, id: 'fb', text:'Fill-Blue', script:script});
+	Panel.addSlider({x:750,  y:100, id: 'sr', text:'Stroke-Red', script:script, value:255});
+	Panel.addSlider({x:875,  y:100, id: 'sg', text:'Stroke-Green', script:script, value: 255});
+	Panel.addSlider({x:1000, y:100, id: 'sb', text:'Stroke-Blue', script:script, value: 255});
 
 	function hex(value) {
 		var retval;
@@ -40,7 +42,7 @@ $(document).ready(function() {
 			hex(Panel.controls['fg'].value.toString(16)),
 			hex(Panel.controls['fb'].value.toString(16))
 		].join('');
-		console.log('fill:', fill);
+		//console.log('fill:', fill);
 		return fill
 	}
 
@@ -50,13 +52,13 @@ $(document).ready(function() {
 			hex(Panel.controls['sg'].value.toString(16)),
 			hex(Panel.controls['sb'].value.toString(16))
 		].join('');
-		console.log('stroke:', stroke);
+		//console.log('stroke:', stroke);
 		return stroke;
 	}
 
 	for (var id in Panel.controls) {
 		Panel.controls[id].on('update', function(data) {
-console.log('Upd:', data);
+			//console.log('Upd:', data);
 			Panel.attr({stroke: getStroke(), fill: getFill()});
 		});
 	}

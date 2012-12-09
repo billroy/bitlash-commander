@@ -65,6 +65,10 @@ var http = require('http')
 var server = http.createServer(app)
 var io = require('socket.io').listen(server);
 
+if (require_login) app.configure(function () {
+	app.use(express.basicAuth(authorize));
+});
+
 app.configure(function () {
 	app.use(express.basicAuth(authorize));
 	app.use(express.logger());
