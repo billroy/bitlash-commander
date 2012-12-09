@@ -22,6 +22,10 @@ if (argv.help) {
 	process.exit();
 } 
 
+//////////
+//
+//	Determine web port
+//
 var port;
 var heroku;
 if (argv.port) port = argv.port;
@@ -32,6 +36,29 @@ else if (process && process.env && process.env.PORT) {
 else port = 3000;
 
 
+//////////
+//
+//	Set up access control
+//
+var require_login = false;		// change to true to check passwords
+var users = [
+	['bitlash', '1234'],		// [username, password]
+	['nemo', '12343']
+];
+
+function authorize(username, password) {
+console.log('Auth:', username, password);
+	if (!require_login) return true;
+	for (var u=0; u < users.length; u++) {
+		if ((username == users[u][0]) && (password == users[u][1])) return true;
+	}
+	return false;
+}
+
+//////////
+//
+//	Configure HTTP server
+//
 var express = require('express');
 var app = express();
 var http = require('http')
@@ -39,6 +66,7 @@ var server = http.createServer(app)
 var io = require('socket.io').listen(server);
 
 app.configure(function () {
+	app.use(express.basicAuth(authorize));
 	app.use(express.logger());
 	app.use(express.bodyParser());
 	app.use(express.static(__dirname + '/public'));
@@ -154,6 +182,10 @@ if (heroku) {
 io.set('log level', 1);
 
 
+//////////
+//
+//	Send command to Bitlash
+//
 function executeBitlash(data) {
 	console.log('Exec:', data, typeof data, bitlash.ready);
 	if (bitlash.ready) {
@@ -173,7 +205,10 @@ function executeBitlash(data) {
 }
 
 
-
+//////////
+//
+//	Set up Socket.io message handlers
+//
 io.sockets.on('connection', function (socket) {
 	console.log('Client connected via', socket.transport);
 	socket.on('message', function(data) {
@@ -210,7 +245,7 @@ function broadcastJSONUpdate(data) {
 
 //////////
 //
-//	Socket.io client for rexec command
+//	Set up Socket.io client for rexec command
 //
 //	Required because at present socket.io does not provide server-to-server messaging.
 //	Activate with the -x flag.

@@ -57,7 +57,7 @@ ControlPanel.prototype = {
 				else self.editbutton.attr({fill:self.fill, stroke: self.stroke});
 			});
 
-		this.addbutton = this.paper.path('M25.31,2.872l-3.384-2.127c-0.854-0.536-1.979-0.278-2.517,0.576l-1.334,2.123l6.474,4.066l1.335-2.122C26.42,4.533,26.164,3.407,25.31,2.872zM6.555,21.786l6.474,4.066L23.581,9.054l-6.477-4.067L6.555,21.786zM5.566,26.952l-0.143,3.819l3.379-1.787l3.14-1.658l-6.246-3.925L5.566,26.952z')
+		if (0) this.addbutton = this.paper.path('M25.31,2.872l-3.384-2.127c-0.854-0.536-1.979-0.278-2.517,0.576l-1.334,2.123l6.474,4.066l1.335-2.122C26.42,4.533,26.164,3.407,25.31,2.872zM6.555,21.786l6.474,4.066L23.581,9.054l-6.477-4.067L6.555,21.786zM5.566,26.952l-0.143,3.819l3.379-1.787l3.14-1.658l-6.246-3.925L5.566,26.952z')
 			.transform('T25,75')
 			.attr({fill:this.fill, stroke: this.stroke})
 			.click(function(e) { 
@@ -85,21 +85,12 @@ ControlPanel.prototype = {
 		console.log('Socket connected', this.socket);
 
 		var self = this;
-//		this.socket.on('reply', function (data) {
-//			console.log('Bitlash reply???:', data);
-//			var reply_handler = self.reply_handlers.pop();
-//			if (reply_handler) reply_handler(data);
-//		});
 		this.socket.on('update', function(data) {
 			//console.log('Update:', data);
 			if (typeof data[0] == 'undefined') data = [data];
 			for (var i=0; i < data.length; i++) {
 				if (self.controls[data[i].id]) self.controls[data[i].id].setValue(data[i].value);
 			}
-		});
-		this.socket.on('rexec', function(data) {
-			console.log('rexec:', data);
-			//self.sendCommand('exec', data);		// ugly kludge, fixing...
 		});
 		this.socket.on('pong', function(data) {
 			var rtt = new Date().getTime() - data.timestamp;
@@ -221,7 +212,6 @@ console.log('add:', this.controls[id].options);
 			if (this.controls[id].options.hasOwnProperty(f)
 				&& (typeof this.controls[id][f] != 'object')
 				&& (typeof this.controls[id][f] != 'function')) {		// push current object value
-console.log('adding key:', id, f);
 				data.push([f, this.controls[id][f] || this.controls[id].options[f]]);
 			}
 		}

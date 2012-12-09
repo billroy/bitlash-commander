@@ -227,12 +227,10 @@ The push example in the file public/push.html shows event listeners in use:
 	- actions for save/cancel/add field
 	- delete key?
 	- disallow changing editor focus while edit is up
-	- force id field to be shown even if it's not in opts
 	- disallow edit of id field value
 	- disallow edit of first column
-	- slider needs handleClick
-	- chart needs better click plumbing
-	- issues with text/numeric value conversion?
+	- save
+		- issues with text/numeric value conversion?
 		- it does convert to string
 		- detect changed values 
 			- and handle this case
