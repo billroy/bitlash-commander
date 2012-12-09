@@ -210,6 +210,9 @@ The push example in the file public/push.html shows event listeners in use:
 
 - revisit default sizes as % parent width/height
 
+- examples
+	- sweep: add editor div and update head
+
 - edit mode
 	- new
 	- rezize: much better dragging/resizing at http://alias.io/raphael/free_transform/
@@ -217,6 +220,8 @@ The push example in the file public/push.html shows event listeners in use:
 	- named control sets
 		- save
 		- load
+		- have primitives, need shell page and query routing
+
 	- context menu:
 		http://medialize.github.com/jQuery-contextMenu/demo/dynamic-create.html
 		- delete or cut/copy/paste
@@ -224,11 +229,10 @@ The push example in the file public/push.html shows event listeners in use:
 	- color picker
 
 - property editor
-	- actions for save/cancel/add field
-	- delete key?
-	- disallow changing editor focus while edit is up
-	- disallow edit of id field value
+	- actions for save
+	- disallow edit of field value for ['id', 'type']
 	- disallow edit of first column
+	- delete key?
 	- save
 		- issues with text/numeric value conversion?
 		- it does convert to string

@@ -17,14 +17,14 @@ $(document).ready(function() {
 
 	document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
 	
-	var Panel = new ControlPanel({title:'Color Lab', color:'yellow'});
+	var Panel = new ControlPanel({title:'Color Lab', color:'white'});
 
 	Panel.addSlider({x:350, y:100, id: 'fr', text:'Fill-Red', 	script:'javascript: this.setValue({{value}});'});
 	Panel.addSlider({x:450, y:100, id: 'fg', text:'Fill-Green',	script:'javascript: this.setValue({{value}});'});
 	Panel.addSlider({x:550, y:100, id: 'fb', text:'Fill-Blue', 	script:'javascript: this.setValue({{value}});'});
-	Panel.addSlider({x:650, y:100, id: 'sr', text:'Stroke-Red', script:'javascript: this.setValue({{value}});'});
-	Panel.addSlider({x:750, y:100, id: 'sg', text:'Stroke-Green', script:'javascript: this.setValue({{value}});'});
-	Panel.addSlider({x:850, y:100, id: 'sb', text:'Stroke-Blue', script:'javascript: this.setValue({{value}});'});
+	Panel.addSlider({x:650, y:100, id: 'sr', text:'Stroke-Red', script:'javascript: this.setValue({{value}});', value:255});
+	Panel.addSlider({x:750, y:100, id: 'sg', text:'Stroke-Green', script:'javascript: this.setValue({{value}});', value: 255});
+	Panel.addSlider({x:850, y:100, id: 'sb', text:'Stroke-Blue', script:'javascript: this.setValue({{value}});', value: 255});
 
 	function hex(value) {
 		var retval;

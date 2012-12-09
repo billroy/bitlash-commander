@@ -267,7 +267,11 @@ Button.prototype = {
 		this.type = options.type = 'Button';
 		this.parent = options.parent;
 		this.options = options;
-		this.id = options.id || 'Button' + this.parent.next_id++;
+
+		if (options.id) this.id = options.id;
+		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
+		else this.id = this.type + this.parent.next_id++;
+
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
 		this.x = this.parent.x + (options.x || 50);
 		this.y = this.parent.y + (options.y || 50);
@@ -376,7 +380,12 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 	
 	attr: function(attrs) {
 		this.elt.attr(attrs);
-		//this.label.attr(attrs);
+
+		var textattrs = {};
+		for (var f in attrs) textattrs[f] = attrs[f];
+		if (textattrs.stroke) textattrs.fill=attrs.stroke;
+		this.label.attr(textattrs);
+		this.readout.attr(textattrs);
 	},
 
 	dragStart: function(x, y, event) {
@@ -524,7 +533,11 @@ Slider.prototype = {
 		this.type = options.type = 'Slider';
 		this.parent = options.parent;
 		this.options = options;
-		this.id = options.id || 'Slider' + this.parent.next_id++;
+
+		if (options.id) this.id = options.id;
+		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
+		else this.id = this.type + this.parent.next_id++;
+
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
 		this.x = this.parent.x + (options.x || 50);
 		this.y = this.parent.y + (options.y || 50);
@@ -584,8 +597,12 @@ Slider.prototype = {
 		this.outerrect.attr(attrs);
 		this.bar.attr(attrs);
 		this.slide.attr(attrs);
-		this.label.attr(attrs);
-		this.readout.attr(attrs);
+
+		var textattrs = {};
+		for (var f in attrs) textattrs[f] = attrs[f];
+		if (textattrs.stroke) textattrs.fill=attrs.stroke;
+		this.label.attr(textattrs);
+		this.readout.attr(textattrs);
 	},
 
 	dragStart: function(x, y, event) {
@@ -705,10 +722,6 @@ console.log('Drag start:', x, y, event);
 		return Math.floor(this.y + this.h * (1.0 - fraction));
 	},
 
-//	handleReply: function(reply) {		// reply is ignored for slider
-//		this.parent.sendUpdate('update', {id: this.id, value: this.value});
-//	},
-
 	setValue: function(value) {
 		if (this.dragging) return;	// be the boss: ignore updates while dragging
 		this.value = value;
@@ -749,7 +762,11 @@ Chart.prototype = {
 		this.type = options.type = 'Chart';
 		this.parent = options.parent;
 		this.options = options;
-		this.id = options.id || 'Chart' + this.parent.next_id++;
+
+		if (options.id) this.id = options.id;
+		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
+		else this.id = this.type + this.parent.next_id++;
+
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
 		this.x = this.parent.x + (options.x || 50);
 		this.y = this.parent.y + (options.y || 50);
@@ -782,6 +799,15 @@ Chart.prototype = {
 		var self = this;
 		if (this.refresh) setInterval(function() { self.redraw.call(self); }, this.refresh);
 		return this;
+	},
+
+	attr: function(attrs) {
+		this.outerrect.attr(attrs);
+
+		var textattrs = {};
+		for (var f in attrs) textattrs[f] = attrs[f];
+		if (textattrs.stroke) textattrs.fill=attrs.stroke;
+		this.label.attr(textattrs);
 	},
 	
 	render: function() {
