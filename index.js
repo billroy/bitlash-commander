@@ -42,7 +42,7 @@ else port = 3000;
 //
 var require_login = false;		// change to true to check passwords
 var users = [
-	['bitlash', '1234'],		// [username, password]
+	['bug', '1234'],			// [username, password]
 	['nemo', '12343']
 ];
 
@@ -70,7 +70,6 @@ if (require_login) app.configure(function () {
 });
 
 app.configure(function () {
-	app.use(express.basicAuth(authorize));
 	app.use(express.logger());
 	app.use(express.bodyParser());
 	app.use(express.static(__dirname + '/public'));
