@@ -1,9 +1,10 @@
+//////////
 //
-// index.js: Run the Bitlash Commander server
+//	index.js: Run the Bitlash Commander server
 //
 //	Copyright 2012 Bill Roy (MIT License; see LICENSE file)
 //
-
+//
 var opt = require('optimist');
 var url = require('url');
 var argv = opt.usage('Usage: $0 [flags]')
@@ -25,6 +26,7 @@ if (argv.help) {
 	process.exit();
 } 
 
+
 //////////
 //
 //	Determine web port
@@ -41,12 +43,12 @@ else port = 3000;
 
 //////////
 //
-//	Set up access control
+//	Access Control: Username / Password Table
 //
-if (argv.login) {
-	console.log('Server will check user credentials.');
-}
-
+//	These credentials are only checked if the server is started with the -l flag.
+//
+//	Please change the defaults below so you don't become a security statistic.
+//
 var users = [
 	['bug', '1234'],			// [username, password]
 	['nemo', '12343']
@@ -60,6 +62,10 @@ function authorize(username, password) {
 	}
 	return false;
 }
+if (argv.login) {
+	console.log('Server will check user credentials.');
+}
+
 
 //////////
 //
@@ -85,11 +91,11 @@ app.get('/', function(req, res) {
 	res.sendfile(__dirname + '/public/index.html');
 });
 
-app.get('/data', function(req, res) {
-	res.send(data_cache);
+app.post('/update', function(req, res) {
+	console.log('Update:', req.body);
 });
 
-app.get('/d3/:id', function(req, res) {
+app.get('/d3/:id', function(req, res) {		// serve D3 chart series for given control :id
 	//console.log('D3Get:', req.params.id, data_cache);
 	var output = []; 			// array of {time:23432, value:dsjklfjsd}
 	if (data_cache[req.params.id]) {
@@ -114,6 +120,7 @@ app.get('/d3/:id', function(req, res) {
 server.listen(port);
 console.log('Listening on port:', port);
 
+
 //////////
 //
 //	Initialize Bitlash
@@ -125,7 +132,7 @@ var bitlash = new Bitlash.Bitlash({
 		port: argv.serialport,
 		json_callback: broadcastJSONUpdate
 	}, function (readytext) {
-		console.log('Ready:', readytext);
+		console.log('Bitlash ready:', readytext);
 	});
 
 
@@ -150,6 +157,7 @@ if (redis_url) {
 	RedisStore = require('socket.io/lib/stores/redis');
 }
 
+
 //////////
 //
 //	Initialize Socket.io
@@ -168,8 +176,6 @@ if (1 || heroku) {
 }
 io.set('log level', 1);
 
-// BUG: leaks control id's across rooms
-// BUG: confuses control ID's across rooms
 var data_cache = {};		// caches updates per id by time
 
 function addCache(id, value) {

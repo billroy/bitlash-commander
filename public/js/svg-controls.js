@@ -45,6 +45,7 @@ ControlPanel.prototype = {
 		this.next_inc = 50;
 
 		this.initSocketIO();
+		this.initContextMenu();
 		this.sync();
 
 		var self = this;
@@ -55,13 +56,6 @@ ControlPanel.prototype = {
 				self.editing = !self.editing;
 				if (self.editing) self.editbutton.attr({fill:self.stroke, stroke:self.stroke});
 				else self.editbutton.attr({fill:self.fill, stroke: self.stroke});
-			});
-
-		if (0) this.addbutton = this.paper.path('M25.31,2.872l-3.384-2.127c-0.854-0.536-1.979-0.278-2.517,0.576l-1.334,2.123l6.474,4.066l1.335-2.122C26.42,4.533,26.164,3.407,25.31,2.872zM6.555,21.786l6.474,4.066L23.581,9.054l-6.477-4.067L6.555,21.786zM5.566,26.952l-0.143,3.819l3.379-1.787l3.14-1.658l-6.246-3.925L5.566,26.952z')
-			.transform('T25,75')
-			.attr({fill:this.fill, stroke: this.stroke})
-			.click(function(e) { 
-				self.addButton({x:self.next_x+=self.next_inc, y:self.next_y+=self.next_inc});
 			});
 
 		// one-time initialization for editor buttons
@@ -105,6 +99,60 @@ ControlPanel.prototype = {
 		if (0) window.setInterval(function() {
 			self.socket.emit('ping', {'timestamp': new Date().getTime()});
 		}, 10000);
+	},
+
+	initContextMenu: function() {
+		var self = this;
+		$.contextMenu({
+			selector: '#contextmenu',
+			trigger: 'left',
+			zIndex:99999,
+			callback: function(key, options) {
+				if (key == 'newbutton') self.addButton({});
+				else if (key == 'newslider') self.addSlider({});
+				else if (key == 'newchart') self.addChart({});
+			},
+			items: {
+				'newbutton': {name: 'New Button', 	icon: 'add'},
+				'newslider': {name: 'New Slider', 	icon: 'add'},
+				'newchart':  {name: 'New Chart', 	icon: 'add'},
+				'sep1': 	'---------',
+				'save': 	{name: 'Save', 	icon: 'save'}
+			}
+		});
+
+		this.face.click(function(e) {
+			if (self.editing) {
+				$('#contextmenu').contextMenu({x: e.clientX, y: e.clientY});
+			}
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		});
+
+		$.contextMenu({
+			selector: '#editmenu',
+			trigger: 'left',
+			zIndex:99999,
+			callback: function(key, options) {
+				if (key == 'edit') {self.edit(self.menuowner);}
+				else if (key == 'duplicate') {self.duplicate(self.menuowner);}
+				else if (key == 'delete') {self.delete(self.menuowner);}
+			},
+			items: {
+				'edit': 		{name: 'Edit...', 	icon: 'edit'},
+				'duplicate':	{name: 'Duplicate', icon: 'duplicate'},
+				'sep1': 		'---------',
+				'delete': 		{name: 'Delete', 	icon: 'delete'}
+			}
+		});
+
+	},
+
+	showEditMenu: function(id) {
+		this.menuowner = id;
+		var it = this.controls[id];
+		$('#editmenu').contextMenu({x: it.x + it.w/2, y: it.y + it.h/2});
 	},
 	
 	sync: function() {
@@ -436,9 +484,7 @@ console.log('Drag start:', x, y, event);
 	},
 
 	handleClick: function(e) {
-		if (e && e.shiftKey) {
-			return this.parent.edit(this.id);
-		}
+		if (this.editing) return this.parent.showEditMenu();
 		if (this.repeat) {
 			if (this.running) {
 				this.running = false;

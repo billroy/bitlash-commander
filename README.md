@@ -55,6 +55,10 @@ To specify a serial port for the arduino you would start it this way:
 
 Windows users will need to specify a com port using -s.  On Mac and Linux, the first usb arduino is used unless -s is specified.
 
+To secure the server by requiring a login (edit the user/password table in index.js):
+
+	$ node index.js -l
+
 For help:	
 	
 	$ node index.js --help
@@ -146,6 +150,43 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+- examples
+	- sweep: add editor div and update head
+
+- edit mode
+	- new
+	- rezize: much better dragging/resizing at http://alias.io/raphael/free_transform/
+	- delete
+	- named control sets
+		- save
+		- load
+		- have primitives, need shell page, template expansion, and query routing
+	- color picker
+
+- context menu:
+	- icons from fasticons
+	- item edit menu
+		edit
+		delete
+		duplicate
+
+- how to save panel attributes (color, mostly)
+
+- property editor
+	- actions for save
+	- disallow edit of field value for ['id', 'type']
+	- disallow edit of first column
+	- delete key?
+	- save
+		- issues with text/numeric value conversion?
+		- it does convert to string
+		- detect changed values 
+			- and handle this case
+	- broadcast control updates
+		- delete the control, force the id, and broadcast update
+		-- deleting control requires a separate command?  or a null value?
+	- ...self-deleting controls...
+
 - chart control
 	- BUG: chart: svg doesn't move on drag
 	- data source periodic run 
@@ -155,8 +196,6 @@ The push example in the file public/push.html shows event listeners in use:
 	- multiple data sources [a0,d1,random(100)]
 		- best handled with push to the control id
 		- control can ignore the update or note it to trigger refresh
-
-- remove reply handler infra
 
 - button control
 	- BUG: dragging a path leaves the label and readout in the wrong place
@@ -184,10 +223,10 @@ The push example in the file public/push.html shows event listeners in use:
 		- edit: https://github.com/warpech/jquery-handsontable	
 	- auth
 
-
 - detect serial port closure and reconnect
 	- reconnect button
 - detect socket.io port closure and reconnect
+
 - datalogging
 	- limit number of points per series
 	- facility to write to disk
@@ -215,40 +254,6 @@ The push example in the file public/push.html shows event listeners in use:
 
 - revisit default sizes as % parent width/height
 
-- examples
-	- sweep: add editor div and update head
-
-- edit mode
-	- new
-	- rezize: much better dragging/resizing at http://alias.io/raphael/free_transform/
-	- delete
-	- named control sets
-		- save
-		- load
-		- have primitives, need shell page and query routing
-
-	- context menu:
-		http://medialize.github.com/jQuery-contextMenu/demo/dynamic-create.html
-		- delete or cut/copy/paste
-		- duplicate
-	- color picker
-
-- property editor
-	- actions for save
-	- disallow edit of field value for ['id', 'type']
-	- disallow edit of first column
-	- delete key?
-	- save
-		- issues with text/numeric value conversion?
-		- it does convert to string
-		- detect changed values 
-			- and handle this case
-	- broadcast control updates
-		- delete the control, force the id, and broadcast update
-		-- deleting control requires a separate command?  or a null value?
-	- ...self-deleting controls...
-	
-- authorization / password protection
 - send text command from keyboard
 - improve operation without arduino connected
 
@@ -258,12 +263,16 @@ The push example in the file public/push.html shows event listeners in use:
 
 - remote ethernet- and wifi- connected arduinos
 	- enhanced bitlash web client
-	- client POSTs to /update for the upstream path
+	- client POSTs to server-ip/update for the upstream path
 	- server POSTs bitlash commands to arduino
 		- how to configure IP and port for remote bitlash	
+
+	- multiple arduino support
+		- command steering
+		- node registry / configuration
 		- ip-accept list
+			[['bitlash1', '192.168.1.17'], ...]
+			- scripts addressed to bitlash1: would go to 192.168.1.17
 
-- multiple arduino support
-	- command steering
-	- node registry / configuration
-
+	- how to let heroku server know it can't dispatch to local bitlash
+	
