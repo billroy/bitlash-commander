@@ -15,6 +15,9 @@ var argv = opt.usage('Usage: $0 [flags]')
 	.describe('r', 'redis server url in redis-url format')
 	.alias('x', 'rexec')
 	.describe('x', 'set true to accept remote bitlash commands on socket.io')
+	.boolean('l')
+	.alias('l', 'login')
+	.describe('l', 'require a valid login to use the server')
 	.argv;
 
 if (argv.help) {
@@ -40,15 +43,18 @@ else port = 3000;
 //
 //	Set up access control
 //
-var require_login = false;		// change to true to check passwords
+if (argv.login) {
+	console.log('Server will check user credentials.');
+}
+
 var users = [
 	['bug', '1234'],			// [username, password]
 	['nemo', '12343']
 ];
 
 function authorize(username, password) {
-console.log('Auth:', username, password);
-	if (!require_login) return true;
+	console.log('Auth:', username, password);
+	if (!argv.login) return true;
 	for (var u=0; u < users.length; u++) {
 		if ((username == users[u][0]) && (password == users[u][1])) return true;
 	}
@@ -65,7 +71,7 @@ var http = require('http')
 var server = http.createServer(app)
 var io = require('socket.io').listen(server);
 
-if (require_login) app.configure(function () {
+if (argv.login) app.configure(function () {
 	app.use(express.basicAuth(authorize));
 });
 
