@@ -226,6 +226,12 @@ ControlPanel.prototype = {
 			startCols: 2,
 			colHeaders: ['PROPERTY', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;']
 		});
+
+		for (var r=0; r<data.length; r++) {		// disallow edit of field names and id field value
+			$('#dataTable').handsontable('setCellReadOnly', r, 0);
+			if (data[r][0] == 'id') $('#dataTable').handsontable('setCellReadOnly', r, 1);
+		}
+
 		this.editingcontrol = id;
 		console.log('edit table object:', this.edittable);
 	},
@@ -339,7 +345,9 @@ Button.prototype = {
 	init: function(options) {
 		this.type = options.type = 'Button';
 		this.parent = options.parent;
-		this.options = options;
+
+		this.options = {};
+		for (var o in options) this.options[o] = options[o];
 
 		if (options.id) this.id = options.id;
 		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
@@ -555,7 +563,7 @@ console.log('Drag start:', x, y, event);
 			return;
 		}
 		var cmd = Mustache.render(this.script, this);
-		console.log('button exec:', cmd);
+		//console.log('button exec:', cmd);
 
 		if (cmd.match(/^javascript\:/)) {			// javascript command
 			cmd = cmd.replace('javascript:', '');
@@ -612,7 +620,9 @@ Slider.prototype = {
 	init: function(options) {
 		this.type = options.type = 'Slider';
 		this.parent = options.parent;
-		this.options = options;
+
+		this.options = {};
+		for (var o in options) this.options[o] = options[o];
 
 		if (options.id) this.id = options.id;
 		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
@@ -792,7 +802,6 @@ console.log('Drag start:', x, y, event);
 	exec: function() {
 		if (!this.script) return;
 		var cmd = Mustache.render(this.script, this);
-		console.log('button exec:', cmd);
 
 		if (cmd.match(/^javascript\:/)) {			// javascript command
 			cmd = cmd.replace('javascript:', '');
@@ -851,7 +860,9 @@ Chart.prototype = {
 	init: function(options) {
 		this.type = options.type = 'Chart';
 		this.parent = options.parent;
-		this.options = options;
+
+		this.options = {};
+		for (var o in options) this.options[o] = options[o];
 
 		if (options.id) this.id = options.id;
 		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;

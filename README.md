@@ -157,11 +157,6 @@ The push example in the file public/push.html shows event listeners in use:
 	- rezize: much better dragging/resizing at http://alias.io/raphael/free_transform/
 	- color picker
 
-- oops
-	- this.editing means the field editor is up
-	- also means the edit pencil is pushed and graphic editing is enabled
-
-
 - panel menu:
 	- icons from fasticons for new panel, open panel
 	- named control sets
@@ -170,12 +165,8 @@ The push example in the file public/push.html shows event listeners in use:
 		- open
 		- have primitives, need shell page, template expansion, and query routing
 
-- clone options object in init()
-
 - property editor
 	- actions for save
-	- disallow edit of field value for ['id', 'type']
-	- disallow edit of first column
 
 	- save
 		- issues with text/numeric value conversion?
@@ -190,7 +181,6 @@ The push example in the file public/push.html shows event listeners in use:
 - chart control
 	- BUG: chart: svg doesn't move on drag
 	- data source periodic run 
-	- click to run (data source vs. chart update)
 	- time axis values ick
 	- y axis min/max options
 	- multiple data sources [a0,d1,random(100)]
@@ -198,7 +188,7 @@ The push example in the file public/push.html shows event listeners in use:
 		- control can ignore the update or note it to trigger refresh
 
 - button control
-	- BUG: dragging a path leaves the label and readout in the wrong place
+	- BUG: dragging a path button leaves the label and readout in the wrong place
 
 - server:
 	- for viewer nodes: fetch remote data for a chart on demand
