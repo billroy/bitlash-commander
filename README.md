@@ -154,28 +154,29 @@ The push example in the file public/push.html shows event listeners in use:
 	- sweep: add editor div and update head
 
 - edit mode
-	- actions for delete and duplicate
-	- named control sets
-		- save
-		- load
-		- have primitives, need shell page, template expansion, and query routing
 	- rezize: much better dragging/resizing at http://alias.io/raphael/free_transform/
 	- color picker
 
-- context menu:
-	- icons from fasticons
-	- item edit menu
-		edit
-		delete
-		duplicate
+- oops
+	- this.editing means the field editor is up
+	- also means the edit pencil is pushed and graphic editing is enabled
 
-- how to save panel attributes (color, mostly)
+
+- panel menu:
+	- icons from fasticons for new panel, open panel
+	- named control sets
+		- save
+			- how to save panel attributes (color, mostly)
+		- open
+		- have primitives, need shell page, template expansion, and query routing
+
+- clone options object in init()
 
 - property editor
 	- actions for save
 	- disallow edit of field value for ['id', 'type']
 	- disallow edit of first column
-	- delete key?
+
 	- save
 		- issues with text/numeric value conversion?
 		- it does convert to string
@@ -257,6 +258,7 @@ The push example in the file public/push.html shows event listeners in use:
 - improve operation without arduino connected
 
 - alert delivery
+	- http://fabien-d.github.com/alertify.js/
 	- sms
 	- email
 

@@ -140,7 +140,7 @@ ControlPanel.prototype = {
 			callback: function(key, options) {
 				if (key == 'edit') {self.edit(self.menuowner);}
 				else if (key == 'duplicate') {self.duplicate(self.menuowner);}
-				else if (key == 'delete') {self.delete(self.menuowner);}
+				else if (key == 'delete') {self.deletecontrol(self.menuowner);}
 			},
 			items: {
 				'edit': 		{name: 'Edit...', 	icon: 'edit'},
@@ -185,6 +185,15 @@ ControlPanel.prototype = {
 		this.controls[chart.id] = chart;
 		if (chart.autorun) chart.handleClick();
 		return chart;
+	},
+	
+	add: function(items) {		// add an array of items to the panel
+		for (var i=0; i < items.length; i++) {
+			if (items[i].type == 'Button') this.addButton(items[i]);
+			else if (items[i].type == 'Slider') this.addSlider(items[i]);
+			else if (items[i].type == 'Chart') this.addChart(items[i]);
+			else console.log('Unknown type in Add:', items[i]);
+		}
 	},
 
 	sendCommand: function(command, data, reply_handler) {
@@ -250,6 +259,19 @@ console.log('add:', this.controls[id].options);
 			delete this.controls[id].options[doomedfield];
 		this.endEdit(0);
 		this.edit(id);
+	},
+	
+	duplicate: function(id) {
+		var newopts = {};
+		for (var f in this.controls[id].options) {
+			newopts[f] = this.controls[id].options[f];
+		}
+		this.add([newopts]);
+	},
+	
+	deletecontrol: function(id) {
+		this.controls[id].delete();
+		delete this.controls[id];	
 	},
 
 	controlToEditFormat: function(id) {
@@ -427,6 +449,12 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 		}
 
 		return this;
+	},
+
+	delete: function() {
+		this.elt.remove();
+		this.label.remove();
+		this.readout.remove();
 	},
 	
 	attr: function(attrs) {
@@ -642,6 +670,15 @@ Slider.prototype = {
 		return this;
 	},
 
+	delete: function() {
+		this.outerrect.remove();
+		this.bar.remove();
+		this.slide.remove();
+		this.label.remove();
+		this.readout.remove();
+	},
+	
+
 	attr: function(attrs) {
 		this.outerrect.attr(attrs);
 		this.bar.attr(attrs);
@@ -726,9 +763,7 @@ console.log('Drag start:', x, y, event);
 	},
 
 	handleClick: function(e) {
-		if (e && e.shiftKey) {
-			return this.parent.edit(this.id);
-		}
+		if (e && e.shiftKey) return this.parent.showEditMenu(this.id);
 		if (this.repeat) {
 			if (this.running) {
 				this.running = false;
@@ -966,6 +1001,12 @@ Chart.prototype = {
 		}
 	},
 
+	delete: function() {
+		this.outerrect.remove();
+		this.label.remove();
+		this.svg.remove();
+	},
+
 	dragStart: function(x, y, event) {
 console.log('Drag start:', x, y, event);
 		if (!this.parent.editing) return true;
@@ -999,9 +1040,7 @@ console.log('Drag start:', x, y, event);
 	},
 
 	handleClick: function(e) {
-		if (e && e.shiftKey) {
-			return this.parent.edit(this.id);
-		}
+		if (e && e.shiftKey) return this.parent.showEditMenu(this.id);
 		if (this.repeat) {
 			if (this.running) {
 				this.running = false;
