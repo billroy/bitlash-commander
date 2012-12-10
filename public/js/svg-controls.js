@@ -53,8 +53,8 @@ ControlPanel.prototype = {
 			.transform('T25,25')
 			.attr({fill:this.fill, stroke: this.stroke})
 			.click(function(e) { 
-				self.editing = !self.editing;
-				if (self.editing) self.editbutton.attr({fill:self.stroke, stroke:self.stroke});
+				self.editingpanel = !self.editingpanel;
+				if (self.editingpanel) self.editbutton.attr({fill:self.stroke, stroke:self.stroke});
 				else self.editbutton.attr({fill:self.fill, stroke: self.stroke});
 			});
 
@@ -125,7 +125,7 @@ ControlPanel.prototype = {
 		});
 
 		this.face.click(function(e) {
-			if (self.editing) {
+			if (self.editingpanel) {
 				$('#contextmenu').contextMenu({x: e.clientX, y: e.clientY});
 			}
 			e.preventDefault();
@@ -226,7 +226,7 @@ ControlPanel.prototype = {
 			startCols: 2,
 			colHeaders: ['PROPERTY', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;']
 		});
-		this.editing = id;
+		this.editingcontrol = id;
 		console.log('edit table object:', this.edittable);
 	},
 	
@@ -235,11 +235,11 @@ ControlPanel.prototype = {
 		console.log('endedit:', save, data);
 		$('#dataTable').handsontable('destroy');
 		$('#editor').css('zIndex', 0);
-		delete this.editing;
+		delete this.editingcontrol;
 	},
 	
 	editAddField: function() {
-		var id = this.editing;
+		var id = this.editingcontrol;
 		console.log('addfield:', id);
 		var newfield = prompt('New field name:');
 		if (!newfield) return;
@@ -251,7 +251,7 @@ console.log('add:', this.controls[id].options);
 	},
 	
 	editDeleteField: function() {
-		var id = this.editing;
+		var id = this.editingcontrol;
 		console.log('addfield:', id);
 		var doomedfield = prompt('Field to delete:');
 		if (!doomedfield) return;
@@ -469,7 +469,11 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 
 	dragStart: function(x, y, event) {
 console.log('Drag start:', x, y, event);
-		if (!this.parent.editing) return true;
+		if (!this.parent.editingpanel) return true;
+		if (event && event.shiftKey) {
+			this.parent.showEditMenu(this.id);
+			return true;
+		}
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
 		this.elt.attr({fill:this.fill_highlight}).toFront();
@@ -515,7 +519,6 @@ console.log('Drag start:', x, y, event);
 	},
 
 	handleClick: function(e) {
-		if (e && e.shiftKey) return this.parent.showEditMenu(this.id);
 		if (this.repeat) {
 			if (this.running) {
 				this.running = false;
@@ -693,7 +696,11 @@ Slider.prototype = {
 
 	dragStart: function(x, y, event) {
 console.log('Drag start:', x, y, event);
-		if (!this.parent.editing) return true;
+		if (!this.parent.editingpanel) return true;
+		if (event && event.shiftKey) {
+			this.parent.showEditMenu(this.id);
+			return true;
+		}
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
 		this.outerrect.attr({fill:this.fill_highlight}).toFront();
@@ -763,7 +770,6 @@ console.log('Drag start:', x, y, event);
 	},
 
 	handleClick: function(e) {
-		if (e && e.shiftKey) return this.parent.showEditMenu(this.id);
 		if (this.repeat) {
 			if (this.running) {
 				this.running = false;
@@ -1009,7 +1015,11 @@ Chart.prototype = {
 
 	dragStart: function(x, y, event) {
 console.log('Drag start:', x, y, event);
-		if (!this.parent.editing) return true;
+		if (!this.parent.editingpanel) return true;
+		if (event && event.shiftKey) {
+			this.parent.showEditMenu(this.id);
+			return true;
+		}
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
 		this.outerrect.attr({fill:this.fill_highlight}).toFront();
@@ -1040,7 +1050,6 @@ console.log('Drag start:', x, y, event);
 	},
 
 	handleClick: function(e) {
-		if (e && e.shiftKey) return this.parent.showEditMenu(this.id);
 		if (this.repeat) {
 			if (this.running) {
 				this.running = false;
