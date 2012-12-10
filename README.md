@@ -150,9 +150,6 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
-- examples
-	- sweep: add editor div and update head
-
 - edit mode
 	- rezize: much better dragging/resizing at http://alias.io/raphael/free_transform/
 	- color picker
@@ -166,13 +163,12 @@ The push example in the file public/push.html shows event listeners in use:
 		- have primitives, need shell page, template expansion, and query routing
 
 - property editor
-	- actions for save
-
-	- save
+	- handler for save
 		- issues with text/numeric value conversion?
 		- it does convert to string
 		- detect changed values 
 			- and handle this case
+	- server side handler
 	- broadcast control updates
 		- delete the control, force the id, and broadcast update
 		-- deleting control requires a separate command?  or a null value?
