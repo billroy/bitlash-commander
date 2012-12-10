@@ -154,13 +154,12 @@ The push example in the file public/push.html shows event listeners in use:
 	- sweep: add editor div and update head
 
 - edit mode
-	- new
-	- rezize: much better dragging/resizing at http://alias.io/raphael/free_transform/
-	- delete
+	- actions for delete and duplicate
 	- named control sets
 		- save
 		- load
 		- have primitives, need shell page, template expansion, and query routing
+	- rezize: much better dragging/resizing at http://alias.io/raphael/free_transform/
 	- color picker
 
 - context menu:

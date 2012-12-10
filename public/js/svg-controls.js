@@ -113,11 +113,14 @@ ControlPanel.prototype = {
 				else if (key == 'addchart') self.addChart({});
 			},
 			items: {
-				'addbutton': {name: 'Add Button', 	icon: 'addbutton'},
-				'addslider': {name: 'Add Slider', 	icon: 'addslider'},
-				'addchart':  {name: 'Add Chart', 	icon: 'addchart'},
-				'sep1': 	'---------',
-				'save': 	{name: 'Save', 	icon: 'save'}
+				'new': 		 {name: 'New Panel', 	icon: 'new'},
+				'sep1': 	 '---------',
+				'addbutton': {name: 'New Button', 	icon: 'addbutton'},
+				'addslider': {name: 'New Slider', 	icon: 'addslider'},
+				'addchart':  {name: 'New Chart', 	icon: 'addchart'},
+				'sep2': 	 '---------',
+				'open': 	 {name: 'Open Panel', 	icon: 'open'},
+				'save': 	 {name: 'Save Panel', 	icon: 'save'}
 			}
 		});
 
