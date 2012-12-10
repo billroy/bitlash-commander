@@ -99,12 +99,14 @@
 .context-menu-item.icon-quit { background-image: url(images/door.png); }
 */
 
-// PATCH: Bitlash Commander icons
-.context-menu-item.icon-add { background-image: url(images/page_white_add.png); }
-.context-menu-item.icon-save { background-image: url(images/door.png); }
-.context-menu-item.icon-edit { background-image: url(images/page_white_edit.png); }
-.context-menu-item.icon-duplicate { background-image: url(images/door.png); }
-.context-menu-item.icon-delete { background-image: url(images/page_white_delete.png); }
+/* PATCH: Bitlash Commander icons */
+.context-menu-item.icon-addbutton { background-image: url(images/shape_square_add.png); }
+.context-menu-item.icon-addslider { background-image: url(images/shape_flip_horizontal.png); }
+.context-menu-item.icon-addchart { background-image: url(images/chart_curve_add.png); }
+.context-menu-item.icon-save { background-image: url(images/script_save.png); }
+.context-menu-item.icon-edit { background-image: url(images/pencil.png); }
+.context-menu-item.icon-duplicate { background-image: url(images/shape_move_forwards.png); }
+.context-menu-item.icon-delete { background-image: url(images/delete.png); }
 
 
 /* vertically align inside labels */

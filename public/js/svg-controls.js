@@ -39,7 +39,7 @@ ControlPanel.prototype = {
 
 		this.controls = {};
 		this.next_id = 0;
-		this.editing = options.editing || false;
+		this.editing = false;
 		this.next_x = 100;
 		this.next_y = 100;
 		this.next_inc = 50;
@@ -108,14 +108,14 @@ ControlPanel.prototype = {
 			trigger: 'left',
 			zIndex:99999,
 			callback: function(key, options) {
-				if (key == 'newbutton') self.addButton({});
-				else if (key == 'newslider') self.addSlider({});
-				else if (key == 'newchart') self.addChart({});
+				if (key == 'addbutton') self.addButton({});
+				else if (key == 'addslider') self.addSlider({});
+				else if (key == 'addchart') self.addChart({});
 			},
 			items: {
-				'newbutton': {name: 'New Button', 	icon: 'add'},
-				'newslider': {name: 'New Slider', 	icon: 'add'},
-				'newchart':  {name: 'New Chart', 	icon: 'add'},
+				'addbutton': {name: 'Add Button', 	icon: 'addbutton'},
+				'addslider': {name: 'Add Slider', 	icon: 'addslider'},
+				'addchart':  {name: 'Add Chart', 	icon: 'addchart'},
 				'sep1': 	'---------',
 				'save': 	{name: 'Save', 	icon: 'save'}
 			}
@@ -484,7 +484,7 @@ console.log('Drag start:', x, y, event);
 	},
 
 	handleClick: function(e) {
-		if (this.editing) return this.parent.showEditMenu();
+		if (e && e.shiftKey) return this.parent.showEditMenu(this.id);
 		if (this.repeat) {
 			if (this.running) {
 				this.running = false;
