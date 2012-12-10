@@ -19,6 +19,8 @@ ControlPanel.prototype = {
 		this.h = options.h || $(window).height();
 		this.x = options.x || ($(window).width() - this.w)/2;
 		this.y = options.y || ($(window).height() - this.h)/2;
+		this.tx = options.tx || this.x + (this.w/2);
+		this.ty = options.ty || this.y + 50;
 		this.color = options.color || 'greenyellow';
 		this.fill = options.fill || 'black';
 		this.fill_highlight = options.fill_highlight || 'white';
@@ -33,8 +35,9 @@ ControlPanel.prototype = {
 
 		this.face = this.paper.rect(this.x, this.y, this.w, this.h, this.face_corner)
 			.attr({stroke: this.stroke, fill: this.fill, 'stroke-width': 2 * this.control_stroke});
-		
-		this.logo = this.paper.text(this.x + (this.w/2), this.y + 50, this.title)
+console.log('tx:', this.tx);
+
+		this.logo = this.paper.text(this.tx, this.ty, this.title)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': 36});
 
 		this.controls = {};

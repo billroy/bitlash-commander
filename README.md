@@ -154,10 +154,13 @@ The push example in the file public/push.html shows event listeners in use:
 	- rezize: much better dragging/resizing at http://alias.io/raphael/free_transform/
 	- color picker
 
+- panel
+	- title x and y
+
 - panel menu:
 	- icons from fasticons for new panel, open panel
 	- named control sets
-		- save
+		- save panel
 			- how to save panel attributes (color, mostly)
 		- open
 		- have primitives, need shell page, template expansion, and query routing
