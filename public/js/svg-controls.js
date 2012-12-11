@@ -243,14 +243,12 @@ console.log('Add:', items[i]);
 	},
 	
 	endEdit: function(save) {
-		var data = 	$('#dataTable').handsontable('getData');
-		console.log('endedit:', save, data);
 		var opts = {};
-console.log('new 1:', opts);
 		if (save) {
+			var data = 	$('#dataTable').handsontable('getData');
+			//console.log('endedit:', save, data);
 			for (var i=0; i < data.length; i++) {
 				opts[data[i][0]] = data[i][1];
-console.log('new:', data[i]);
 			}
 			console.log('Saving:', opts);
 			this.controls[opts.id].delete();
@@ -347,7 +345,7 @@ console.log('new:', data[i]);
 				data[f] = this.controls[id][f];
 			}
 		}
-		console.log('controlToStorage:', id, typeof this.controls[id], data);
+		//console.log('controlToStorage:', id, typeof this.controls[id], data);
 		return data;
 	},
 
@@ -355,10 +353,9 @@ console.log('new:', data[i]);
 		var data = [];
 		data.push({type: 'Panel', id: this.id});
 		for (var id in this.controls) {
-			console.log('id:', id);
 			data.push(this.controlToStorageFormat(id));
 		}
-		console.log('Controls.ToStorage:', data);
+		//console.log('Controls.ToStorage:', data);
 		return data;
 	}
 }
@@ -475,15 +472,16 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-			//this.label = this.parent.paper.text(this.x + (this.w/2), this.y + (this.h/2), this.text)
-			this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize, this.text)
+			//this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize, this.text)
+			this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h/2, this.text)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-			if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h/2, ''+this.value)
+			//if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h/2, ''+this.value)
+			if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize, '')
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);

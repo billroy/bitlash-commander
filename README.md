@@ -34,7 +34,14 @@ This wouldn't be a bad time to connect to Bitlash on the arduino using the Seria
 
 ## Installing Bitlash Commander on the PC
 
-Prerequisites: You need node.js (http://nodejs.org) and git (http://git-scm.com).  Do those installs, and return here.
+# Install Prerequisites: node.js, git, build environment
+
+You need node.js (http://nodejs.org) and git (http://git-scm.com).  Do those installs, and return here.
+
+You also need a compiler and build environment for your platform so that the serial port driver will build successfully.  Follow the guidance for your platform here in the section titled "To Install" before proceeding: https://github.com/voodootikigod/node-serialport
+
+
+# Install Bitlash Commander
 
 In a new terminal window, incant:
 
@@ -155,13 +162,11 @@ The push example in the file public/push.html shows event listeners in use:
 - radio button control
 
 - edit mode
-	- force x and y into opts if needed
-
 	- resize
 	- color picker
 
 - panel menu:
-	- icons from fasticons for new panel, open panel
+	- icons from fasticons for new panel, open panel, load panel
 	- named control sets
 		- save panel
 			- how to save panel attributes (color, mostly)
@@ -171,17 +176,10 @@ The push example in the file public/push.html shows event listeners in use:
 - localhost-only mode
 
 - property editor
-	- handler for save
-		- issues with text/numeric value conversion?
-		- it does convert to string
-		- detect changed values 
-			- and handle this case
-	- save-workspace
-		- server side handler
+	- megaprop for editing the whole workspace at a go
 	- broadcast control updates
 		- delete the control, force the id, and broadcast update
 		-- deleting control requires a separate command?  or a null value?
-	- ...self-deleting controls...
 
 - chart control
 	- BUG: chart: svg doesn't move on drag

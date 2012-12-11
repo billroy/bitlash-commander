@@ -1,0 +1,211 @@
+[
+	{
+		"type": "Panel",
+		"id": "Panel"
+	},
+	{
+		"x": 100,
+		"y": 20,
+		"text": "Setup",
+		"autorun": true,
+		"script": "pinmode(2,1);pinmode(4,1);pinmode(7,1);pinmode(8,1);pinmode(12,1);print \"GO\"",
+		"type": "Button",
+		"id": "Setup"
+	},
+	{
+		"x": 100,
+		"y": 120,
+		"text": "Toggle2",
+		"script": "d2=!d2;print d2",
+		"type": "Button",
+		"id": "Toggle2"
+	},
+	{
+		"x": 100,
+		"y": 220,
+		"text": "Toggle4",
+		"script": "d4=!d4;print d4",
+		"type": "Button",
+		"id": "Toggle4"
+	},
+	{
+		"x": 100,
+		"y": 320,
+		"text": "Toggle7",
+		"script": "d7=!d7;print d7",
+		"type": "Button",
+		"id": "Toggle7"
+	},
+	{
+		"x": 100,
+		"y": 420,
+		"text": "Toggle8",
+		"script": "d8=!d8;print d8",
+		"type": "Button",
+		"id": "Toggle8"
+	},
+	{
+		"x": 100,
+		"y": 520,
+		"text": "Toggle12",
+		"script": "d12=!d12;if d12 print \"on\"; else print \"off\";",
+		"type": "Button",
+		"id": "Toggle12"
+	},
+	{
+		"x": 100,
+		"y": 620,
+		"text": "Blink13",
+		"script": "d13=!d13;print d13",
+		"repeat": 1000,
+		"id": "blink13",
+		"type": "Button"
+	},
+	{
+		"x": 350,
+		"y": 400,
+		"text": "a0",
+		"script": "print a0",
+		"id": "a0",
+		"repeat": 125,
+		"type": "Button"
+	},
+	{
+		"x": 500,
+		"y": 400,
+		"text": "a1",
+		"script": "print a1",
+		"type": "Button",
+		"id": "a1"
+	},
+	{
+		"x": 650,
+		"y": 400,
+		"text": "a2",
+		"script": "print a2",
+		"type": "Button",
+		"id": "a2"
+	},
+	{
+		"x": 800,
+		"y": 400,
+		"text": "a3",
+		"script": "print a3",
+		"type": "Button",
+		"id": "a3"
+	},
+	{
+		"x": 350,
+		"y": 500,
+		"text": "a4",
+		"script": "print a4",
+		"type": "Button",
+		"id": "a4"
+	},
+	{
+		"x": 500,
+		"y": 500,
+		"text": "a5",
+		"script": "print a5",
+		"type": "Button",
+		"id": "a5"
+	},
+	{
+		"x": 650,
+		"y": 500,
+		"text": "a6",
+		"script": "print a6",
+		"type": "Button",
+		"id": "a6"
+	},
+	{
+		"x": 800,
+		"y": 500,
+		"text": "a7",
+		"script": "print a7",
+		"type": "Button",
+		"id": "a7"
+	},
+	{
+		"x": 350,
+		"y": 100,
+		"text": "pwm3",
+		"script": "print a3={{value}}",
+		"type": "Slider",
+		"id": "pwm3"
+	},
+	{
+		"x": 450,
+		"y": 100,
+		"text": "pwm5",
+		"script": "print a5={{value}}",
+		"type": "Slider",
+		"id": "pwm5"
+	},
+	{
+		"x": 550,
+		"y": 100,
+		"text": "pwm6",
+		"script": "print a6={{value}}",
+		"type": "Slider",
+		"id": "pwm6"
+	},
+	{
+		"x": 650,
+		"y": 100,
+		"text": "pwm9",
+		"script": "print a9={{value}}",
+		"type": "Slider",
+		"id": "pwm9"
+	},
+	{
+		"x": 750,
+		"y": 100,
+		"text": "pwm10",
+		"script": "print a10={{value}}",
+		"type": "Slider",
+		"id": "pwm10"
+	},
+	{
+		"x": 850,
+		"y": 100,
+		"text": "pwm11",
+		"script": "print a11={{value}}",
+		"type": "Slider",
+		"id": "pwm11"
+	},
+	{
+		"id": "chart-a0",
+		"x": 1000,
+		"y": 40,
+		"text": "random(1000)",
+		"script": "print random(1000)",
+		"target": "$random",
+		"autorun": false,
+		"interpolate": "basic",
+		"refresh": 0,
+		"type": "Chart"
+	},
+	{
+		"id": "chart-a1",
+		"x": 1000,
+		"y": 270,
+		"text": "a0",
+		"script": "print random(1000)",
+		"target": "a0",
+		"refresh": 0,
+		"type": "Chart"
+	},
+	{
+		"id": "chart-d0",
+		"x": 1000,
+		"y": 500,
+		"text": "d13",
+		"script": "print random(1000)",
+		"target": "blink13",
+		"ymax": 1.2,
+		"ymin": -0.2,
+		"refresh": 0,
+		"type": "Chart"
+	}
+]
