@@ -253,7 +253,7 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on('save', function(data) {
 		console.log('Save:', data);
-		fs.writeFile(panelpath + data[0].id, JSON.stringify(data));
+		fs.writeFile(panelpath + data[0].id, JSON.stringify(data, null, '\t'));
 	});
 	socket.on('ping', function(data) {
 		socket.emit('pong', data);

@@ -301,12 +301,22 @@ console.log('new:', data[i]);
 		delete this.controls[id];	
 	},
 
+
+	inheritOption: function(id, opt) {
+		if (!this.controls[id].options.hasOwnProperty(opt))
+			this.controls[id].options[opt] = this.controls[id][opt];
+	},
+
 	controlToEditFormat: function(id) {
 		var data = [];
 
-		// force the id to be in the edit list, even if it wasn't specified
-		if (!this.controls[id].options.hasOwnProperty('id'))
-			this.controls[id].options['id'] = id;
+		// force some fields to be in the edit list, even if not originally specified
+		this.inheritOption(id, 'id');
+		this.inheritOption(id, 'x');
+		this.inheritOption(id, 'y');
+		
+		//if (!this.controls[id].options.hasOwnProperty('id'))
+		//	this.controls[id].options['id'] = id;
 
 		for (var f in this.controls[id].options) {				// for properties in original options
 			if (this.controls[id].options.hasOwnProperty(f)
