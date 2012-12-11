@@ -36,7 +36,6 @@ ControlPanel.prototype = {
 
 		this.face = this.paper.rect(this.x, this.y, this.w, this.h, this.face_corner)
 			.attr({stroke: this.stroke, fill: this.fill, 'stroke-width': 2 * this.control_stroke});
-console.log('tx:', this.tx);
 
 		this.logo = this.paper.text(this.tx, this.ty, this.title)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': 36});
@@ -73,7 +72,7 @@ console.log('tx:', this.tx);
 
 	attr: function(attrs) {
 		this.face.attr(attrs);
-		//this.logo.attr(attrs);
+		if (attrs.stroke) this.logo.attr({stroke:attrs.stroke, fill:attrs.stroke});
 		for (var id in this.controls) this.controls[id].attr(attrs);
 		return this;
 	},
@@ -202,7 +201,7 @@ console.log('Add:', items[i]);
 		}
 	},
 
-	sendCommand: function(command, data, reply_handler) {
+	sendCommand: function(command, data) {
 		this.socket.emit(command, data);
 	},
 
@@ -538,8 +537,10 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 		}
 		else {
 			this.elt.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
-			this.label.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h + this.fontsize});
-			if (this.readout) this.readout.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h/2});
+			//this.label.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h + this.fontsize});
+			//if (this.readout) this.readout.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h/2});
+			this.label.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h/2});
+			if (this.readout) this.readout.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h + this.fontsize});
 		}
 		return this.dragFinish(e);
 	},
@@ -601,9 +602,7 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 			eval(cmd);
 		}
 		else {										// bitlash command
-			var self = this;
-			var reply_handler = function(reply) { self.handleReply.call(self, reply); };
-			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id}, reply_handler);
+			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id});
 		}
 		if (this.repeat && !this.intervalid) {
 			var self = this;
@@ -837,9 +836,7 @@ console.log('Drag start:', x, y, event);
 			eval(cmd);
 		}
 		else {										// bitlash command
-			var self = this;
-			reply_handler = function(reply) { self.handleReply.call(self, reply); };
-			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id}, reply_handler);
+			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id});
 		}
 	},
 
@@ -1121,9 +1118,7 @@ Chart.prototype = {
 			eval(cmd);
 		}
 		else {										// bitlash command
-			var self = this;
-			var reply_handler = function(reply) { self.handleReply.call(self, reply); };
-			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id}, reply_handler);
+			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id});
 		}
 
 		if (this.repeat && !this.intervalid) {
