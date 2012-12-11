@@ -150,13 +150,6 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
-- BUG: buttons which don't print replies end up showing their script
-- invisible buttons
-
-- twitter integration
-	- server credentials/auth/sender
-	- send tweet from client
-	- receive tweets as commands?
 
 - text type control
 - radio button control
@@ -164,7 +157,6 @@ The push example in the file public/push.html shows event listeners in use:
 - edit mode
 	- resize
 	- color picker
-
 
 - panel menu:
 	- icons from fasticons for new panel, open panel
@@ -182,7 +174,8 @@ The push example in the file public/push.html shows event listeners in use:
 		- it does convert to string
 		- detect changed values 
 			- and handle this case
-	- server side handler
+	- save-workspace
+		- server side handler
 	- broadcast control updates
 		- delete the control, force the id, and broadcast update
 		-- deleting control requires a separate command?  or a null value?
@@ -199,6 +192,7 @@ The push example in the file public/push.html shows event listeners in use:
 
 - button control
 	- BUG: dragging a path button leaves the label and readout in the wrong place
+	- invisible buttons
 
 - server:
 	- for viewer nodes: fetch remote data for a chart on demand
@@ -217,16 +211,16 @@ The push example in the file public/push.html shows event listeners in use:
 		- svg group?
 	- multiple server configurations with -r and -x
 	- examples
-	- credits
-		- jquery
-		- raphael
-		- d3
-		- edit: https://github.com/warpech/jquery-handsontable	
 	- auth
 
 - detect serial port closure and reconnect
 	- reconnect button
 - detect socket.io port closure and reconnect
+
+- twitter integration
+	- server credentials/auth/sender
+	- send tweet from client
+	- receive tweets as commands?
 
 - datalogging
 	- limit number of points per series

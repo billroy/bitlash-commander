@@ -192,6 +192,7 @@ console.log('tx:', this.tx);
 	
 	add: function(items) {		// add an array of items to the panel
 		for (var i=0; i < items.length; i++) {
+console.log('Add:', items[i]);
 			if (items[i].type == 'Button') this.addButton(items[i]);
 			else if (items[i].type == 'Slider') this.addSlider(items[i]);
 			else if (items[i].type == 'Chart') this.addChart(items[i]);
@@ -242,6 +243,19 @@ console.log('tx:', this.tx);
 	endEdit: function(save) {
 		var data = 	$('#dataTable').handsontable('getData');
 		console.log('endedit:', save, data);
+
+//		var newopts = {};
+		var opts = {};
+console.log('new 1:', opts);
+		if (save) {
+			for (var i=0; i < data.length; i++) {
+				opts[data[i][0]] = data[i][1];
+console.log('new:', data[i]);
+			}
+			console.log('Saving:', opts);
+			this.controls[opts.id].delete();
+			this.add([opts]);
+		}
 		$('#dataTable').handsontable('destroy');
 		$('#editor').css('zIndex', 0);
 		delete this.editingcontrol;
@@ -254,7 +268,6 @@ console.log('tx:', this.tx);
 		if (!newfield) return;
 		var newvalue = prompt('Value for new field:');
 		this.controls[id].options[newfield] = newvalue;
-console.log('add:', this.controls[id].options);
 		this.endEdit(0);
 		this.edit(id);
 	},

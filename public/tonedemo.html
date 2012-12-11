@@ -31,8 +31,8 @@ $(document).ready(function() {
 		autorun: true,
 		script:'pinmode(2,1);print "READY"'
 	});
-	Panel.addButton({x:100, y:200, text:'tone(2,freq)', noreadout: false, script:'p=1;tone(2,f)'});
-	Panel.addButton({x:100, y:300, text:'notone(2)', 	noreadout: false, script:'p=0;notone(2)'});
+	Panel.addButton({x:100, y:200, text:'tone(2,freq)', script:'p=1;tone(2,f)'});
+	Panel.addButton({x:100, y:300, text:'notone(2)',    script:'p=0;notone(2)'});
 
 	Panel.addSlider({x:350, y:100, text:'freq',  
 		script: 'print f={{value}}; if p tone(2,f);',
