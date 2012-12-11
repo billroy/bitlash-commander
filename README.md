@@ -150,9 +150,13 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
-- need a way to ignore the output of a button script
 - BUG: buttons which don't print replies end up showing their script
 - invisible buttons
+
+- twitter integration
+	- server credentials/auth/sender
+	- send tweet from client
+	- receive tweets as commands?
 
 - text type control
 - radio button control
