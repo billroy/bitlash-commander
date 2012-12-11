@@ -150,12 +150,17 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+- need a way to ignore the output of a button script
+- BUG: buttons which don't print replies end up showing their script
+- invisible buttons
+
+- text type control
+- radio button control
+
 - edit mode
-	- rezize: much better dragging/resizing at http://alias.io/raphael/free_transform/
+	- resize
 	- color picker
 
-- panel
-	- title x and y
 
 - panel menu:
 	- icons from fasticons for new panel, open panel
@@ -164,6 +169,8 @@ The push example in the file public/push.html shows event listeners in use:
 			- how to save panel attributes (color, mostly)
 		- open
 		- have primitives, need shell page, template expansion, and query routing
+
+- localhost-only mode
 
 - property editor
 	- handler for save
@@ -195,6 +202,7 @@ The push example in the file public/push.html shows event listeners in use:
 - doc:
 	- panel options
 		- channel
+		- title x and y
 	- button and slider options	
 		- autorun
 		- button shape = 'path' for svg icons
@@ -233,17 +241,18 @@ The push example in the file public/push.html shows event listeners in use:
 	- image
 
 - examples
+	- synth
 	- piano
 	- trafficlight
 	- elevator
 	- security alarm system
 	- train set
 	- remote doorbell
+	- send text command from keyboard
 	- lunch bell
 
 - revisit default sizes as % parent width/height
 
-- send text command from keyboard
 - improve operation without arduino connected
 
 - alert delivery

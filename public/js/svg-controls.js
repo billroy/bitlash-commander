@@ -304,7 +304,7 @@ console.log('add:', this.controls[id].options);
 	controlToStorageFormat: function(id) {
 		var data = {};
 
-if (!this.controls[id].options) return;
+		//if (!this.controls[id].options) return;
 
 		// force the id to be in the storage list, even if it wasn't specified
 		if (!(this.controls[id].options.hasOwnProperty('id')))
@@ -362,6 +362,7 @@ Button.prototype = {
 		this.w = options.w || 125;
 		this.h = options.h || 50;
 		this.text = options.text || 'Untitled';
+		this.noreadout = options.noreadout || false;
 		this.script = options.script || '';
 		this.stroke = options.stroke || this.parent.color;
 		this.fill = options.fill || 'black';
@@ -397,7 +398,7 @@ Button.prototype = {
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-			this.readout = this.parent.paper.text(this.x, this.y, this.value)
+			if (!this.noreadout) this.readout = this.parent.paper.text(this.x, this.y, this.value)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
@@ -430,7 +431,7 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-			this.readout = this.parent.paper.text(this.x, this.y, this.value)
+			if (!this.noreadout) this.readout = this.parent.paper.text(this.x, this.y, this.value)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
@@ -453,7 +454,7 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-			this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h/2, ''+this.value)
+			if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h/2, ''+this.value)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
@@ -465,7 +466,7 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 	delete: function() {
 		this.elt.remove();
 		this.label.remove();
-		this.readout.remove();
+		if (this.readout) this.readout.remove();
 	},
 	
 	attr: function(attrs) {
@@ -475,11 +476,11 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 		for (var f in attrs) textattrs[f] = attrs[f];
 		if (textattrs.stroke) textattrs.fill=attrs.stroke;
 		this.label.attr(textattrs);
-		this.readout.attr(textattrs);
+		if (this.readout) this.readout.attr(textattrs);
 	},
 
 	dragStart: function(x, y, event) {
-console.log('Drag start:', x, y, event);
+		console.log('Drag start:', x, y, event);
 		if (!this.parent.editingpanel) return true;
 		if (event && event.shiftKey) {
 			this.parent.showEditMenu(this.id);
@@ -488,7 +489,7 @@ console.log('Drag start:', x, y, event);
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
 		this.elt.attr({fill:this.fill_highlight}).toFront();
-		this.readout.toFront();
+		if (this.readout) this.readout.toFront();
 		this.label.toFront();
 	},
 
@@ -499,19 +500,19 @@ console.log('Drag start:', x, y, event);
 		if (this.shape == 'circle') {
 			this.elt.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});
 			this.label.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});		//??
-			this.readout.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
+			if (this.readout) this.readout.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
 		}
 		else if (this.shape == 'path') {
 			var bbox = this.elt.getBBox();
 			this.elt.transform(['t', this.x-this.drag.xoff, ',', this.y-this.drag.yoff, 's', this.scale].join(''));
 			var labely = bbox.y + this.h + this.fontsize;
 			this.label.attr({x:x-this.drag.xoff, y:labely - this.drag.yoff});
-			this.readout.attr({x:x-this.drag.xoff , y:y-this.drag.yoff});
+			if (this.readout) this.readout.attr({x:x-this.drag.xoff , y:y-this.drag.yoff});
 		}
 		else {
 			this.elt.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
 			this.label.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h + this.fontsize});
-			this.readout.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h/2});
+			if (this.readout) this.readout.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h/2});
 		}
 		return this.dragFinish(e);
 	},
@@ -586,7 +587,7 @@ console.log('Drag start:', x, y, event);
 	setValue: function(value) {
 		this.value = value;
 		//this.label.attr({text: this.text + ': ' + this.value});
-		this.readout.attr({text: '' + this.value});
+		if (this.readout) this.readout.attr({text: '' + this.value});
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
 	},
@@ -637,6 +638,7 @@ Slider.prototype = {
 		this.w = options.w || 80;
 		this.h = options.h || 200;
 		this.text = options.text || 'Untitled';
+		this.noreadout = options.noreadout || false;
 		this.script = options.script || '';
 		this.stroke = options.stroke || this.parent.color;
 		this.fill = options.fill || 'black';
@@ -678,7 +680,7 @@ Slider.prototype = {
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-		this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.slideh + this.fontsize, ''+this.value)
+		if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.slideh + this.fontsize, ''+this.value)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
@@ -691,7 +693,7 @@ Slider.prototype = {
 		this.bar.remove();
 		this.slide.remove();
 		this.label.remove();
-		this.readout.remove();
+		if (this.readout) this.readout.remove();
 	},
 	
 
@@ -704,7 +706,7 @@ Slider.prototype = {
 		for (var f in attrs) textattrs[f] = attrs[f];
 		if (textattrs.stroke) textattrs.fill=attrs.stroke;
 		this.label.attr(textattrs);
-		this.readout.attr(textattrs);
+		if (this.readout) this.readout.attr(textattrs);
 	},
 
 	dragStart: function(x, y, event) {
@@ -720,7 +722,7 @@ console.log('Drag start:', x, y, event);
 		this.bar.toFront();
 		this.slide.toFront();
 		this.label.toFront();
-		this.readout.toFront();
+		if (this.readout) this.readout.toFront();
 	},
 
 	dragMove: function(dx, dy, x, y, e) {
@@ -733,15 +735,12 @@ console.log('Drag start:', x, y, event);
 		this.slide.attr({x:x-this.drag.xoff + (this.w - this.slidew)/2, y:this.slideYPos()});
 
 		this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h + this.slideh + this.fontsize*2});
-		this.readout.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h + this.slideh + this.fontsize});
+		if (this.readout) this.readout.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h + this.slideh + this.fontsize});
 		return this.dragFinish(e);
 	},
 
 	dragEnd: function(e) {
 		this.outerrect.attr({fill:this.fill});
-		//this.bar.attr({fill:this.fill});
-		//this.label.attr({fill:this.fill});
-		//this.readout.attr({fill:this.fill});
 		delete this.drag;
 		this.dragging = false;
 		return this.dragFinish(e);
@@ -827,7 +826,7 @@ console.log('Drag start:', x, y, event);
 	setValue: function(value) {
 		if (this.dragging) return;	// be the boss: ignore updates while dragging
 		this.value = value;
-		this.readout.attr({text: ''+this.value});
+		if (this.readout) this.readout.attr({text: ''+this.value});
 		var slidey = this.slideYPos();
 		this.slide.attr({y:slidey});
 		var update = {id: this.id, value: this.value};
@@ -1028,7 +1027,7 @@ Chart.prototype = {
 	},
 
 	dragStart: function(x, y, event) {
-console.log('Drag start:', x, y, event);
+		console.log('Drag start:', x, y, event);
 		if (!this.parent.editingpanel) return true;
 		if (event && event.shiftKey) {
 			this.parent.showEditMenu(this.id);
