@@ -155,6 +155,8 @@ The push example in the file public/push.html shows event listeners in use:
 - radio button control
 
 - edit mode
+	- force x and y into opts if needed
+
 	- resize
 	- color picker
 

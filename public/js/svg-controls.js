@@ -15,6 +15,7 @@ function ControlPanel(options) {
 ControlPanel.prototype = {
 
 	init: function(options) {
+		this.id = options.id || options.title || 'Panel';
 		this.w = options.w || $(window).width();
 		this.h = options.h || $(window).height();
 		this.x = options.x || ($(window).width() - this.w)/2;
@@ -196,6 +197,7 @@ console.log('Add:', items[i]);
 			if (items[i].type == 'Button') this.addButton(items[i]);
 			else if (items[i].type == 'Slider') this.addSlider(items[i]);
 			else if (items[i].type == 'Chart') this.addChart(items[i]);
+			else if (items[i].type == 'Panel') {;}
 			else console.log('Unknown type in Add:', items[i]);
 		}
 	},
@@ -243,8 +245,6 @@ console.log('Add:', items[i]);
 	endEdit: function(save) {
 		var data = 	$('#dataTable').handsontable('getData');
 		console.log('endedit:', save, data);
-
-//		var newopts = {};
 		var opts = {};
 console.log('new 1:', opts);
 		if (save) {
@@ -255,10 +255,15 @@ console.log('new:', data[i]);
 			console.log('Saving:', opts);
 			this.controls[opts.id].delete();
 			this.add([opts]);
+			this.saveControls();
 		}
 		$('#dataTable').handsontable('destroy');
 		$('#editor').css('zIndex', 0);
 		delete this.editingcontrol;
+	},
+	
+	saveControls: function() {
+		this.socket.emit('save', this.panelToStorageFormat());
 	},
 	
 	editAddField: function() {
@@ -336,8 +341,9 @@ console.log('new:', data[i]);
 		return data;
 	},
 
-	controlsToStorageFormat: function() {
+	panelToStorageFormat: function() {
 		var data = [];
+		data.push({type: 'Panel', id: this.id});
 		for (var id in this.controls) {
 			console.log('id:', id);
 			data.push(this.controlToStorageFormat(id));

@@ -224,6 +224,9 @@ function executeBitlash(data) {
 //
 //	Set up Socket.io message handlers
 //
+var fs = require('fs');
+var panelpath = 'panels/';
+
 io.sockets.on('connection', function (socket) {
 	console.log('Client connected via', socket.transport);
 	socket.on('message', function(data) {
@@ -247,6 +250,10 @@ io.sockets.on('connection', function (socket) {
 		//console.log('Sync:', response);
 		// only to requester
 		socket.emit('update', response);
+	});
+	socket.on('save', function(data) {
+		console.log('Save:', data);
+		fs.writeFile(panelpath + data[0].id, JSON.stringify(data));
 	});
 	socket.on('ping', function(data) {
 		socket.emit('pong', data);
