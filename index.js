@@ -82,6 +82,7 @@ if (0) {
 	var ssl_key = fs.readFileSync('server.key').toString();
 	var ssl_cert = fs.readFileSync('server.crt').toString();  
 	server = https.createServer({key:ssl_key, cert:ssl_cert}, app);
+}
 else {
 	server = http.createServer(app);
 }
