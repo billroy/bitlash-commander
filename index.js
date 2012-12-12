@@ -9,7 +9,7 @@ var opt = require('optimist');
 var url = require('url');
 var argv = opt.usage('Usage: $0 [flags]')
 	.alias('p', 'port')
-	.describe('p', 'port for the http server')
+	.describe('p', 'TCP port for the http server (3000)')
 	.alias('s', 'serialport')
 	.describe('s', 'port for usbserial arduino connection')
 	.alias('r', 'redis')
@@ -73,8 +73,19 @@ if (argv.login) {
 //
 var express = require('express');
 var app = express();
-var http = require('http')
-var server = http.createServer(app)
+var http = require('http');
+var https = require('https');
+var fs = require('fs');
+var server;
+
+if (0) {
+	var ssl_key = fs.readFileSync('server.key').toString();
+	var ssl_cert = fs.readFileSync('server.crt').toString();  
+	server = https.createServer({key:ssl_key, cert:ssl_cert}, app);
+else {
+	server = http.createServer(app);
+}
+
 var io = require('socket.io').listen(server);
 
 if (argv.login) app.configure(function () {

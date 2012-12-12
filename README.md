@@ -157,13 +157,10 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+- revise label/readout placement for circle and svg buttons
 
 - text type control
 - radio button control
-
-- edit mode
-	- resize
-	- color picker
 
 - panel menu:
 	- icons from fasticons for new panel, open panel, load panel
@@ -174,12 +171,17 @@ The push example in the file public/push.html shows event listeners in use:
 		- have primitives, need shell page, template expansion, and query routing
 
 - localhost-only mode
+- drag snap-to-grid
 
 - property editor
 	- megaprop for editing the whole workspace at a go
 	- broadcast control updates
 		- delete the control, force the id, and broadcast update
 		-- deleting control requires a separate command?  or a null value?
+
+- edit mode
+	- resize
+	- color picker
 
 - chart control
 	- BUG: chart: svg doesn't move on drag

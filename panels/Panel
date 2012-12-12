@@ -10,7 +10,8 @@
 		"autorun": true,
 		"script": "pinmode(2,1);pinmode(4,1);pinmode(7,1);pinmode(8,1);pinmode(12,1);print \"GO\"",
 		"type": "Button",
-		"id": "Setup"
+		"id": "Setup",
+		"w": "400"
 	},
 	{
 		"x": 100,

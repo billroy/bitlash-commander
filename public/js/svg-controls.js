@@ -57,8 +57,10 @@ ControlPanel.prototype = {
 			.attr({fill:this.fill, stroke: this.stroke})
 			.click(function(e) { 
 				self.editingpanel = !self.editingpanel;
-				if (self.editingpanel) self.editbutton.attr({fill:self.stroke, stroke:self.stroke});
-				else self.editbutton.attr({fill:self.fill, stroke: self.stroke});
+				//if (self.editingpanel) self.editbutton.attr({fill:self.stroke, stroke:self.stroke});
+				//else self.editbutton.attr({fill:self.fill, stroke: self.stroke});
+				if (self.editingpanel) self.face.attr({fill:"url('images/grid12-green.png')", stroke:self.stroke});
+				else self.face.attr({fill:self.fill, stroke: self.stroke});
 			});
 
 		// one-time initialization for editor buttons
@@ -506,7 +508,7 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 	},
 
 	dragStart: function(x, y, event) {
-		console.log('Drag start:', x, y, event);
+		//console.log('Drag start:', x, y, event);
 		if (!this.parent.editingpanel) return true;
 		if (event && event.shiftKey) {
 			this.parent.showEditMenu(this.id);
@@ -520,7 +522,7 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 	},
 
 	dragMove: function(dx, dy, x, y, e) {
-		console.log('move:',dx,dy,x,y,e);
+		//console.log('move:',dx,dy,x,y,e);
 		this.x = this.drag.x + dx;
 		this.y = this.drag.y + dy;
 		if (this.shape == 'circle') {
@@ -736,7 +738,7 @@ Slider.prototype = {
 	},
 
 	dragStart: function(x, y, event) {
-console.log('Drag start:', x, y, event);
+		//console.log('Drag start:', x, y, event);
 		if (!this.parent.editingpanel) return true;
 		if (event && event.shiftKey) {
 			this.parent.showEditMenu(this.id);
@@ -752,7 +754,7 @@ console.log('Drag start:', x, y, event);
 	},
 
 	dragMove: function(dx, dy, x, y, e) {
-		console.log('move:',dx,dy,x,y,e);
+		//console.log('move:',dx,dy,x,y,e);
 		this.x = this.drag.x + dx;
 		this.y = this.drag.y + dy;
 
@@ -1051,7 +1053,7 @@ Chart.prototype = {
 	},
 
 	dragStart: function(x, y, event) {
-		console.log('Drag start:', x, y, event);
+		//console.log('Drag start:', x, y, event);
 		if (!this.parent.editingpanel) return true;
 		if (event && event.shiftKey) {
 			this.parent.showEditMenu(this.id);
@@ -1065,7 +1067,7 @@ Chart.prototype = {
 	},
 
 	dragMove: function(dx, dy, x, y, e) {
-		console.log('move:',dx,dy,x,y,e);
+		//console.log('move:',dx,dy,x,y,e);
 		this.outerrect.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
 		this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h + this.fontsize*2});
 		this.svg.attr('x', x - this.drag.xoff);
