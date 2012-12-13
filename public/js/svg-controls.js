@@ -603,6 +603,11 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 			this.setValue(!this.value);		// unscripted buttons toggle and gossip
 			return;
 		}
+
+		if (typeof this.script == 'function') {
+			return this.script.call(this);
+		}
+		
 		var cmd = Mustache.render(this.script, this);
 		//console.log('button exec:', cmd);
 
@@ -692,7 +697,7 @@ Slider.prototype = {
 
 		this.recenter = options.recenter || false;
 
-		this.value = options.value || this.xmin;
+		this.value = options.value || this.min;
 		this.xvalue = options.xvalue || this.xmin;
 		this.yvalue = options.yvalue || this.ymin;
 
@@ -729,7 +734,6 @@ Slider.prototype = {
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-		//this.xbar = this.parent.paper.rect(this.x + (this.w-this.barw)/2, this.y, this.barw, this.barh + this.slideh)
 		if (this.subtype != 'y') this.xbar = this.parent.paper.rect(this.x, this.outerymid, this.outerw, this.barh)
 			.attr({fill:this.stroke, stroke:this.stroke})
 			.click(function(e) { return self.handleClick.call(self, e); })
@@ -745,14 +749,14 @@ Slider.prototype = {
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.slideMove, this.slideStart, this.slideEnd, this, this, this);
 
-		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.outerh + this.fontsize*2, this.text)
+		this.label = this.parent.paper.text(this.outerxmid, this.y + this.outerh + this.fontsize*2, this.text)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		if (!this.noreadout) {
 			if (this.subtype != 'x') this.yreadout = this.parent.paper
-				.text(this.x + (this.w/2), this.y + this.outerh + this.fontsize, ''+(this.value || this.xvalue || ''))
+				.text(this.outerxmid, this.y + this.outerh + this.fontsize, ''+(this.value || this.xvalue || ''))
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
@@ -909,6 +913,11 @@ Slider.prototype = {
 
 	exec: function() {
 		if (!this.script) return;
+
+		if (typeof this.script == 'function') {
+			return this.script.call(this);
+		}
+
 		var cmd = Mustache.render(this.script, this);
 
 		if (cmd.match(/^javascript\:/)) {			// javascript command
@@ -1225,6 +1234,11 @@ Chart.prototype = {
 		if (!this.script) {
 			return;
 		}
+
+		if (typeof this.script == 'function') {
+			return this.script.call(this);
+		}
+
 		var cmd = Mustache.render(this.script, this);
 		console.log('Chart exec:', cmd);
 

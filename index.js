@@ -228,7 +228,7 @@ function executeBitlash(data) {
 		console.log('Rexec:', data);
 		io.sockets.emit('rexec', data);
 	}
-	else console.log('Busy, dropping:', data);
+	else console.log('Bitlash not ready, dropping:', data);
 }
 
 
