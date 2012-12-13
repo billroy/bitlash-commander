@@ -869,10 +869,10 @@ Slider.prototype = {
 		this.exec();
 		var self = this;
 		//console.log('slidefinish:', e, e.type);	
-		if (this.recenter && (e.type == 'mouseup')) {
+		if (this.recenter && ((e.type == 'mouseup') || (e.type == 'touchend'))) {
 			window.setTimeout(function() {
 				self.slideToCenter();
-			}, 500);
+			}, 10);
 		}
 		return false;
 	},
