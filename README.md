@@ -172,6 +172,7 @@ The push example in the file public/push.html shows event listeners in use:
 
 - localhost-only mode
 - drag snap-to-grid
+- baud rate command switch
 
 - property editor
 	- megaprop for editing the whole workspace at a go

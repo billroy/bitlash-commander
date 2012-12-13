@@ -88,7 +88,14 @@ ControlPanel.prototype = {
 			//console.log('Update:', data);
 			if (typeof data[0] == 'undefined') data = [data];
 			for (var i=0; i < data.length; i++) {
-				if (self.controls[data[i].id]) self.controls[data[i].id].setValue(data[i].value);
+				var ctrl = self.controls[data[i].id];
+				if (ctrl) {
+					if (data[i].value != undefined) ctrl.setValue(data[i].value);
+					else if ((data[i].xvalue != undefined) && (data[i].yvalue != undefined)) {
+						ctrl.setValue(data[i].xvalue, data[i].yvalue);
+					}
+					else console.log('Malformed update:', i, data);
+				}
 			}
 		});
 		this.socket.on('pong', function(data) {
@@ -676,24 +683,58 @@ Slider.prototype = {
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
-		this.min = options.min || 0;
-		this.max = options.max || 255;
-		this.value = options.value || this.min;
+		this.xmin = options.xmin || 0;
+		this.xmax = options.xmax || 255;
+		this.ymin = options.ymin || 0;
+		this.ymax = options.ymax || 255;
 
-		this.slidew = .8 * this.w;
-		this.slideh = options.slideh || 1+Math.floor(this.h / 10);
+		this.xrecenter = options.xrecenter || false;
+		this.yrecenter = options.yrecenter || false;
+
+		this.xvalue = options.xvalue || this.xmin;
+		this.yvalue = options.yvalue || this.ymin;
 
 		this.barw = options.barw || 1;	//1+Math.floor(this.w / 16);
-		this.barh = this.h;
+		this.barh = this.barw;
+
+		// recenter??
+
+		this.subtype = options.subtype || 'y';
+		if (this.subtype == 'xy') {
+			this.slidew = options.slidew || 1+Math.floor(this.w / 12);
+			this.w += this.slidew;
+			this.slideh = options.slideh || 1+Math.floor(this.h / 12);
+		}
+		else if (this.subtype == 'x') {
+			this.slidew = options.slideh || 1+Math.floor(this.w / 10);
+			this.slideh = .8 * this.h;
+		}
+		else {
+			this.ymin = options.min || this.ymin;
+			this.ymax = options.max || this.ymax;
+			this.value = options.value || this.value;
+			this.slidew = .8 * this.w;
+			this.slideh = options.slideh || 1+Math.floor(this.h / 10);
+		}
 
 		var self = this;
 
-		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h + this.slideh, 10)
+		var rectw = this.w; if (this.subtype != 'y') rectw += this.slidew;
+		var recth = this.h; if (this.subtype != 'x') recth += this.slideh;
+		var xmid = this.x + this.w/2; if (this.subtype !='y') xmid += (this.slidew/2);
+
+		this.outerrect = this.parent.paper.rect(this.x, this.y, rectw, recth, 10)
 			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width':this.parent.control_stroke})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-		this.bar = this.parent.paper.rect(this.x + (this.w-this.barw)/2, this.y, this.barw, this.barh + this.slideh)
+		//this.xbar = this.parent.paper.rect(this.x + (this.w-this.barw)/2, this.y, this.barw, this.barh + this.slideh)
+		if (this.subtype != 'y') this.xbar = this.parent.paper.rect(this.x, this.y + (this.h+this.slideh)/2, rectw, this.barh)
+			.attr({fill:this.stroke, stroke:this.stroke})
+			.click(function(e) { return self.handleClick.call(self, e); })
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+		if (this.subtype != 'x') this.ybar = this.parent.paper.rect(xmid, this.y, this.barw, recth)
 			.attr({fill:this.stroke, stroke:this.stroke})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
@@ -708,7 +749,7 @@ Slider.prototype = {
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-		if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.slideh + this.fontsize, ''+this.value)
+		if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.slideh + this.fontsize, ''+(this.value || ''))
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
@@ -718,7 +759,8 @@ Slider.prototype = {
 
 	delete: function() {
 		this.outerrect.remove();
-		this.bar.remove();
+		if (this.xbar) this.xbar.remove();
+		if (this.ybar) this.ybar.remove();
 		this.slide.remove();
 		this.label.remove();
 		if (this.readout) this.readout.remove();
@@ -727,7 +769,8 @@ Slider.prototype = {
 
 	attr: function(attrs) {
 		this.outerrect.attr(attrs);
-		this.bar.attr(attrs);
+		if (this.xbar) this.xbar.attr(attrs);
+		if (this.ybar) this.ybar.attr(attrs);
 		this.slide.attr(attrs);
 
 		var textattrs = {};
@@ -747,7 +790,8 @@ Slider.prototype = {
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
 		this.outerrect.attr({fill:this.fill_highlight}).toFront();
-		this.bar.toFront();
+		if (this.xbar) this.xbar.toFront();
+		if (this.ybar) this.ybar.toFront();
 		this.slide.toFront();
 		this.label.toFront();
 		if (this.readout) this.readout.toFront();
@@ -759,7 +803,8 @@ Slider.prototype = {
 		this.y = this.drag.y + dy;
 
 		this.outerrect.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
-		this.bar.attr({x:x-this.drag.xoff + (this.w-this.barw)/2, y:y-this.drag.yoff});
+		if (this.xbar) this.xbar.attr({x:x-this.drag.xoff, y:y-this.drag.yoff + (this.h+this.slideh)/2});
+		if (this.ybar) this.ybar.attr({x:x-this.drag.xoff + (this.w-this.barw)/2, y:y-this.drag.yoff});
 		this.slide.attr({x:x-this.drag.xoff + (this.w - this.slidew)/2, y:this.slideYPos()});
 
 		this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h + this.slideh + this.fontsize*2});
@@ -787,12 +832,20 @@ Slider.prototype = {
 	},
 
 	slideMove: function(dx, dy, x, y, e) {
-		//console.log('move:',dx,dy,x,y,e)
+		//console.log('slidemove:',dx,dy,x,y,e)
 		if (y < this.y) y = this.y;
 		else if (y > this.y + this.h) y = this.y + this.h;
-		var fraction = (y - this.y) / this.h;
-		var value = Math.floor(this.min + (1.0 - fraction) * (this.max - this.min));
-		this.setValue(value);
+		if (x < this.x) x = this.x;
+		else if (x > this.x + this.w) x = this.x + this.w;
+
+		var xfraction = (x - this.x) / this.w;
+		var xvalue = Math.floor(this.xmin + (xfraction) * (this.xmax - this.xmin));
+		var yfraction = (y - this.y) / this.h;
+		var yvalue = Math.floor(this.ymin + (1.0 - yfraction) * (this.ymax - this.ymin));
+
+		if (this.subtype == 'xy') this.setValue(xvalue, yvalue);
+		else if (this.subtype == 'x') this.setValue(xvalue);
+		else this.setValue(yvalue);
 		return this.slideFinish(e);
 	},
 
@@ -842,21 +895,55 @@ Slider.prototype = {
 		}
 	},
 
+	slideXPos: function() {
+		if (this.xvalue < this.xmin) this.xvalue = this.xmin;
+		if (this.xvalue > this.xmax) this.xvalue = this.xmax;
+		var fraction = (this.xvalue - this.xmin) / (this.xmax - this.xmin);
+		return Math.floor(this.x + this.w * fraction);
+	},
+
 	slideYPos: function() {
-		if (this.value < this.min) this.value = this.min;
-		if (this.value > this.max) this.value = this.max;
-		var fraction = (this.value - this.min) / (this.max - this.min);
+		if (this.yvalue < this.ymin) this.yvalue = this.ymin;
+		if (this.yvalue > this.ymax) this.yvalue = this.ymax;
+		var fraction = (this.yvalue - this.ymin) / (this.ymax - this.ymin);
 		return Math.floor(this.y + this.h * (1.0 - fraction));
 	},
 
-	setValue: function(value) {
+	setValue: function(value1, value2) {
+
+console.log('slider set:', value1, value2, typeof value1, typeof value2);
+
 		if (this.dragging) return;	// be the boss: ignore updates while dragging
-		this.value = value;
-		if (this.readout) this.readout.attr({text: ''+this.value});
-		var slidey = this.slideYPos();
-		this.slide.attr({y:slidey});
-		var update = {id: this.id, value: this.value};
-		this.fire('update', update);
+
+		if (this.subtype == 'xy') {
+			this.xvalue = value1;
+			this.yvalue = value2;
+			if (this.xreadout && (this.xvalue != undefined)) this.xreadout.attr({text: ''+this.xvalue});
+			if (this.yreadout && (this.yvalue != undefined)) this.yreadout.attr({text: ''+this.yvalue});
+			if (this.readout && (this.xvalue != undefined)) this.readout.attr({text: ''+this.xvalue});
+			var slidex = this.slideXPos();
+			var slidey = this.slideYPos();
+			this.slide.attr({x:slidex, y:slidey});
+			var update = {id: this.id, xvalue: this.xvalue, yvalue: this.yvalue};
+			this.fire('update', update);
+		}
+		else if (this.subtype == 'x') {
+			this.value = this.xvalue = value1;
+			if (this.readout && (this.value != undefined)) this.readout.attr({text: ''+this.value});
+			var slidex = this.slideXPos();
+			this.slide.attr({x:slidex});
+			var update = {id: this.id, value: this.value};
+			this.fire('update', update);
+		}
+		else {
+			this.value = this.yvalue = value1;
+			if (this.readout && (this.value != undefined)) this.readout.attr({text: ''+this.value});
+			var slidey = this.slideYPos();
+console.log('slidey:', slidey);
+			this.slide.attr({y:slidey});
+			var update = {id: this.id, value: this.value};
+			this.fire('update', update);
+		}
 	},
 
 	on: function(eventname, listener) {
