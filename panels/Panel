@@ -10,8 +10,7 @@
 		"autorun": true,
 		"script": "pinmode(2,1);pinmode(4,1);pinmode(7,1);pinmode(8,1);pinmode(12,1);print \"GO\"",
 		"type": "Button",
-		"id": "Setup",
-		"w": "400"
+		"id": "Setup"
 	},
 	{
 		"x": 100,
@@ -208,5 +207,14 @@
 		"ymin": -0.2,
 		"refresh": 0,
 		"type": "Chart"
+	},
+	{
+		"subtype": "xy",
+		"w": "20017",
+		"h": "200",
+		"type": "Slider",
+		"id": "Slider0",
+		"x": 147,
+		"y": 104
 	}
 ]

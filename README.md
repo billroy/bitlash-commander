@@ -157,14 +157,18 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+- better designmode background fill
+
+
 - xy sliders
 	- BUG: update channel can't handle xvalue, yvalue
 	- slide position initialization
+	- bug: slides move to center on drag
 	- recenter after command
 		- easing instead of one big jump
-	- bug: slides center on drag
 
 - bug: dragging button doesn't drag repeat indicator
+- BUG: dragging a path button leaves the label and readout in the wrong place
 
 - revise label/readout placement for circle and svg buttons
 
@@ -202,10 +206,6 @@ The push example in the file public/push.html shows event listeners in use:
 	- multiple data sources [a0,d1,random(100)]
 		- best handled with push to the control id
 		- control can ignore the update or note it to trigger refresh
-
-- button control
-	- BUG: dragging a path button leaves the label and readout in the wrong place
-	- invisible buttons
 
 - server:
 	- for viewer nodes: fetch remote data for a chart on demand

@@ -59,7 +59,7 @@ ControlPanel.prototype = {
 				self.editingpanel = !self.editingpanel;
 				//if (self.editingpanel) self.editbutton.attr({fill:self.stroke, stroke:self.stroke});
 				//else self.editbutton.attr({fill:self.fill, stroke: self.stroke});
-				if (self.editingpanel) self.face.attr({fill:"url('images/grid12-green.png')", stroke:self.stroke});
+				if (self.editingpanel) self.face.attr({fill:"url('images/grid24-greenblack.png')", stroke:self.stroke});
 				else self.face.attr({fill:self.fill, stroke: self.stroke});
 			});
 
@@ -85,15 +85,16 @@ ControlPanel.prototype = {
 
 		var self = this;
 		this.socket.on('update', function(data) {
-			//console.log('Update:', data);
+console.log('Update:', data);
 			if (typeof data[0] == 'undefined') data = [data];
 			for (var i=0; i < data.length; i++) {
 				var ctrl = self.controls[data[i].id];
 				if (ctrl) {
-					if (data[i].value != undefined) ctrl.setValue(data[i].value);
-					else if ((data[i].xvalue != undefined) && (data[i].yvalue != undefined)) {
+					if ((data[i].xvalue != undefined) && (data[i].yvalue != undefined)) {
+console.log('Incoming Update XY:', data);
 						ctrl.setValue(data[i].xvalue, data[i].yvalue);
 					}
+					else if (data[i].value != undefined) ctrl.setValue(data[i].value);
 					else console.log('Malformed update:', i, data);
 				}
 			}
@@ -122,17 +123,21 @@ ControlPanel.prototype = {
 			callback: function(key, options) {
 				if (key == 'addbutton') self.addButton({});
 				else if (key == 'addslider') self.addSlider({});
+				else if (key == 'addxyslider') self.addSlider({subtype:'xy', w:100, h:100});
+				else if (key == 'addhslider') self.addSlider({subtype:'x', w:200, h:80});
 				else if (key == 'addchart') self.addChart({});
 			},
 			items: {
-				'new': 		 {name: 'New Panel', 	icon: 'new'},
-				'sep1': 	 '---------',
-				'addbutton': {name: 'New Button', 	icon: 'addbutton'},
-				'addslider': {name: 'New Slider', 	icon: 'addslider'},
-				'addchart':  {name: 'New Chart', 	icon: 'addchart'},
-				'sep2': 	 '---------',
-				'open': 	 {name: 'Open Panel', 	icon: 'open'},
-				'save': 	 {name: 'Save Panel', 	icon: 'save'}
+				'new': 		 	{name: 'New Panel', 	icon: 'new'},
+				'sep1': 	 	'---------',
+				'addbutton': 	{name: 'New Button', 	icon: 'addbutton'},
+				'addslider': 	{name: 'New Slider', 	icon: 'addslider'},
+				'addxyslider': 	{name: 'New XY-Slider', icon: 'addslider'},
+				'addhslider': 	{name: 'New H-Slider', 	icon: 'addslider'},
+				'addchart':  	{name: 'New Chart', 	icon: 'addchart'},
+				'sep2': 	 	'---------',
+				'open': 	 	{name: 'Open Panel', 	icon: 'open'},
+				'save': 	 	{name: 'Save Panel', 	icon: 'save'}
 			}
 		});
 

@@ -32,58 +32,42 @@ $(document).ready(function() {
 		text:'XY Servo X=D3, Y=D5',
 		x:100, y:100, w:400, h:400,
 		subtype: 'xy',
-		xmin: -90, xmax: 90,
-		ymin: -90, ymax: 90,
+		xmin: 0, xmax: 180,
+		ymin: 0, ymax: 180,
 		recenter: true,
-		xvalue: 0, yvalue: 0,
-		script:'print a3={{xvalue}};a5={{yvalue}};'
-
-		// for servo control, load the Bitlash servo script onto Arduino
-		// and enable this script instead
-		//script:'servo(3,{{xvalue}});servo(5,{{yvalue}});'
+		xvalue: 90, yvalue: 90,
+		script:'servo(3,{{xvalue}});servo(5,{{yvalue}});'
 	});
 
 	Panel.addSlider({
 		text:'XY Servo X=D6, Y=D9',
 		x:700, y:100, w:100, h:100,
 		subtype: 'xy',
-		xmin: -90, xmax: 90,
-		ymin: -90, ymax: 90,
+		xmin: 0, xmax: 180,
+		ymin: 0, ymax: 180,
 		//recenter: true,
-		xvalue: 0, yvalue: 0,
-		script:'print a6={{xvalue}};a9={{yvalue}};'
-
-		// for servo control, load the Bitlash servo script onto Arduino
-		// and enable this script instead
-		//script:'servo(6,{{xvalue}});servo(9,{{yvalue}});'
+		xvalue: 90, yvalue: 90,
+		script:'servo(6,{{xvalue}});servo(9,{{yvalue}});'
 	});
 
 	Panel.addSlider({
 		text:'X Servo X=D11',
 		x:700, y:400, w:250, h:100,
 		subtype: 'x',
-		xmin: -90, xmax: 90,
+		xmin: 0, xmax: 180,
 		recenter: true,
-		xvalue: 0,
-		script:'print a11={{xvalue}};'
-
-		// for servo control, load the Bitlash servo script onto Arduino
-		// and enable this script instead
-		//script:'servo(11,{{value}});'
+		xvalue: 90,
+		script:'servo(11,{{value}});'
 	});
 
 	Panel.addSlider({
 		text:'Y Servo Y=D11',
 		x:900, y:100,
 		subtype: 'y',
-		min: -90, max: 90,
+		min: 0, max: 180,
 		//recenter: true,
-		value: 0,
-		script:'print a11={{xvalue}};'
-
-		// for servo control, load the Bitlash servo script onto Arduino
-		// and enable this script instead
-		//script:'servo(11,{{value}});'
+		value: 90,
+		script:'servo(11,{{value}});'
 	});
 
 }); 	// document.ready

@@ -218,10 +218,12 @@ function executeBitlash(data) {
 	if (bitlash.ready) {
 		bitlash.exec(data.cmd + '\n', function(reply) {
 			reply = reply.trim();
-			addCache(data.id, reply);
-			console.log('sending update:', reply);
-			data.value = reply;
-			io.sockets.emit('update', data);
+			if (reply && reply.length>0) {
+				addCache(data.id, reply);
+				console.log('sending update:', reply);
+				data.value = reply;
+				io.sockets.emit('update', data);
+			}
 		});
 	}
 	else if (heroku) {
