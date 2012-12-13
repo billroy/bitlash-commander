@@ -688,16 +688,13 @@ Slider.prototype = {
 		this.ymin = options.ymin || 0;
 		this.ymax = options.ymax || 255;
 
-		this.xrecenter = options.xrecenter || false;
-		this.yrecenter = options.yrecenter || false;
+		this.recenter = options.recenter || false;
 
 		this.xvalue = options.xvalue || this.xmin;
 		this.yvalue = options.yvalue || this.ymin;
 
 		this.barw = options.barw || 1;	//1+Math.floor(this.w / 16);
 		this.barh = this.barw;
-
-		// recenter??
 
 		this.subtype = options.subtype || 'y';
 		if (this.subtype == 'xy') {
@@ -706,7 +703,7 @@ Slider.prototype = {
 			this.slideh = options.slideh || 1+Math.floor(this.h / 12);
 		}
 		else if (this.subtype == 'x') {
-			this.slidew = options.slideh || 1+Math.floor(this.w / 10);
+			this.slidew = options.slidew || 1+Math.floor(this.w / 10);
 			this.slideh = .8 * this.h;
 		}
 		else {
@@ -719,22 +716,23 @@ Slider.prototype = {
 
 		var self = this;
 
-		var rectw = this.w; if (this.subtype != 'y') rectw += this.slidew;
-		var recth = this.h; if (this.subtype != 'x') recth += this.slideh;
-		var xmid = this.x + this.w/2; if (this.subtype !='y') xmid += (this.slidew/2);
+		this.outerw = this.w; if (this.subtype != 'y') this.outerw += this.slidew;
+		this.outerh = this.h; if (this.subtype != 'x') this.outerh += this.slideh;
+		this.outerxmid = this.x + this.w/2; if (this.subtype !='y') this.outerxmid += (this.slidew/2);
+		this.outerymid = this.y + this.h/2; if (this.subtype !='x') this.outerymid += (this.slideh/2);
 
-		this.outerrect = this.parent.paper.rect(this.x, this.y, rectw, recth, 10)
+		this.outerrect = this.parent.paper.rect(this.x, this.y, this.outerw, this.outerh, 10)
 			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width':this.parent.control_stroke})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		//this.xbar = this.parent.paper.rect(this.x + (this.w-this.barw)/2, this.y, this.barw, this.barh + this.slideh)
-		if (this.subtype != 'y') this.xbar = this.parent.paper.rect(this.x, this.y + (this.h+this.slideh)/2, rectw, this.barh)
+		if (this.subtype != 'y') this.xbar = this.parent.paper.rect(this.x, this.outerymid, this.outerw, this.barh)
 			.attr({fill:this.stroke, stroke:this.stroke})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-		if (this.subtype != 'x') this.ybar = this.parent.paper.rect(xmid, this.y, this.barw, recth)
+		if (this.subtype != 'x') this.ybar = this.parent.paper.rect(this.outerxmid, this.y, this.barw, this.outerh)
 			.attr({fill:this.stroke, stroke:this.stroke})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
@@ -744,16 +742,23 @@ Slider.prototype = {
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.slideMove, this.slideStart, this.slideEnd, this, this, this);
 
-		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.slideh + this.fontsize*2, this.text)
+		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.outerh + this.fontsize*2, this.text)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-		if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.slideh + this.fontsize, ''+(this.value || ''))
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+		if (!this.noreadout) {
+			this.xreadout = this.parent.paper
+				.text(this.x + (this.w/2), this.y + this.outerh + this.fontsize, ''+(this.value || this.xvalue || ''))
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
+			if (this.subtype != 'y') this.yreadout = this.parent.paper.text(this.x + this.outerw + this.fontsize, this.y + this.h/2, ''+(this.yvalue || ''))
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+		}
 		return this;
 	},
 
@@ -763,9 +768,9 @@ Slider.prototype = {
 		if (this.ybar) this.ybar.remove();
 		this.slide.remove();
 		this.label.remove();
-		if (this.readout) this.readout.remove();
+		if (this.xreadout) this.xreadout.remove();
+		if (this.yreadout) this.yreadout.remove();
 	},
-	
 
 	attr: function(attrs) {
 		this.outerrect.attr(attrs);
@@ -777,7 +782,8 @@ Slider.prototype = {
 		for (var f in attrs) textattrs[f] = attrs[f];
 		if (textattrs.stroke) textattrs.fill=attrs.stroke;
 		this.label.attr(textattrs);
-		if (this.readout) this.readout.attr(textattrs);
+		if (this.xreadout) this.xreadout.attr(textattrs);
+		if (this.yreadout) this.yreadout.attr(textattrs);
 	},
 
 	dragStart: function(x, y, event) {
@@ -794,7 +800,8 @@ Slider.prototype = {
 		if (this.ybar) this.ybar.toFront();
 		this.slide.toFront();
 		this.label.toFront();
-		if (this.readout) this.readout.toFront();
+		if (this.xreadout) this.xreadout.toFront();
+		if (this.yreadout) this.yreadout.toFront();
 	},
 
 	dragMove: function(dx, dy, x, y, e) {
@@ -803,12 +810,13 @@ Slider.prototype = {
 		this.y = this.drag.y + dy;
 
 		this.outerrect.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
-		if (this.xbar) this.xbar.attr({x:x-this.drag.xoff, y:y-this.drag.yoff + (this.h+this.slideh)/2});
+		if (this.xbar) this.xbar.attr({x:x-this.drag.xoff, y:y-this.drag.yoff + this.outerh/2});
 		if (this.ybar) this.ybar.attr({x:x-this.drag.xoff + (this.w-this.barw)/2, y:y-this.drag.yoff});
 		this.slide.attr({x:x-this.drag.xoff + (this.w - this.slidew)/2, y:this.slideYPos()});
 
-		this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h + this.slideh + this.fontsize*2});
-		if (this.readout) this.readout.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h + this.slideh + this.fontsize});
+		this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.outerh + this.fontsize*2});
+		if (this.xreadout) this.xreadout.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.outerh + this.fontsize});
+		if (this.yreadout) this.yreadout.attr({x:x - this.drag.xoff + this.outerw + this.fontsize, y:y - this.drag.yoff + this.h/2});
 		return this.dragFinish(e);
 	},
 
@@ -859,7 +867,21 @@ Slider.prototype = {
 		e.stopPropagation();
 		this.sliding = false;
 		this.exec();
+		var self = this;
+		//console.log('slidefinish:', e, e.type);	
+		if (this.recenter && (e.type == 'mouseup')) {
+			window.setTimeout(function() {
+				self.slideToCenter();
+			}, 500);
+		}
 		return false;
+	},
+
+	slideToCenter: function() {
+		if (this.subtype == 'xy') this.setValue((this.xmax + this.xmin)/2, (this.ymax + this.ymin)/2);
+		else if (this.subtype == 'x') this.setValue((this.xmax + this.xmin)/2);
+		else this.setValue((this.ymax + this.ymin)/2);
+		this.exec();
 	},
 
 	handleClick: function(e) {
@@ -896,6 +918,7 @@ Slider.prototype = {
 	},
 
 	slideXPos: function() {
+		if (this.subtype == 'y') return this.x + (this.w - this.slidew)/2;
 		if (this.xvalue < this.xmin) this.xvalue = this.xmin;
 		if (this.xvalue > this.xmax) this.xvalue = this.xmax;
 		var fraction = (this.xvalue - this.xmin) / (this.xmax - this.xmin);
@@ -903,6 +926,7 @@ Slider.prototype = {
 	},
 
 	slideYPos: function() {
+		if (this.subtype == 'x') return this.y + (this.h - this.slideh)/2;
 		if (this.yvalue < this.ymin) this.yvalue = this.ymin;
 		if (this.yvalue > this.ymax) this.yvalue = this.ymax;
 		var fraction = (this.yvalue - this.ymin) / (this.ymax - this.ymin);
@@ -911,16 +935,15 @@ Slider.prototype = {
 
 	setValue: function(value1, value2) {
 
-console.log('slider set:', value1, value2, typeof value1, typeof value2);
+		//console.log('slider set:', value1, value2, typeof value1, typeof value2);
 
 		if (this.dragging) return;	// be the boss: ignore updates while dragging
 
 		if (this.subtype == 'xy') {
-			this.xvalue = value1;
-			this.yvalue = value2;
+			if (value1 != undefined) this.xvalue = value1;
+			if (value2 != undefined) this.yvalue = value2;
 			if (this.xreadout && (this.xvalue != undefined)) this.xreadout.attr({text: ''+this.xvalue});
 			if (this.yreadout && (this.yvalue != undefined)) this.yreadout.attr({text: ''+this.yvalue});
-			if (this.readout && (this.xvalue != undefined)) this.readout.attr({text: ''+this.xvalue});
 			var slidex = this.slideXPos();
 			var slidey = this.slideYPos();
 			this.slide.attr({x:slidex, y:slidey});
@@ -929,7 +952,7 @@ console.log('slider set:', value1, value2, typeof value1, typeof value2);
 		}
 		else if (this.subtype == 'x') {
 			this.value = this.xvalue = value1;
-			if (this.readout && (this.value != undefined)) this.readout.attr({text: ''+this.value});
+			if (this.xreadout && (this.value != undefined)) this.xreadout.attr({text: ''+this.value});
 			var slidex = this.slideXPos();
 			this.slide.attr({x:slidex});
 			var update = {id: this.id, value: this.value};
@@ -937,7 +960,7 @@ console.log('slider set:', value1, value2, typeof value1, typeof value2);
 		}
 		else {
 			this.value = this.yvalue = value1;
-			if (this.readout && (this.value != undefined)) this.readout.attr({text: ''+this.value});
+			if (this.yreadout && (this.value != undefined)) this.yreadout.attr({text: ''+this.value});
 			var slidey = this.slideYPos();
 console.log('slidey:', slidey);
 			this.slide.attr({y:slidey});

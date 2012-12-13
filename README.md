@@ -157,6 +157,17 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+- xy sliders
+	- BUG: update channel can't handle xvalue, yvalue
+	- slide position initialization
+	- recenter after command
+		- bug: slidefinish happens every time the mouse stops moving
+			recenter has to wait for mouseup
+		- easing instead of one big jump
+	- slides center on drag
+
+- bug: dragging button doesn't drag repeat indicator
+
 - revise label/readout placement for circle and svg buttons
 
 - text type control
@@ -164,6 +175,7 @@ The push example in the file public/push.html shows event listeners in use:
 
 - panel menu:
 	- icons from fasticons for new panel, open panel, load panel
+	- hslider, xyslider
 	- named control sets
 		- save panel
 			- how to save panel attributes (color, mostly)
