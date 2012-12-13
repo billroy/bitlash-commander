@@ -60,11 +60,25 @@ $(document).ready(function() {
 
 	Panel.addSlider({
 		text:'X Servo X=D11',
-		x:650, y:300, w:250, h:100,
+		x:700, y:400, w:250, h:100,
 		subtype: 'x',
 		xmin: -90, xmax: 90,
 		recenter: true,
 		xvalue: 0,
+		script:'print a11={{xvalue}};'
+
+		// for servo control, load the Bitlash servo script onto Arduino
+		// and enable this script instead
+		//script:'servo(11,{{value}});'
+	});
+
+	Panel.addSlider({
+		text:'Y Servo Y=D11',
+		x:900, y:100,
+		subtype: 'y',
+		min: -90, max: 90,
+		//recenter: true,
+		value: 0,
 		script:'print a11={{xvalue}};'
 
 		// for servo control, load the Bitlash servo script onto Arduino

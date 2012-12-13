@@ -65,7 +65,7 @@ $(document).ready(function() {
 
 	for (var id in Panel.controls) {
 		Panel.controls[id].on('update', function(data) {
-			//console.log('Upd:', data);
+console.log('Upd:', data);
 			Panel.attr({stroke: getStroke(), fill: getFill()});
 		});
 	}

@@ -683,6 +683,8 @@ Slider.prototype = {
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
+		this.min = options.min || 0;
+		this.max = options.max || 0;
 		this.xmin = options.xmin || 0;
 		this.xmax = options.xmax || 255;
 		this.ymin = options.ymin || 0;
@@ -690,6 +692,7 @@ Slider.prototype = {
 
 		this.recenter = options.recenter || false;
 
+		this.value = options.value || this.xmin;
 		this.xvalue = options.xvalue || this.xmin;
 		this.yvalue = options.yvalue || this.ymin;
 
@@ -748,13 +751,13 @@ Slider.prototype = {
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		if (!this.noreadout) {
-			this.xreadout = this.parent.paper
+			if (this.subtype != 'x') this.yreadout = this.parent.paper
 				.text(this.x + (this.w/2), this.y + this.outerh + this.fontsize, ''+(this.value || this.xvalue || ''))
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-			if (this.subtype != 'y') this.yreadout = this.parent.paper.text(this.x + this.outerw + this.fontsize, this.y + this.h/2, ''+(this.yvalue || ''))
+			if (this.subtype != 'y') this.xreadout = this.parent.paper.text(this.x + this.outerw + this.fontsize, this.y + this.h/2, ''+(this.yvalue || ''))
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
