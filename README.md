@@ -161,10 +161,8 @@ The push example in the file public/push.html shows event listeners in use:
 	- BUG: update channel can't handle xvalue, yvalue
 	- slide position initialization
 	- recenter after command
-		- bug: slidefinish happens every time the mouse stops moving
-			recenter has to wait for mouseup
 		- easing instead of one big jump
-	- slides center on drag
+	- bug: slides center on drag
 
 - bug: dragging button doesn't drag repeat indicator
 

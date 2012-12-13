@@ -28,16 +28,21 @@ $(document).ready(function() {
 	
 	var Panel = new ControlPanel({title: 'TextWhacker Message Page', tx: 350, ty:50, color:'mediumseagreen'});
 
-	Panel.addButton({x:100, y: 150, w:500,
+	Panel.addButton({x:100, y: 150, w:525,
 		text:'Send a message',
 		script: function() {
 			var text = prompt('Text to send:');
-			var script = 'printm("{{text}}");';
+			var script = 'text("{{text}}");';
 			var cmd = Mustache.render(script, {text:text});
 			console.log('Command:', cmd);
 			this.parent.sendCommand('exec', {cmd:cmd, id:this.id});
 		}
 	});
+
+	Panel.addButton({x:100, y: 250, text:'red', stroke:'red', script:'fill(color("red"))'});
+	Panel.addButton({x:300, y: 250, text:'green', stroke:'green', script:'fill(color("green"))'});
+	Panel.addButton({x:500, y: 250, text:'blue', stroke:'blue', script:'fill(color("blue"))'});
+	Panel.addButton({x:100, y: 350, text:'black', stroke:'white', script:'fill(color("black"))'});
 
 }); 	// document.ready
 </script>
