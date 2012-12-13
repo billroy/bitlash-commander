@@ -128,7 +128,8 @@ console.log('Incoming Update XY:', data);
 				else if (key == 'addchart') self.addChart({});
 			},
 			items: {
-				'new': 		 	{name: 'New Panel', 	icon: 'new'},
+				'newpanel': 	{name: 'New Panel', 	icon: 'newpanel'},
+				'editpanel': 	{name: 'Panel Properties...', 	icon: 'editpanel'},
 				'sep1': 	 	'---------',
 				'addbutton': 	{name: 'New Button', 	icon: 'addbutton'},
 				'addslider': 	{name: 'New Slider', 	icon: 'addslider'},
@@ -136,7 +137,7 @@ console.log('Incoming Update XY:', data);
 				'addhslider': 	{name: 'New H-Slider', 	icon: 'addslider'},
 				'addchart':  	{name: 'New Chart', 	icon: 'addchart'},
 				'sep2': 	 	'---------',
-				'open': 	 	{name: 'Open Panel', 	icon: 'open'},
+				'openpanel': 	{name: 'Open Panel', 	icon: 'openpanel'},
 				'save': 	 	{name: 'Save Panel', 	icon: 'save'}
 			}
 		});
@@ -160,7 +161,7 @@ console.log('Incoming Update XY:', data);
 				else if (key == 'delete') {self.deletecontrol(self.menuowner);}
 			},
 			items: {
-				'edit': 		{name: 'Edit...', 	icon: 'edit'},
+				'edit': 		{name: 'Item Properties...', 	icon: 'edit'},
 				'duplicate':	{name: 'Duplicate', icon: 'duplicate'},
 				'sep1': 		'---------',
 				'delete': 		{name: 'Delete', 	icon: 'delete'}
@@ -169,10 +170,9 @@ console.log('Incoming Update XY:', data);
 
 	},
 
-	showEditMenu: function(id) {
+	showEditMenu: function(id, event) {
 		this.menuowner = id;
-		var it = this.controls[id];
-		$('#editmenu').contextMenu({x: it.x + it.w/2, y: it.y + it.h/2});
+		$('#editmenu').contextMenu({x: event.clientX, y:event.clientY});
 	},
 	
 	sync: function() {
@@ -519,11 +519,15 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 		if (this.readout) this.readout.attr(textattrs);
 	},
 
+	setText: function(text) {
+		this.label.attr({text:text});
+	},
+
 	dragStart: function(x, y, event) {
 		//console.log('Drag start:', x, y, event);
 		if (!this.parent.editingpanel) return true;
 		if (event && event.shiftKey) {
-			this.parent.showEditMenu(this.id);
+			this.parent.showEditMenu(this.id, event);
 			return true;
 		}
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
@@ -802,7 +806,7 @@ Slider.prototype = {
 		//console.log('Drag start:', x, y, event);
 		if (!this.parent.editingpanel) return true;
 		if (event && event.shiftKey) {
-			this.parent.showEditMenu(this.id);
+			this.parent.showEditMenu(this.id, event);
 			return true;
 		}
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
@@ -1183,7 +1187,7 @@ Chart.prototype = {
 		//console.log('Drag start:', x, y, event);
 		if (!this.parent.editingpanel) return true;
 		if (event && event.shiftKey) {
-			this.parent.showEditMenu(this.id);
+			this.parent.showEditMenu(this.id, event);
 			return true;
 		}
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};

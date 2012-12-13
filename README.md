@@ -170,6 +170,10 @@ The push example in the file public/push.html shows event listeners in use:
 - bug: dragging button doesn't drag repeat indicator
 - BUG: dragging a path button leaves the label and readout in the wrong place
 
+- bug: allow edit of id field
+
+- panel properties menu
+
 - revise label/readout placement for circle and svg buttons
 
 - text type control
