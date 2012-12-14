@@ -15,6 +15,8 @@ function ControlPanel(options) {
 ControlPanel.prototype = {
 
 	init: function(options) {
+		this.options = {};
+		for (var o in options) this.options[o] = options[o];
 		this.id = options.id || options.title || 'Panel';
 		this.w = options.w || $(window).width();
 		this.h = options.h || $(window).height();
@@ -75,6 +77,7 @@ ControlPanel.prototype = {
 
 	attr: function(attrs) {
 		this.face.attr(attrs);
+		this.editbutton.attr(attrs);
 		if (attrs.stroke) this.logo.attr({stroke:attrs.stroke, fill:attrs.stroke});
 		for (var id in this.controls) this.controls[id].attr(attrs);
 		return this;
@@ -135,6 +138,8 @@ console.log('Incoming Update XY:', data);
 				else if (key == 'addxyslider') self.addSlider({subtype:'xy', w:100, h:100});
 				else if (key == 'addhslider') self.addSlider({subtype:'x', w:200, h:80});
 				else if (key == 'addchart') self.addChart({});
+				else if (key == 'save') self.saveControls();
+				else if (key == 'editpanel') self.edit(self);
 			},
 			items: {
 				'newpanel': 	{name: 'New Panel', 	icon: 'newpanel'},
@@ -219,11 +224,20 @@ console.log('Incoming Update XY:', data);
 	
 	add: function(items) {		// add an array of items to the panel
 		for (var i=0; i < items.length; i++) {
-console.log('Add:', items[i]);
+			//console.log('Add:', items[i]);
 			if (items[i].type == 'Button') this.addButton(items[i]);
 			else if (items[i].type == 'Slider') this.addSlider(items[i]);
 			else if (items[i].type == 'Chart') this.addChart(items[i]);
-			else if (items[i].type == 'Panel') {;}
+			else if (items[i].type == 'Panel') {
+				for (var f in items[i]) {
+					this.options[f] = this[f] = items[i][f];
+				}
+				var panelopts = {};
+				if (items[i].fill) this.fill = panelopts.fill = items[i].fill;
+				if (items[i].stroke) this.stroke = panelopts.stroke = items[i].stroke;
+				if (items[i].color) this.stroke = this.color = panelopts.stroke = items[i].color;
+				this.attr(panelopts);
+			}
 			else console.log('Unknown type in Add:', items[i]);
 		}
 	},
@@ -242,16 +256,22 @@ console.log('Add:', items[i]);
 		var newb = Math.min(1, hsb.b*2);
 		return Raphael.hsb2rgb(hsb.h, hsb.s, newb).hex;
 	},
-	
-	edit: function(id) {
+
+	edit: function(object) {	// edit control.id or this
+
+		var x = (object == this) ? 100 : this.controls[object].x;
+		var y = (object == this) ? 100 : this.controls[object].y;
 
 		var editor = $('#editor').css('background-color', 'white')
 			.css('zIndex', 9999)
 			.css('position', 'absolute')
 			//.css('width', '50%')
-			.css({left: this.controls[id].x, top: this.controls[id].y});
+			.css({left: x, top: y});
 
-		var data = this.controlToEditFormat(id);
+		var data;
+		if (object == this) data = this.panelToEditFormat();
+		else data = this.controlToEditFormat(object);
+
  		this.edittable = $('#dataTable').handsontable({
 			data: data,
 			startRows: data.length,
@@ -264,7 +284,7 @@ console.log('Add:', items[i]);
 			//if (data[r][0] == 'id') $('#dataTable').handsontable('setCellReadOnly', r, 1);
 		}
 
-		this.editingcontrol = id;
+		this.editingcontrol = object;
 		console.log('edit table object:', this.edittable);
 	},
 	
@@ -277,9 +297,19 @@ console.log('Add:', items[i]);
 				opts[data[i][0]] = data[i][1];
 			}
 			console.log('Saving:', opts);
-			this.controls[this.editingcontrol].delete();
-			this.add([opts]);
-			this.saveControls();
+			if (this.editingcontrol == this) {
+				var attrs = {};
+				for (var f in opts) {
+					this.options[f] = this[f] = opts[f];
+				}
+				if (opts.fill) this.attr({fill:opts.fill});
+				if (opts.stroke) this.attr({stroke:opts.stroke});
+				if (opts.color) this.attr({stroke:opts.color});
+			}
+			else {
+				this.controls[this.editingcontrol].delete();
+				this.add([opts]);
+			}
 		}
 		$('#dataTable').handsontable('destroy');
 		$('#editor').css('zIndex', 0);
@@ -292,6 +322,7 @@ console.log('Add:', items[i]);
 
 	load: function(panelid) {
 console.log('Load:', panelid);
+		this.id = panelid;
 		this.socket.emit('open', panelid);
 	},
 
@@ -301,8 +332,15 @@ console.log('Load:', panelid);
 		var newfield = prompt('New field name:');
 		if (!newfield) return;
 		var newvalue = prompt('Value for new field:');
-		this.controls[id].options[newfield] = newvalue;
-		this.controls[id][newfield] = newvalue;
+
+		if (this.editingcontrol == this) {
+			this.options[newfield] = newvalue;
+			this[newfield] = newvalue;
+		}
+		else {
+			this.controls[id].options[newfield] = newvalue;
+			this.controls[id][newfield] = newvalue;
+		}
 		this.endEdit(0);
 		this.edit(id);
 	},
@@ -312,8 +350,14 @@ console.log('Load:', panelid);
 		console.log('addfield:', id);
 		var doomedfield = prompt('Field to delete:');
 		if (!doomedfield) return;
-		if (this.controls[id].options.hasOwnProperty(doomedfield))
-			delete this.controls[id].options[doomedfield];
+		if (this.editingcontrol == this) {
+			if (this.options.hasOwnProperty(doomedfield))
+				delete this.options[doomedfield];
+		}
+		else {
+			if (this.controls[id].options.hasOwnProperty(doomedfield))
+				delete this.controls[id].options[doomedfield];
+		}
 		this.endEdit(0);
 		this.edit(id);
 	},
@@ -358,7 +402,7 @@ console.log('Load:', panelid);
 		console.log('controlToEdit:', id, data);
 		return data;
 	},
-
+	
 	controlToStorageFormat: function(id) {
 		var data = {};
 
@@ -381,9 +425,35 @@ console.log('Load:', panelid);
 		return data;
 	},
 
+	panelToEditFormat: function() {
+console.log('p2e1:', this.options, this);
+		var data = [];
+		for (var f in this.options) {				// for properties in original options
+console.log('p2e:', f);
+			if (this.options.hasOwnProperty(f)
+				&& (typeof this.options[f] != 'object')
+				&& (typeof this.options[f] != 'function')) {		// push current object value
+				data.push([f, this.options[f] || this[f]]);
+			}
+		}
+		console.log('panelToEdit:', data);
+		return data;
+	},
+
 	panelToStorageFormat: function() {
 		var data = [];
-		data.push({type: 'Panel', id: this.id});
+		var panelopts = {};
+		for (var f in this.options) {
+			if (this.options.hasOwnProperty(f)
+				&& (typeof this.options[f] != 'object')
+				&& (typeof this.options[f] != 'function')) {
+				panelopts[f] = this.options[f];
+			}
+		}
+		panelopts.type = 'Panel';
+		panelopts.id = this.id;
+		data.push(panelopts);
+
 		for (var id in this.controls) {
 			data.push(this.controlToStorageFormat(id));
 		}
@@ -596,6 +666,8 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 
 	dragEnd: function(e) {
 		this.elt.attr({fill:this.fill});
+		this.options.x = this.x;
+		this.options.y = this.y;
 		delete this.drag;
 		this.dragging = false;
 		return this.dragFinish(e);
@@ -722,7 +794,7 @@ Slider.prototype = {
 		this.script = options.script || '';
 		this.stroke = options.stroke || this.parent.color;
 		this.fill = options.fill || 'black';
-		this.fill_highlight = options.fill_highlight || 'white';	// this.parent.lighter(this.stroke);
+		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
 		this.fontsize = options.fontsize || 20;
 
@@ -876,6 +948,8 @@ Slider.prototype = {
 
 	dragEnd: function(e) {
 		this.outerrect.attr({fill:this.fill});
+		this.options.x = this.x;
+		this.options.y = this.y;
 		delete this.drag;
 		this.dragging = false;
 		return this.dragFinish(e);
@@ -1073,7 +1147,7 @@ Chart.prototype = {
 		this.text = options.text || 'Untitled';
 		this.script = options.script || '';
 		this.fill = options.fill || 'black';
-		this.fill_highlight = options.fill_highlight || 'white';
+		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this.stroke = options.stroke || this.parent.color;
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
 		this.fontsize = options.fontsize || 20;
@@ -1252,26 +1326,15 @@ Chart.prototype = {
 		this.label.attr({x:this.x + this.w/2, y:this.y + this.h + this.fontsize*2});
 
 		var translation = ['translate(', this.x, ',', this.y,')'].join('');
-console.log('translation:', translation)
+		//console.log('translation:', translation)
 		this.svg.attr('transform', translation);
-		//this.svgx.attr('transform', translation);
-		//this.svgy.attr('transform', translation);
-		//this.svgvalues.attr('transform', translation);
-
-		//this.svg.attr('x', this.x);
-		//this.svg.attr('y', this.y);
-		//this.svgx.attr('x', this.x);
-		//this.svgx.attr('y', this.y);
-		//this.svgy.attr('x', this.x);
-		//this.svgy.attr('y', this.y);
-		//this.svgvalues.attr('x', this.x);
-		//this.svgvalues.attr('y', this.y);
-
 		return this.dragFinish(e);
 	},
 
 	dragEnd: function(e) {
 		this.outerrect.attr({fill:this.fill});
+		this.options.x = this.x;
+		this.options.y = this.y;
 		delete this.drag;
 		this.dragging = false;
 		return this.dragFinish(e);

@@ -1,7 +1,7 @@
 [
 	{
 		"type": "Panel",
-		"id": "Panel"
+		"id": "narf"
 	},
 	{
 		"type": "Button",
@@ -11,8 +11,8 @@
 		"subtype": "circle",
 		"type": "Button",
 		"id": "Button1",
-		"x": 434,
-		"y": 146,
+		"x": 506,
+		"y": 170,
 		"text": "foo"
 	},
 	{

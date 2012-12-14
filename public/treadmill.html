@@ -24,7 +24,7 @@ $(document).ready(function() {
 
 	document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
 	
-	var Panel = new ControlPanel({title: 'TreadMaster 3000', color:'mediumseagreen'});
+	var Panel = new ControlPanel({title: 'TreadMaster 3000', id:'treadmill', color:'mediumseagreen'});
 
 	Panel.addButton({x:100, y:100, text:'Fast', script:''});
 	Panel.addButton({x:100, y:180, text:'Medium', script:''});

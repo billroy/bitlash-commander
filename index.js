@@ -12,6 +12,8 @@ var argv = opt.usage('Usage: $0 [flags]')
 	.describe('p', 'TCP port for the http server (3000)')
 	.alias('s', 'serialport')
 	.describe('s', 'port for usbserial arduino connection')
+	.alias('b', 'baud')
+	.describe('b', 'baud rate for usbserial arduino connection (57600)')
 	.alias('r', 'redis')
 	.describe('r', 'redis server url in redis-url format')
 	.alias('x', 'rexec')
@@ -146,14 +148,16 @@ console.log('Listening on port:', port);
 //	Initialize Bitlash
 //
 var Bitlash = require('./lib/bitlash.js');
-var bitlash = new Bitlash.Bitlash({
+var bitlash_options = {
 		debug: true, 
 		echo: true,
 		port: argv.serialport,
 		json_callback: broadcastJSONUpdate
-	}, function (readytext) {
-		console.log('Bitlash ready:', readytext);
-	});
+}
+if (argv.baud) bitlash_options.baud = argv.baud;
+var bitlash = new Bitlash.Bitlash(bitlash_options, function (readytext) {
+	console.log('Bitlash ready:', readytext);
+});
 
 
 //////////
@@ -279,10 +283,17 @@ io.sockets.on('connection', function (socket) {
 	});
 	socket.on('open', function(data) {
 console.log('Open:', data);
-		var controltext = fs.readFileSync(panelpath + data);
-		var controls = JSON.parse(controltext);
-		console.log('Open2:', controls);
-		socket.emit('add', controls);
+		var controltext;
+		try {
+			controltext = fs.readFileSync(panelpath + data);
+			var controls = JSON.parse(controltext);
+			controls[0].id = data;		// set the panel id to the filename
+			console.log('Open2:', controls);
+			socket.emit('add', controls);
+		}
+		catch(e) {
+			console.log('Panel not found:', data);
+		}
 	});
 	socket.on('ping', function(data) {
 		socket.emit('pong', data);

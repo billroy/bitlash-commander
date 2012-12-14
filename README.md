@@ -157,6 +157,11 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+
+- create new controls at menu location
+- sliders don't handle color change
+- BUG: edit: add, delete for panel
+
 - xy sliders
 	- BUG: update channel can't handle xvalue, yvalue
 	- slide position initialization
@@ -164,29 +169,22 @@ The push example in the file public/push.html shows event listeners in use:
 	- recenter after command
 		- easing instead of one big jump
 
-- BUG: hslider label on vslider with default options (from menu)
+- panel properties menu
 
 - bug: dragging button doesn't drag repeat indicator
 - BUG: dragging a path button leaves the label and readout in the wrong place
-
-- panel properties menu
-
 - revise label/readout placement for circle and svg buttons
 
 - text type control
 - radio button control
 
 - panel menu:
-	- icons from fasticons for new panel, open panel, load panel
-	- hslider, xyslider
 	- named control sets
 		- save panel
 			- how to save panel attributes (color, mostly)
 		- open
-		- have primitives, need shell page, template expansion, and query routing
 
 - localhost-only mode
-- drag snap-to-grid
 - baud rate command switch
 
 - property editor

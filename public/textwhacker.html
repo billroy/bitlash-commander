@@ -26,7 +26,10 @@ $(document).ready(function() {
 
 	document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
 	
-	var Panel = new ControlPanel({title: 'TextWhacker Message Page', tx: 350, ty:50, color:'mediumseagreen'});
+	var Panel = new ControlPanel({title: 'TextWhacker Message Page', 
+		tx: 350, ty:50, color:'mediumseagreen',
+		id:'textwhacker'
+	});
 
 	Panel.addButton({x:100, y: 150, w:525,
 		text:'Send a message',
