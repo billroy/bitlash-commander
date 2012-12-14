@@ -31,6 +31,7 @@ ControlPanel.prototype = {
 		this.control_stroke = options.control_stroke || 3;
 		this.title = options.title || 'Bitlash Commander';
 		this.channel = options.channel || '';
+		this.grid = options.grid || 24;
 
 		this.paper = Raphael(0, 0, $(window).width(), $(window).height());
 
@@ -557,8 +558,17 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 
 	dragMove: function(dx, dy, x, y, e) {
 		//console.log('move:',dx,dy,x,y,e);
-		this.x = this.drag.x + dx;
-		this.y = this.drag.y + dy;
+
+		var grid = this.parent.grid;
+		if (grid && !e.shiftKey) {
+			this.x = this.drag.x + (grid * Math.floor(dx / grid));
+			this.y = this.drag.y + (grid * Math.floor(dy / grid));
+		}
+		else {
+			this.x = this.drag.x + dx;
+			this.y = this.drag.y + dy;
+		}
+
 		if (this.subtype == 'circle') {
 			this.elt.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});
 			this.label.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});		//??
@@ -572,11 +582,14 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 			if (this.readout) this.readout.attr({x:x-this.drag.xoff , y:y-this.drag.yoff});
 		}
 		else {
-			this.elt.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
+//			this.elt.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
+			this.elt.attr({x:this.x, y:this.y});
 			//this.label.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h + this.fontsize});
 			//if (this.readout) this.readout.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h/2});
-			this.label.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h/2});
-			if (this.readout) this.readout.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h + this.fontsize});
+//			this.label.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h/2});
+//			if (this.readout) this.readout.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h + this.fontsize});
+			this.label.attr({x:this.x + this.w/2, y:this.y + this.h/2});
+			if (this.readout) this.readout.attr({x:this.x + this.w/2, y:this.y + this.h + this.fontsize});
 		}
 		return this.dragFinish(e);
 	},
@@ -840,17 +853,24 @@ Slider.prototype = {
 
 	dragMove: function(dx, dy, x, y, e) {
 		//console.log('move:',dx,dy,x,y,e);
-		this.x = this.drag.x + dx;
-		this.y = this.drag.y + dy;
+		var grid = this.parent.grid;
+		if (grid && !e.shiftKey) {
+			this.x = this.drag.x + (grid * Math.floor(dx / grid));
+			this.y = this.drag.y + (grid * Math.floor(dy / grid));
+		}
+		else {
+			this.x = this.drag.x + dx;
+			this.y = this.drag.y + dy;
+		}
 
-		this.outerrect.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
-		if (this.xbar) this.xbar.attr({x:x-this.drag.xoff, y:y-this.drag.yoff + this.outerh/2});
-		if (this.ybar) this.ybar.attr({x:x-this.drag.xoff + (this.w-this.barw)/2, y:y-this.drag.yoff});
-		this.slide.attr({x:x-this.drag.xoff + (this.w - this.slidew)/2, y:this.slideYPos()});
+		this.outerrect.attr({x:this.x, y:this.y});
+		if (this.xbar) this.xbar.attr({x:this.x, y:this.y + this.outerh/2});
+		if (this.ybar) this.ybar.attr({x:this.x + (this.w-this.barw)/2, y:this.y});
+		this.slide.attr({x:this.x + (this.w - this.slidew)/2, y:this.slideYPos()});
 
-		this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.outerh + this.fontsize*2});
-		if (this.xreadout) this.xreadout.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.outerh + this.fontsize});
-		if (this.yreadout) this.yreadout.attr({x:x - this.drag.xoff + this.outerw + this.fontsize, y:y - this.drag.yoff + this.h/2});
+		this.label.attr({x:this.x + this.w/2, y:this.y + this.outerh + this.fontsize*2});
+		if (this.xreadout) this.xreadout.attr({x:this.x + this.w/2, y:this.y + this.outerh + this.fontsize});
+		if (this.yreadout) this.yreadout.attr({x:this.x + this.outerw + this.fontsize, y:this.y + this.h/2});
 		return this.dragFinish(e);
 	},
 
@@ -1212,13 +1232,23 @@ Chart.prototype = {
 		this.dragging = true;
 		this.outerrect.attr({fill:this.fill_highlight}).toFront();
 		this.label.toFront();
-		this.svg.toFront();		
+		//this.svg.toFront();		
 	},
 
 	dragMove: function(dx, dy, x, y, e) {
 		//console.log('move:',dx,dy,x,y,e);
-		this.outerrect.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
-		this.label.attr({x:x - this.drag.xoff + this.w/2, y:y - this.drag.yoff + this.h + this.fontsize*2});
+		var grid = this.parent.grid;
+		if (grid && !e.shiftKey) {
+			this.x = this.drag.x + (grid * Math.floor(dx / grid));
+			this.y = this.drag.y + (grid * Math.floor(dy / grid));
+		}
+		else {
+			this.x = this.drag.x + dx;
+			this.y = this.drag.y + dy;
+		}
+
+		this.outerrect.attr({x:this.x, y:this.y});
+		this.label.attr({x:this.x + this.w/2, y:this.y + this.h + this.fontsize*2});
 		this.svg.attr('x', x - this.drag.xoff);
 		this.svg.attr('y', y - this.drag.yoff);
 		return this.dragFinish(e);

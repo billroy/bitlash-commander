@@ -13,8 +13,8 @@
 		"id": "Setup"
 	},
 	{
-		"x": 100,
-		"y": 120,
+		"x": "0240",
+		"y": "0240",
 		"text": "Toggle2",
 		"script": "d2=!d2;print d2",
 		"type": "Button",
@@ -213,13 +213,5 @@
 		"ymin": -0.2,
 		"refresh": 0,
 		"type": "Chart"
-	},
-	{
-		"x": 329,
-		"y": 53,
-		"text": "Toggle2",
-		"script": "d2=!d2;print d2",
-		"type": "Button",
-		"id": "t2134"
 	}
 ]
