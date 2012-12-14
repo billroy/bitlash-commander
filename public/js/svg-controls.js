@@ -1139,7 +1139,8 @@ Chart.prototype = {
 				.attr('width', width + margin.left + margin.right)
 				.attr('height', height + margin.top + margin.bottom)
 			.append('g')
-				.attr('transform', 'translate(' + (this.x+margin.left) + ',' + (this.y+margin.top) + ')');
+				//.attr('transform', 'translate(' + (this.x+margin.left) + ',' + (this.y+margin.top) + ')');
+				.attr('transform', 'translate(' + (this.x) + ',' + (this.y) + ')');
 
 		d3.json('/d3/' + this.target, function(data) {
 
@@ -1162,14 +1163,14 @@ Chart.prototype = {
 				d3.max(values, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
 			]);
 		
-			self.svg.append('g')
+			self.svgx = self.svg.append('g')
 					.attr('class', 'x axis')
 					.attr('transform', 'translate(0,' + height + ')')
 					.attr('stroke', self.stroke)
 					.attr('fill', self.stroke)
 					.call(xAxis);
 		
-			self.svg.append('g')
+			self.svgy = self.svg.append('g')
 					.attr('class', 'y axis')
 					.attr('stroke', self.stroke)
 					.attr('fill', self.stroke)
@@ -1184,18 +1185,18 @@ Chart.prototype = {
 					.attr('fill', self.stroke)
 					.text(' ');
 */		
-			var value = self.svg.selectAll('.value')
+			self.svgvalue = self.svg.selectAll('.value')
 					.data(values)
 				.enter().append('g')
 					.attr('class', 'value');
 		
-			value.append('path')
+			self.svgvalue.append('path')
 					.attr('class', 'line')
 					.attr('d', function(d) { return line(d.values); })
 					.style('stroke', function(d) { return color(d.name); })
 					.style('stroke-width', self['stroke-width']);
 		
-			value.append('text')
+			self.svgvalue.append('text')
 					.datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
 					.attr('transform', function(d) { return 'translate(' + x(d.value.time) + ',' + y(d.value.value) + ')'; })
 					.attr('x', 3)
@@ -1249,8 +1250,23 @@ Chart.prototype = {
 
 		this.outerrect.attr({x:this.x, y:this.y});
 		this.label.attr({x:this.x + this.w/2, y:this.y + this.h + this.fontsize*2});
-		this.svg.attr('x', x - this.drag.xoff);
-		this.svg.attr('y', y - this.drag.yoff);
+
+		var translation = ['translate(', this.x, ',', this.y,')'].join('');
+console.log('translation:', translation)
+		this.svg.attr('transform', translation);
+		//this.svgx.attr('transform', translation);
+		//this.svgy.attr('transform', translation);
+		//this.svgvalues.attr('transform', translation);
+
+		//this.svg.attr('x', this.x);
+		//this.svg.attr('y', this.y);
+		//this.svgx.attr('x', this.x);
+		//this.svgx.attr('y', this.y);
+		//this.svgy.attr('x', this.x);
+		//this.svgy.attr('y', this.y);
+		//this.svgvalues.attr('x', this.x);
+		//this.svgvalues.attr('y', this.y);
+
 		return this.dragFinish(e);
 	},
 
