@@ -132,7 +132,8 @@
 		"text": "pwm3",
 		"script": "print a3={{value}}",
 		"type": "Slider",
-		"id": "pwm3"
+		"id": "pwm3",
+		"subtype": "y"
 	},
 	{
 		"x": 450,
@@ -140,7 +141,8 @@
 		"text": "pwm5",
 		"script": "print a5={{value}}",
 		"type": "Slider",
-		"id": "pwm5"
+		"id": "pwm5",
+		"subtype": "y"
 	},
 	{
 		"x": 550,
@@ -148,7 +150,8 @@
 		"text": "pwm6",
 		"script": "print a6={{value}}",
 		"type": "Slider",
-		"id": "pwm6"
+		"id": "pwm6",
+		"subtype": "y"
 	},
 	{
 		"x": 650,
@@ -156,7 +159,8 @@
 		"text": "pwm9",
 		"script": "print a9={{value}}",
 		"type": "Slider",
-		"id": "pwm9"
+		"id": "pwm9",
+		"subtype": "y"
 	},
 	{
 		"x": 750,
@@ -164,7 +168,8 @@
 		"text": "pwm10",
 		"script": "print a10={{value}}",
 		"type": "Slider",
-		"id": "pwm10"
+		"id": "pwm10",
+		"subtype": "y"
 	},
 	{
 		"x": 850,
@@ -172,7 +177,8 @@
 		"text": "pwm11",
 		"script": "print a11={{value}}",
 		"type": "Slider",
-		"id": "pwm11"
+		"id": "pwm11",
+		"subtype": "y"
 	},
 	{
 		"id": "chart-a0",
@@ -209,12 +215,11 @@
 		"type": "Chart"
 	},
 	{
-		"subtype": "xy",
-		"w": "20017",
-		"h": "200",
-		"type": "Slider",
-		"id": "Slider0",
-		"x": 147,
-		"y": 104
+		"x": 329,
+		"y": 53,
+		"text": "Toggle2",
+		"script": "d2=!d2;print d2",
+		"type": "Button",
+		"id": "t2134"
 	}
 ]

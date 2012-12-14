@@ -103,6 +103,14 @@ app.get('/', function(req, res) {
 	res.sendfile(__dirname + '/public/index.html');
 });
 
+var paneltemplate = fs.readFileSync('public/template.html', 'utf8');
+
+app.get('/panel/:id', function(req, res) {
+	var panelid = req.params.id;
+	var html = paneltemplate.replace(/{{panelid}}/, panelid.toString());
+	res.send(html);
+});
+
 app.post('/update', function(req, res) {
 	console.log('Update:', req.body);
 });
@@ -268,6 +276,13 @@ io.sockets.on('connection', function (socket) {
 	socket.on('save', function(data) {
 		console.log('Save:', data);
 		fs.writeFile(panelpath + data[0].id, JSON.stringify(data, null, '\t'));
+	});
+	socket.on('open', function(data) {
+console.log('Open:', data);
+		var controltext = fs.readFileSync(panelpath + data);
+		var controls = JSON.parse(controltext);
+		console.log('Open2:', controls);
+		socket.emit('add', controls);
 	});
 	socket.on('ping', function(data) {
 		socket.emit('pong', data);

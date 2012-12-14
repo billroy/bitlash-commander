@@ -157,9 +157,6 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
-- better designmode background fill
-
-
 - xy sliders
 	- BUG: update channel can't handle xvalue, yvalue
 	- slide position initialization
@@ -167,10 +164,10 @@ The push example in the file public/push.html shows event listeners in use:
 	- recenter after command
 		- easing instead of one big jump
 
+- BUG: hslider label on vslider with default options (from menu)
+
 - bug: dragging button doesn't drag repeat indicator
 - BUG: dragging a path button leaves the label and readout in the wrong place
-
-- bug: allow edit of id field
 
 - panel properties menu
 

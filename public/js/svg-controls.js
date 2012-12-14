@@ -59,7 +59,7 @@ ControlPanel.prototype = {
 				self.editingpanel = !self.editingpanel;
 				//if (self.editingpanel) self.editbutton.attr({fill:self.stroke, stroke:self.stroke});
 				//else self.editbutton.attr({fill:self.fill, stroke: self.stroke});
-				if (self.editingpanel) self.face.attr({fill:"url('images/grid24-greenblack.png')", stroke:self.stroke});
+				if (self.editingpanel) self.face.attr({fill:"url('/images/grid24-greenblack.png')", stroke:self.stroke});
 				else self.face.attr({fill:self.fill, stroke: self.stroke});
 			});
 
@@ -99,6 +99,9 @@ console.log('Incoming Update XY:', data);
 				}
 			}
 		});
+		this.socket.on('add', function(data) {
+			self.add(data);
+		});
 		this.socket.on('pong', function(data) {
 			var rtt = new Date().getTime() - data.timestamp;
 			window.status = 'RTT: ' + rtt + 'ms';
@@ -122,6 +125,11 @@ console.log('Incoming Update XY:', data);
 			zIndex:99999,
 			callback: function(key, options) {
 				if (key == 'addbutton') self.addButton({});
+				else if (key == 'addrbutton') self.addButton({subtype:'circle'});
+				else if (key == 'addpbutton') self.addButton({subtype:'path',
+					path:'M19.562,10.75C21.74,8.572,25.5,7,25.5,7c-8,0-8-4-16-4v10c8,0,8,4,16,4C25.5,17,21.75,14,19.562,10.75zM6.5,29h2V3h-2V29z',
+					scale:5
+				});
 				else if (key == 'addslider') self.addSlider({});
 				else if (key == 'addxyslider') self.addSlider({subtype:'xy', w:100, h:100});
 				else if (key == 'addhslider') self.addSlider({subtype:'x', w:200, h:80});
@@ -132,11 +140,15 @@ console.log('Incoming Update XY:', data);
 				'editpanel': 	{name: 'Panel Properties...', 	icon: 'editpanel'},
 				'sep1': 	 	'---------',
 				'addbutton': 	{name: 'New Button', 	icon: 'addbutton'},
+				'addrbutton': 	{name: 'New Round Button', 	icon: 'addbutton'},
+				'addpbutton': 	{name: 'New Path Button', 	icon: 'addbutton'},
+				'sep2': 	 	'---------',
 				'addslider': 	{name: 'New Slider', 	icon: 'addslider'},
 				'addxyslider': 	{name: 'New XY-Slider', icon: 'addslider'},
 				'addhslider': 	{name: 'New H-Slider', 	icon: 'addslider'},
+				'sep3': 	 	'---------',
 				'addchart':  	{name: 'New Chart', 	icon: 'addchart'},
-				'sep2': 	 	'---------',
+				'sep4': 	 	'---------',
 				'openpanel': 	{name: 'Open Panel', 	icon: 'openpanel'},
 				'save': 	 	{name: 'Save Panel', 	icon: 'save'}
 			}
@@ -246,9 +258,9 @@ console.log('Add:', items[i]);
 			colHeaders: ['PROPERTY', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;VALUE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;']
 		});
 
-		for (var r=0; r<data.length; r++) {		// disallow edit of field names and id field value
+		for (var r=0; r<data.length; r++) {		// disallow edit of field names
 			$('#dataTable').handsontable('setCellReadOnly', r, 0);
-			if (data[r][0] == 'id') $('#dataTable').handsontable('setCellReadOnly', r, 1);
+			//if (data[r][0] == 'id') $('#dataTable').handsontable('setCellReadOnly', r, 1);
 		}
 
 		this.editingcontrol = id;
@@ -264,7 +276,7 @@ console.log('Add:', items[i]);
 				opts[data[i][0]] = data[i][1];
 			}
 			console.log('Saving:', opts);
-			this.controls[opts.id].delete();
+			this.controls[this.editingcontrol].delete();
 			this.add([opts]);
 			this.saveControls();
 		}
@@ -276,7 +288,12 @@ console.log('Add:', items[i]);
 	saveControls: function() {
 		this.socket.emit('save', this.panelToStorageFormat());
 	},
-	
+
+	load: function(panelid) {
+console.log('Load:', panelid);
+		this.socket.emit('open', panelid);
+	},
+
 	editAddField: function() {
 		var id = this.editingcontrol;
 		console.log('addfield:', id);
@@ -284,6 +301,7 @@ console.log('Add:', items[i]);
 		if (!newfield) return;
 		var newvalue = prompt('Value for new field:');
 		this.controls[id].options[newfield] = newvalue;
+		this.controls[id][newfield] = newvalue;
 		this.endEdit(0);
 		this.edit(id);
 	},
@@ -411,7 +429,7 @@ Button.prototype = {
 		this.repeat = options.repeat || 0;
 		this.running = 0;
 		this.corner = options.corner || this.parent.button_corner;
-		this.shape = options.shape || '';	// default to rectangle
+		this.subtype = options.subtype || '';	// default to rectangle
 		this.r = options.r || this.w/2;
 		this.autorun = options.autorun || false;
 		this.value = options.value || 0;
@@ -422,7 +440,7 @@ Button.prototype = {
 
 		var self = this;
 
-		if (this.shape == 'circle') {
+		if (this.subtype == 'circle') {
 			this.elt = this.parent.paper.circle(this.x, this.y, this.r)
 				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 				.click(function(e) { return self.handleClick.call(self, e); })
@@ -444,7 +462,7 @@ Button.prototype = {
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 		}
-		else if (this.shape == 'path') {	// path button
+		else if (this.subtype == 'path') {	// path button
 			var translation = ['t', this.x, ',', this.y, 's', this.scale].join('');
 			//var translation = ['T600,600'].join('');
 console.log('Path:', translation, this.x, this.y, this.scale);
@@ -541,12 +559,12 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 		//console.log('move:',dx,dy,x,y,e);
 		this.x = this.drag.x + dx;
 		this.y = this.drag.y + dy;
-		if (this.shape == 'circle') {
+		if (this.subtype == 'circle') {
 			this.elt.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});
 			this.label.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});		//??
 			if (this.readout) this.readout.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
 		}
-		else if (this.shape == 'path') {
+		else if (this.subtype == 'path') {
 			var bbox = this.elt.getBBox();
 			this.elt.transform(['t', this.x-this.drag.xoff, ',', this.y-this.drag.yoff, 's', this.scale].join(''));
 			var labely = bbox.y + this.h + this.fontsize;
@@ -713,7 +731,7 @@ Slider.prototype = {
 		this.barw = options.barw || 1;	//1+Math.floor(this.w / 16);
 		this.barh = this.barw;
 
-		this.subtype = options.subtype || 'y';
+		this.subtype = this.options.subtype = options.subtype || 'y';
 		if (this.subtype == 'xy') {
 			this.slidew = options.slidew || 1+Math.floor(this.w / 12);
 			this.w += this.slidew;
@@ -1042,7 +1060,7 @@ Chart.prototype = {
 		this.repeat = options.repeat || 0;
 		this.running = 0;
 		this.corner = options.corner || this.parent.Chart_corner;
-		this.shape = options.shape || '';	// default to rectangle
+		this.subtype = options.subtype || '';
 		this.r = options.r || this.w/2;
 		this.autorun = options.autorun || false;
 		this.interpolate = options.interpolate || 'step-after';		// 'basis'
@@ -1103,7 +1121,7 @@ Chart.prototype = {
 			.append('g')
 				.attr('transform', 'translate(' + (this.x+margin.left) + ',' + (this.y+margin.top) + ')');
 
-		d3.json('d3/' + this.target, function(data) {
+		d3.json('/d3/' + this.target, function(data) {
 
 			// console.log('d3:', typeof data, data);
 
