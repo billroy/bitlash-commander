@@ -162,6 +162,12 @@ The push example in the file public/push.html shows event listeners in use:
 - BUG: edit: add, delete for panel
 - BUG: sliders don't highlight with lighter(primary color)
 
+- BUG: id conflict causes items to warp out
+	- Button0 name can conflict
+	- duplicate causes conflict
+
+- BUG: set slider w/h ==> HUGE slider
+
 - xy sliders
 	- BUG: update channel can't handle xvalue, yvalue
 	- slide position initialization
