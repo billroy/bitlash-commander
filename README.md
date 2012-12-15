@@ -159,8 +159,8 @@ The push example in the file public/push.html shows event listeners in use:
 
 
 - create new controls at menu location
-- sliders don't handle color change
 - BUG: edit: add, delete for panel
+- BUG: sliders don't highlight with lighter(primary color)
 
 - xy sliders
 	- BUG: update channel can't handle xvalue, yvalue

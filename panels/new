@@ -1,0 +1,30 @@
+[
+	{
+		"type": "Panel",
+		"id": "new"
+	},
+	{
+		"type": "Button",
+		"x": 170,
+		"y": 74,
+		"id": "Button0",
+		"script": "d13=!d13",
+		"fill": "blue"
+	},
+	{
+		"type": "Text",
+		"x": 700,
+		"y": 412,
+		"id": "Text0",
+		"fontsize": "72",
+		"text": "HELLO WORLD"
+	},
+	{
+		"subtype": "circle",
+		"type": "Button",
+		"x": 698,
+		"y": 506,
+		"id": "Button1",
+		"fill": "red"
+	}
+]

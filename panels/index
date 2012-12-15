@@ -1,7 +1,8 @@
 [
 	{
-		"type": "Panel",
-		"id": "Panel"
+		"color": "yellow",
+		"id": "index",
+		"type": "Panel"
 	},
 	{
 		"x": 100,
@@ -132,6 +133,7 @@
 		"text": "pwm3",
 		"script": "print a3={{value}}",
 		"type": "Slider",
+		"subtype": "y",
 		"id": "pwm3"
 	},
 	{
@@ -140,6 +142,7 @@
 		"text": "pwm5",
 		"script": "print a5={{value}}",
 		"type": "Slider",
+		"subtype": "y",
 		"id": "pwm5"
 	},
 	{
@@ -148,6 +151,7 @@
 		"text": "pwm6",
 		"script": "print a6={{value}}",
 		"type": "Slider",
+		"subtype": "y",
 		"id": "pwm6"
 	},
 	{
@@ -156,6 +160,7 @@
 		"text": "pwm9",
 		"script": "print a9={{value}}",
 		"type": "Slider",
+		"subtype": "y",
 		"id": "pwm9"
 	},
 	{
@@ -164,6 +169,7 @@
 		"text": "pwm10",
 		"script": "print a10={{value}}",
 		"type": "Slider",
+		"subtype": "y",
 		"id": "pwm10"
 	},
 	{
@@ -172,6 +178,7 @@
 		"text": "pwm11",
 		"script": "print a11={{value}}",
 		"type": "Slider",
+		"subtype": "y",
 		"id": "pwm11"
 	},
 	{

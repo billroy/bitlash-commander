@@ -140,10 +140,13 @@ console.log('Incoming Update XY:', data);
 				else if (key == 'addchart') self.addChart({});
 				else if (key == 'save') self.saveControls();
 				else if (key == 'editpanel') self.edit(self);
+				else if (key == 'addtext') self.addText({});
 			},
 			items: {
 				'newpanel': 	{name: 'New Panel', 	icon: 'newpanel'},
 				'editpanel': 	{name: 'Panel Properties...', 	icon: 'editpanel'},
+				'sep1': 	 	'---------',
+				'addtext': 	{name: 'New Text', 		icon: 'addbutton'},
 				'sep1': 	 	'---------',
 				'addbutton': 	{name: 'New Button', 	icon: 'addbutton'},
 				'addrbutton': 	{name: 'New Round Button', 	icon: 'addbutton'},
@@ -221,6 +224,14 @@ console.log('Incoming Update XY:', data);
 		if (chart.autorun) chart.handleClick();
 		return chart;
 	},
+
+	addText: function(options) {
+		options.parent = this;
+		options.type = 'Text';
+		var text = new Text(options);
+		this.controls[text.id] = text;
+		return text;
+	},
 	
 	add: function(items) {		// add an array of items to the panel
 		for (var i=0; i < items.length; i++) {
@@ -228,6 +239,7 @@ console.log('Incoming Update XY:', data);
 			if (items[i].type == 'Button') this.addButton(items[i]);
 			else if (items[i].type == 'Slider') this.addSlider(items[i]);
 			else if (items[i].type == 'Chart') this.addChart(items[i]);
+			else if (items[i].type == 'Text') this.addText(items[i]);
 			else if (items[i].type == 'Panel') {
 				for (var f in items[i]) {
 					this.options[f] = this[f] = items[i][f];
@@ -901,6 +913,7 @@ Slider.prototype = {
 		for (var f in attrs) textattrs[f] = attrs[f];
 		if (textattrs.stroke) textattrs.fill=attrs.stroke;
 		this.label.attr(textattrs);
+		this.slide.attr(textattrs);
 		if (this.xreadout) this.xreadout.attr(textattrs);
 		if (this.yreadout) this.yreadout.attr(textattrs);
 	},
@@ -965,6 +978,7 @@ Slider.prototype = {
 	slideStart: function(x, y, event) {
 		this.sliding = true;
 		this.slide.attr({fill:this.fill_highlight});
+		//this.glow = this.slide.glow({color:'white'});
 	},
 
 	slideMove: function(dx, dy, x, y, e) {
@@ -986,6 +1000,7 @@ Slider.prototype = {
 	},
 
 	slideEnd: function(e) {
+		//this.glow.remove();
 		this.slide.attr({fill:this.stroke});
 		return this.slideFinish(e);
 	},
@@ -1416,3 +1431,139 @@ Chart.prototype = {
 		}
 	}	
 }
+
+
+//////////
+//
+//	Text control
+//
+function Text(options) {
+	return this.init(options || {});
+}
+
+Text.prototype = {
+
+	init: function(options) {
+		this.type = options.type = 'Text';
+		this.parent = options.parent;
+
+		this.options = {};
+		for (var o in options) this.options[o] = options[o];
+
+		if (options.id) this.id = options.id;
+		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
+		else this.id = this.type + this.parent.next_id++;
+
+		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
+		this.x = this.parent.x + (options.x || 100);
+		this.y = this.parent.y + (options.y || 100);
+		this.text = options.text || 'Untitled';
+
+		this.stroke = options.stroke || this.parent.color;
+		this.fill = options.fill || 'black';
+		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
+		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
+		this.fontsize = options.fontsize || 20;
+		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
+
+		var self = this;
+
+		this.label = this.parent.paper.text(this.x, this.y, this.text)
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+			.click(function(e) { return self.handleClick.call(self, e); })
+			.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
+			.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+		return this;
+	},
+
+	delete: function() {
+		this.label.remove();
+	},
+	
+	attr: function(attrs) {
+		var textattrs = {};
+		for (var f in attrs) textattrs[f] = attrs[f];
+		if (textattrs.stroke) textattrs.fill=attrs.stroke;
+		this.label.attr(textattrs);
+	},
+
+	setText: function(text) {
+		this.label.attr({text:text});
+	},
+
+	dragStart: function(x, y, event) {
+		//console.log('Drag start:', x, y, event);
+		if (!this.parent.editingpanel) return true;
+		if (event && event.shiftKey) {
+			this.parent.showEditMenu(this.id, event);
+			return true;
+		}
+		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
+		this.dragging = true;
+		this.label.toFront();
+	},
+
+	dragMove: function(dx, dy, x, y, e) {
+		//console.log('move:',dx,dy,x,y,e);
+		var grid = this.parent.grid;
+		if (grid && !e.shiftKey) {
+			this.x = this.drag.x + (grid * Math.floor(dx / grid));
+			this.y = this.drag.y + (grid * Math.floor(dy / grid));
+		}
+		else {
+			this.x = this.drag.x + dx;
+			this.y = this.drag.y + dy;
+		}
+		this.label.attr({x:this.x, y:this.y});
+		return this.dragFinish(e);
+	},
+
+	dragEnd: function(e) {
+		this.options.x = this.x;
+		this.options.y = this.y;
+		delete this.drag;
+		this.dragging = false;
+		return this.dragFinish(e);
+	},
+	
+	dragFinish: function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		return false;
+	},
+
+	handleClick: function(e) {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		return false;
+	},
+
+	setValue: function(value) {
+		this.value = value;
+		this.label.attr({text: this.value});
+		var update = {id: this.id, value: this.value};
+		this.fire('update', update);
+	},
+
+	on: function(eventname, listener) {
+		if (!this.listeners[eventname]) this.listeners[eventname] = [];
+		this.listeners[eventname].push(listener);
+		//console.log('On:', this.id, this.listeners.length, this.listeners);
+	},
+
+	fire: function(eventname, data) {
+		var listeners = this.listeners[eventname];
+		//console.log('listeners:', listeners);
+		if (!listeners) return;
+		for (var i=0; i<listeners.length; i++) {
+			var func = listeners[i];
+			//console.log('firing listener', i, data);
+			func(data);
+		}
+	}	
+}
+
