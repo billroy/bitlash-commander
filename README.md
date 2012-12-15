@@ -159,14 +159,14 @@ The push example in the file public/push.html shows event listeners in use:
 
 
 - create new controls at menu location
-- BUG: edit: add, delete for panel
 - BUG: sliders don't highlight with lighter(primary color)
 
 - BUG: id conflict causes items to warp out
 	- Button0 name can conflict
 	- duplicate causes conflict
 
-- BUG: set slider w/h ==> HUGE slider
+- BUG: xy controls get wider on the roundtrip
+	- don't mess with w / h 
 
 - xy sliders
 	- BUG: update channel can't handle xvalue, yvalue
@@ -175,23 +175,35 @@ The push example in the file public/push.html shows event listeners in use:
 	- recenter after command
 		- easing instead of one big jump
 
-- panel properties menu
-
 - bug: dragging button doesn't drag repeat indicator
 - BUG: dragging a path button leaves the label and readout in the wrong place
 - revise label/readout placement for circle and svg buttons
 
-- text type control
-- radio button control
+- fix handling of color: and label: properties in panel setup
+	color should be stroke; get rid of color
+	label should be text; get rid of label
 
-- panel menu:
-	- named control sets
-		- save panel
-			- how to save panel attributes (color, mostly)
-		- open
+- radio button control
+- button group
+	- numx, numy
+	- xgutter, ygutter
+	- id: {{id}}-{{x}}-{{y}}
+	- color initializations
+		fill:, stroke,
+		
+	- listeners on all buttons
+	- optional radio button behavior: force other controls to 0 when a control is set to 1
+		- radio: none/row/column  undefined/r/c
+	- persistent color highlight for the ON button
+	- touch or update can select button
+	- group.setValue('ggggyyrr') - color decoding
+	- set normal/highlight color of individual button
+
+- generate an index page
+	- list of panels + new panel
+	- extra credit for thumbnails
 
 - localhost-only mode
-- baud rate command switch
 
 - property editor
 	- megaprop for editing the whole workspace at a go
@@ -204,7 +216,6 @@ The push example in the file public/push.html shows event listeners in use:
 	- color picker
 
 - chart control
-	- BUG: chart: svg doesn't move on drag
 	- data source periodic run 
 	- time axis values ick
 	- y axis min/max options
@@ -246,8 +257,9 @@ The push example in the file public/push.html shows event listeners in use:
 	- integrate with cosm for upload
 
 - controls
+	- uploader button: click to upload a bitlash code file or url to the arduino
+		- autorunnable
 	- image, clickable to start/stop refresh
-	- text label
 	- LED bar, clickable leds with specifiable colors
 		- round/square leds
 		- redlight

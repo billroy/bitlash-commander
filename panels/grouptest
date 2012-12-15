@@ -1,8 +1,8 @@
 [
 	{
 		"color": "blue",
-		"type": "Panel",
-		"id": "Panel"
+		"id": "grouptest",
+		"type": "Panel"
 	},
 	{
 		"id": "btns-0-0",

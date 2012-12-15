@@ -142,6 +142,13 @@ console.log('Incoming Update XY:', data);
 				else if (key == 'save') self.saveControls();
 				else if (key == 'editpanel') self.edit(self);
 				else if (key == 'addtext') self.addText({});
+				else if (key == 'scale') {
+					var scale = prompt('Enter scale:');
+					//var transform = 's'+scale;
+					//self.attr({transform:scale});
+					self.attr({scale:scale});
+					//self.paper.scale(scale, scale);
+				}
 			},
 			items: {
 				'newpanel': 	{name: 'New Panel', 	icon: 'newpanel'},
@@ -160,6 +167,7 @@ console.log('Incoming Update XY:', data);
 				'addchart':  	{name: 'New Chart', 	icon: 'addchart'},
 				'sep4': 	 	'---------',
 				'openpanel': 	{name: 'Open Panel', 	icon: 'openpanel'},
+				'scale': 	 	{name: 'Scale...', 	icon: 'save'},
 				'save': 	 	{name: 'Save Panel', 	icon: 'save'}
 			}
 		});
@@ -232,6 +240,14 @@ console.log('Incoming Update XY:', data);
 		var text = new Text(options);
 		this.controls[text.id] = text;
 		return text;
+	},
+
+	addGroup: function(options) {
+		options.parent = this;
+		options.type = 'Group';
+		var group = new Group(options);
+		this.controls[group.id] = group;
+		return group;
 	},
 	
 	add: function(items) {		// add an array of items to the panel
@@ -528,6 +544,9 @@ Button.prototype = {
 		this.value = options.value || 0;
 		this.path = options.path || undefined;
 		this.scale = options.scale || 1;
+		if (options.group) this.group = options.group;
+		if (options.row != undefined) this.row = options.row;
+		if (options.col != undefined) this.col = options.col;
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
@@ -648,6 +667,29 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 		this.label.toFront();
 	},
 
+	move: function(x, y) {
+		//console.log('move:', x, y, this);
+		this.x = x;
+		this.y = y;
+		if (this.subtype == 'circle') {
+			this.elt.attr({cx:x, cy:y});
+			this.label.attr({cx:x, cy:y});
+			if (this.readout) this.readout.attr({x:x, y:y});
+		}
+		else if (this.subtype == 'path') {
+			var bbox = this.elt.getBBox();
+			this.elt.transform(['t', x, ',', y, 's', this.scale].join(''));
+			var labely = bbox.y + this.h + this.fontsize;
+			this.label.attr({x:x, y:labely});
+			if (this.readout) this.readout.attr({x:x, y:y});
+		}
+		else {
+			this.elt.attr({x:x, y:y});
+			this.label.attr({x:x + this.w/2, y:y + this.h/2});
+			if (this.readout) this.readout.attr({x:x + this.w/2, y:y + this.h + this.fontsize});
+		}
+	},
+
 	dragMove: function(dx, dy, x, y, e) {
 		//console.log('move:',dx,dy,x,y,e);
 
@@ -660,7 +702,8 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 			this.x = this.drag.x + dx;
 			this.y = this.drag.y + dy;
 		}
-
+		this.move(this.x, this.y);
+/****
 		if (this.subtype == 'circle') {
 			this.elt.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});
 			this.label.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});		//??
@@ -683,6 +726,7 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 			this.label.attr({x:this.x + this.w/2, y:this.y + this.h/2});
 			if (this.readout) this.readout.attr({x:this.x + this.w/2, y:this.y + this.h + this.fontsize});
 		}
+*****/
 		return this.dragFinish(e);
 	},
 
@@ -692,6 +736,10 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 		this.options.y = this.y;
 		delete this.drag;
 		this.dragging = false;
+		if (this.group) {
+			console.log('dragEnd calling:', this.row, this.col);
+			this.parent.controls[this.group].dragNotify(this);
+		}
 		return this.dragFinish(e);
 	},
 	
@@ -1481,8 +1529,8 @@ Text.prototype = {
 		this.label = this.parent.paper.text(this.x, this.y, this.text)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 			.click(function(e) { return self.handleClick.call(self, e); })
-			.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-			.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+			.mousedown(function(e) { self.label.attr({fill:self.fill_highlight}); })
+			.mouseup(function(e) { self.label.attr({fill:self.fill});})
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		return this;
@@ -1555,6 +1603,154 @@ Text.prototype = {
 	setValue: function(value) {
 		this.value = value;
 		this.label.attr({text: this.value});
+		var update = {id: this.id, value: this.value};
+		this.fire('update', update);
+	},
+
+	on: function(eventname, listener) {
+		if (!this.listeners[eventname]) this.listeners[eventname] = [];
+		this.listeners[eventname].push(listener);
+		//console.log('On:', this.id, this.listeners.length, this.listeners);
+	},
+
+	fire: function(eventname, data) {
+		var listeners = this.listeners[eventname];
+		//console.log('listeners:', listeners);
+		if (!listeners) return;
+		for (var i=0; i<listeners.length; i++) {
+			var func = listeners[i];
+			//console.log('firing listener', i, data);
+			func(data);
+		}
+	}	
+}
+
+//////////
+//
+//	Group control
+//
+function Group(options) {
+	return this.init(options || {});
+}
+
+Group.prototype = {
+
+	init: function(options) {
+		this.type = options.type = 'Group';
+		this.parent = options.parent;
+
+		this.options = {};
+		for (var o in options) this.options[o] = options[o];
+
+		if (options.id) this.id = options.id;
+		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
+		else this.id = this.type + this.parent.next_id++;
+
+		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
+		this.x = this.parent.x + (options.x || 50);
+		this.y = this.parent.y + (options.y || 50);
+		this.w = options.w || 125;
+		this.h = options.h || 50;
+		this.text = options.text || '';
+		this.noreadout = options.noreadout || false;
+		this.script = options.script || '';
+		this.stroke = options.stroke || this.parent.color;
+		this.fill = options.fill || 'black';
+		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
+		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
+		this.fontsize = options.fontsize || 20;
+		this.repeat = options.repeat || 0;
+		this.running = 0;
+		this.corner = options.corner || this.parent.Group_corner;
+		this.subtype = options.subtype || '';	// default to rectangle
+		this.r = options.r || this.w/2;
+		this.autorun = options.autorun || false;
+		this.value = options.value || 0;
+		this.path = options.path || undefined;
+		this.scale = options.scale || 1;
+
+		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
+
+		this.numx = options.numx || 1;
+		this.numy = options.numy || 3;
+		this.gutterx = options.gutterx || options.gutter || 20;
+		this.guttery = options.guttery || options.gutter || 20;
+
+		var self = this;
+
+		var x;
+		var y = this.y;
+		for (var col=0; col< this.numx; col++) {
+			x = this.x;
+			for (var row = 0; row < this.numy; row++) {
+				var opts = {};
+				for (var o in this.options) opts[o] = this.options[o];
+				opts.id = this.itemid(row, col);
+				opts.group = this.id;
+				opts.x = x;
+				opts.y = y;
+				opts.row = row;
+				opts.col = col;
+console.log('AddB:', opts);
+				this.parent.addButton(opts);
+				x += (this.w + this.gutterx);
+			}
+			y += (this.h + this.guttery);
+		}
+	},
+
+	itemid: function(row, col) {
+		return  '' + this.id + '-' + row + '-' + col;
+	},
+
+	delete: function() {
+	},
+	
+	attr: function(attrs) {
+	},
+
+	setText: function(text) {
+	},
+
+	// when a button in our group moves, it calls here to notify
+	dragNotify: function(moved) {
+		// calculate x,y of group from row, col of button[id]
+		//var moved = this.parent.controls[id];
+		var newx = moved.x - moved.col * (this.w + this.gutterx);
+		var newy = moved.y - moved.row * (this.h + this.guttery);
+
+console.log('dragnotify:', moved.id, moved.x, moved.col, this.w, this.gutterx, newx);
+console.log('dragnotif2:', moved.id, moved.y, moved.row, this.h, this.guttery, newy);
+
+		this.options.x = this.x = newx;
+		this.options.y = this.y = newy;
+
+		var x;
+		var y = this.y;
+		for (var col = 0; col < this.numx; col++) {
+			x = this.x;
+			for (var row = 0; row < this.numy; row++) {
+console.log('move:', this.itemid(row, col), x, y);
+				this.parent.controls[this.itemid(row, col)].move(x, y);
+				x += (this.w + this.gutterx);
+			}
+			y += (this.h + this.guttery);
+		}
+	},
+
+	handleClick: function(e) {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		return false;
+	},
+
+	exec: function() {
+	},
+	
+	setValue: function(value) {
+console.log('group setValue:', value);
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
 	},
