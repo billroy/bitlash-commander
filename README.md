@@ -185,16 +185,21 @@ The push example in the file public/push.html shows event listeners in use:
 
 - radio button control
 - button group
-	- how to edit properties?
-	- color initializations
-		fill:, stroke,
-			- listeners on all buttons
+	- bug: click doesn't edit properties?
+		- need 'delete()' for edit to work
+
+	- bug: drag of bounding box loses the buttons and bounding box stays highlighted
+
+	- setvalue: bit pattern control of highlight, one bit per button
+		- vu meter, led bank
+
 	- optional radio button behavior: force other controls to 0 when a control is set to 1
+		- listeners on all buttons
 		- radio: none/row/column  undefined/r/c
-	- persistent color highlight for the ON button
+		- persistent color highlight for the ON button
+
 	- touch or update can select button
-	- group.setValue('ggggyyrr') - color decoding
-	- set normal/highlight color of individual button
+
 
 - generate an index page
 	- list of panels + new panel

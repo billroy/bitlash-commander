@@ -537,7 +537,8 @@ Button.prototype = {
 		this.fontsize = options.fontsize || 20;
 		this.repeat = options.repeat || 0;
 		this.running = 0;
-		this.corner = options.corner || this.parent.button_corner;
+		if (options.corner != undefined) this.corner = options.corner;
+		else this.corner = this.parent.button_corner;
 		this.subtype = options.subtype || '';	// default to rectangle
 		this.r = options.r || this.w/2;
 		this.autorun = options.autorun || false;
@@ -1821,7 +1822,15 @@ console.log('gutters:', this.gutterx, this.guttery);
 	},
 	
 	setValue: function(value) {
-console.log('group setValue:', value);
+		var bit = 0;
+		for (var col = 0; col < this.numx; col++) {
+			for (var row = 0; row < this.numy; row++) {
+				var control = this.parent.controls[this.itemid(row, col)];
+				var bitvalue = ((value & (1<<bit++)) != 0) ? 1 : 0;
+				var color = bitvalue ? control.fill_highlight : control.fill;
+				control.attr({fill:color});
+			}
+		}
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
 	},
