@@ -185,13 +185,10 @@ The push example in the file public/push.html shows event listeners in use:
 
 - radio button control
 - button group
-	- numx, numy
-	- xgutter, ygutter
-	- id: {{id}}-{{x}}-{{y}}
+	- how to edit properties?
 	- color initializations
 		fill:, stroke,
-		
-	- listeners on all buttons
+			- listeners on all buttons
 	- optional radio button behavior: force other controls to 0 when a control is set to 1
 		- radio: none/row/column  undefined/r/c
 	- persistent color highlight for the ON button

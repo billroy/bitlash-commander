@@ -553,21 +553,21 @@ Button.prototype = {
 		var self = this;
 
 		if (this.subtype == 'circle') {
-			this.elt = this.parent.paper.circle(this.x, this.y, this.r)
+			this.elt = this.parent.paper.circle(this.x+this.r, this.y+this.r, this.r)
 				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-			this.label = this.parent.paper.text(this.x + (this.w/2), this.y + 2*this.r + this.fontsize, this.text)
+			this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.r, this.text)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-			if (!this.noreadout) this.readout = this.parent.paper.text(this.x, this.y, this.value)
+			if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + 2 * this.r + this.fontsize, this.value)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
@@ -672,9 +672,9 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 		this.x = x;
 		this.y = y;
 		if (this.subtype == 'circle') {
-			this.elt.attr({cx:x, cy:y});
-			this.label.attr({cx:x, cy:y});
-			if (this.readout) this.readout.attr({x:x, y:y});
+			this.elt.attr({cx:x + this.r, cy:y + this.r});
+			this.label.attr({x:x + (this.w/2), y:y + this.r});
+			if (this.readout) this.readout.attr({x: this.x + (this.w/2), y: this.y + 2 * this.r + this.fontsize});
 		}
 		else if (this.subtype == 'path') {
 			var bbox = this.elt.getBBox();
@@ -1226,7 +1226,7 @@ Chart.prototype = {
 		this.fontsize = options.fontsize || 20;
 		this.repeat = options.repeat || 0;
 		this.running = 0;
-		this.corner = options.corner || this.parent.Chart_corner;
+		this.corner = options.corner || this.parent.button_corner;
 		this.subtype = options.subtype || '';
 		this.r = options.r || this.w/2;
 		this.autorun = options.autorun || false;
@@ -1661,7 +1661,7 @@ Group.prototype = {
 		this.fontsize = options.fontsize || 20;
 		this.repeat = options.repeat || 0;
 		this.running = 0;
-		this.corner = options.corner || this.parent.Group_corner;
+		this.corner = options.corner || this.parent.button_corner;
 		this.subtype = options.subtype || '';	// default to rectangle
 		this.r = options.r || this.w/2;
 		this.autorun = options.autorun || false;
@@ -1673,15 +1673,31 @@ Group.prototype = {
 
 		this.numx = options.numx || 1;
 		this.numy = options.numy || 3;
-		this.gutterx = options.gutterx || options.gutter || 20;
-		this.guttery = options.guttery || options.gutter || 20;
 
+		if (options.gutterx != undefined) this.gutterx = options.gutterx;
+		else if (options.gutter != undefined) this.gutterx = options.gutter;
+		else this.gutterx = 20;
+		if (options.guttery != undefined) this.guttery = options.guttery; 
+		else if (options.gutter != undefined) this.guttery = options.gutter;
+		else this.guttery = 20;
+console.log('gutters:', this.gutterx, this.guttery);
 		var self = this;
 
-		var x;
-		var y = this.y;
+		this.elt = this.parent.paper.rect(
+			this.x - this.gutterx,
+			this.y - this.guttery, 
+			this.numx * (this.w + this.gutterx) + this.gutterx,
+			this.numy * (this.h + this.guttery) + this.guttery, this.corner)
+				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});});
+				//.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+		var y;
+		var x = this.x;
 		for (var col=0; col< this.numx; col++) {
-			x = this.x;
+			y = this.y;
 			for (var row = 0; row < this.numy; row++) {
 				var opts = {};
 				for (var o in this.options) opts[o] = this.options[o];
@@ -1691,11 +1707,10 @@ Group.prototype = {
 				opts.y = y;
 				opts.row = row;
 				opts.col = col;
-console.log('AddB:', opts);
 				this.parent.addButton(opts);
-				x += (this.w + this.gutterx);
+				y += (this.h + this.guttery);
 			}
-			y += (this.h + this.guttery);
+			x += (this.w + this.gutterx);
 		}
 	},
 
@@ -1718,24 +1733,73 @@ console.log('AddB:', opts);
 		//var moved = this.parent.controls[id];
 		var newx = moved.x - moved.col * (this.w + this.gutterx);
 		var newy = moved.y - moved.row * (this.h + this.guttery);
+		this.move(newx, newy);
+	},
 
-console.log('dragnotify:', moved.id, moved.x, moved.col, this.w, this.gutterx, newx);
-console.log('dragnotif2:', moved.id, moved.y, moved.row, this.h, this.guttery, newy);
-
+	move: function(newx, newy) {
 		this.options.x = this.x = newx;
 		this.options.y = this.y = newy;
+		this.elt.attr({x:this.x - this.gutterx, y:this.y - this.guttery});
 
-		var x;
-		var y = this.y;
+		var y;
+		var x = this.x;
 		for (var col = 0; col < this.numx; col++) {
-			x = this.x;
+			y = this.y;
 			for (var row = 0; row < this.numy; row++) {
-console.log('move:', this.itemid(row, col), x, y);
 				this.parent.controls[this.itemid(row, col)].move(x, y);
-				x += (this.w + this.gutterx);
+				y += (this.h + this.guttery);
 			}
-			y += (this.h + this.guttery);
+			x += (this.w + this.gutterx);
 		}
+	},
+	
+	dragStart: function(x, y, event) {
+		//console.log('Drag start:', x, y, event);
+		if (!this.parent.editingpanel) return true;
+		if (event && event.shiftKey) {
+			this.parent.showEditMenu(this.id, event);
+			return true;
+		}
+		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
+		this.dragging = true;
+		this.elt.attr({fill:this.fill_highlight}).toFront();
+		if (this.readout) this.readout.toFront();
+		this.label.toFront();
+	},
+
+	dragMove: function(dx, dy, x, y, e) {
+		//console.log('move:',dx,dy,x,y,e);
+
+		var grid = this.parent.grid;
+		if (grid && !e.shiftKey) {
+			this.x = this.drag.x + (grid * Math.floor(dx / grid));
+			this.y = this.drag.y + (grid * Math.floor(dy / grid));
+		}
+		else {
+			this.x = this.drag.x + dx;
+			this.y = this.drag.y + dy;
+		}
+		this.move(this.x, this.y);
+		return this.dragFinish(e);
+	},
+
+	dragEnd: function(e) {
+		this.elt.attr({fill:this.fill});
+		this.options.x = this.x;
+		this.options.y = this.y;
+		delete this.drag;
+		this.dragging = false;
+		if (this.group) {
+			console.log('dragEnd calling:', this.row, this.col);
+			this.parent.controls[this.group].dragNotify(this);
+		}
+		return this.dragFinish(e);
+	},
+	
+	dragFinish: function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		return false;
 	},
 
 	handleClick: function(e) {
