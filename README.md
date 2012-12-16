@@ -189,7 +189,9 @@ The push example in the file public/push.html shows event listeners in use:
 
 - radio button control
 - button group
-	- bug: don't save generated buttons (have a 'group' field)
+	- attribute arrays for text, stroke, fill, script
+	- grouped items should show the parent's menu
+	- bug: don't save generated buttons (which have a 'group' field)
 	
 	- bug: drag of bounding box loses the buttons and bounding box stays highlighted
 

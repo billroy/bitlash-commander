@@ -135,6 +135,7 @@ console.log('Incoming Update XY:', data);
 					//path:'M19.562,10.75C21.74,8.572,25.5,7,25.5,7c-8,0-8-4-16-4v10c8,0,8,4,16,4C25.5,17,21.75,14,19.562,10.75zM6.5,29h2V3h-2V29z',
 					scale:5
 				});
+				else if (key == 'addgroup') self.addGroup({numx:3, numy:3});
 				else if (key == 'addslider') self.addSlider({});
 				else if (key == 'addxyslider') self.addSlider({subtype:'xy', w:100, h:100});
 				else if (key == 'addhslider') self.addSlider({subtype:'x', w:200, h:80});
@@ -155,17 +156,18 @@ console.log('Incoming Update XY:', data);
 				'editpanel': 	{name: 'Panel Properties...', 	icon: 'editpanel'},
 				'sep1': 	 	'---------',
 				'addtext': 	{name: 'New Text', 		icon: 'addbutton'},
-				'sep1': 	 	'---------',
+				'sep2': 	 	'---------',
 				'addbutton': 	{name: 'New Button', 	icon: 'addbutton'},
 				'addrbutton': 	{name: 'New Round Button', 	icon: 'addbutton'},
 				'addpbutton': 	{name: 'New Path Button', 	icon: 'addbutton'},
-				'sep2': 	 	'---------',
+				'addgroup': 	{name: 'New Group', 	icon: 'addbutton'},
+				'sep3': 	 	'---------',
 				'addslider': 	{name: 'New Slider', 	icon: 'addslider'},
 				'addxyslider': 	{name: 'New XY-Slider', icon: 'addslider'},
 				'addhslider': 	{name: 'New H-Slider', 	icon: 'addslider'},
-				'sep3': 	 	'---------',
-				'addchart':  	{name: 'New Chart', 	icon: 'addchart'},
 				'sep4': 	 	'---------',
+				'addchart':  	{name: 'New Chart', 	icon: 'addchart'},
+				'sep5': 	 	'---------',
 				'openpanel': 	{name: 'Open Panel', 	icon: 'openpanel'},
 				'scale': 	 	{name: 'Scale...', 	icon: 'save'},
 				'save': 	 	{name: 'Save Panel', 	icon: 'save'}
@@ -663,7 +665,12 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 		}
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
-		this.elt.attr({fill:this.fill_highlight}).toFront();
+		this.elt.attr({fill:this.fill_highlight});
+		this.toFront();
+	},
+
+	toFront: function() {
+		this.elt.toFront();
 		if (this.readout) this.readout.toFront();
 		this.label.toFront();
 	},
@@ -1769,7 +1776,9 @@ console.log('gutters:', this.gutterx, this.guttery);
 		for (var row = 0; row < this.numy; row++) {
 			x = this.x;
 			for (var col=0; col< this.numx; col++) {
-				this.parent.controls[this.itemid(row, col)].move(x, y);
+				var control = this.parent.controls[this.itemid(row, col)];
+				control.move(x, y);
+				control.toFront();
 				x += (this.w + this.gutterx);
 			}
 			y += (this.h + this.guttery);
@@ -1786,8 +1795,6 @@ console.log('gutters:', this.gutterx, this.guttery);
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
 		this.elt.attr({fill:this.fill_highlight}).toFront();
-		if (this.readout) this.readout.toFront();
-		this.label.toFront();
 	},
 
 	dragMove: function(dx, dy, x, y, e) {
@@ -1841,8 +1848,8 @@ console.log('gutters:', this.gutterx, this.guttery);
 	setValue: function(value) {
 		var bit = 0;
 		this.value = value;
-		for (var col = 0; col < this.numx; col++) {
-			for (var row = 0; row < this.numy; row++) {
+		for (var row = 0; row < this.numy; row++) {
+			for (var col = 0; col < this.numx; col++) {
 				var control = this.parent.controls[this.itemid(row, col)];
 				var bitvalue = ((value & (1<<bit++)) != 0) ? 1 : 0;
 				var color = bitvalue ? control.fill_highlight : control.fill;

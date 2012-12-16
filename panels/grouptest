@@ -1188,5 +1188,103 @@
 		],
 		"script": "javascript:alert(this.id);",
 		"type": "Group"
+	},
+	{
+		"type": "Button",
+		"id": "Group0-0-0",
+		"group": "Group0",
+		"x": 842,
+		"y": 410,
+		"row": 0,
+		"col": 0,
+		"stroke": "blue"
+	},
+	{
+		"type": "Button",
+		"id": "Group0-0-1",
+		"group": "Group0",
+		"x": 987,
+		"y": 410,
+		"row": 0,
+		"col": 1,
+		"stroke": "blue"
+	},
+	{
+		"type": "Button",
+		"id": "Group0-0-2",
+		"group": "Group0",
+		"x": 1132,
+		"y": 410,
+		"row": 0,
+		"col": 2,
+		"stroke": "blue"
+	},
+	{
+		"type": "Button",
+		"id": "Group0-1-0",
+		"group": "Group0",
+		"x": 842,
+		"y": 480,
+		"row": 1,
+		"col": 0,
+		"stroke": "blue"
+	},
+	{
+		"type": "Button",
+		"id": "Group0-1-1",
+		"group": "Group0",
+		"x": 987,
+		"y": 480,
+		"row": 1,
+		"col": 1,
+		"stroke": "blue"
+	},
+	{
+		"type": "Button",
+		"id": "Group0-1-2",
+		"group": "Group0",
+		"x": 1132,
+		"y": 480,
+		"row": 1,
+		"col": 2,
+		"stroke": "blue"
+	},
+	{
+		"type": "Button",
+		"id": "Group0-2-0",
+		"group": "Group0",
+		"x": 842,
+		"y": 550,
+		"row": 2,
+		"col": 0,
+		"stroke": "blue"
+	},
+	{
+		"type": "Button",
+		"id": "Group0-2-1",
+		"group": "Group0",
+		"x": 987,
+		"y": 550,
+		"row": 2,
+		"col": 1,
+		"stroke": "blue"
+	},
+	{
+		"type": "Button",
+		"id": "Group0-2-2",
+		"group": "Group0",
+		"x": 1132,
+		"y": 550,
+		"row": 2,
+		"col": 2,
+		"stroke": "blue"
+	},
+	{
+		"numx": 3,
+		"numy": 3,
+		"type": "Group",
+		"x": 842,
+		"y": 410,
+		"id": "Group0"
 	}
 ]
