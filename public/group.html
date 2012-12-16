@@ -36,7 +36,8 @@ $(document).ready(function() {
 			noreadout: true,
 			text: 'id',
 			color:'blue',
-			stroke:['red','white'],
+			//stroke:['red','white'],
+			stroke:['red','white','blue'],
 			script: 'javascript:alert(this.id);'
 		});
 	Panel.addGroup({
@@ -60,7 +61,8 @@ $(document).ready(function() {
 			text: 'id',
 			script: 'javascript:alert(this.id);'
 		});
-	Panel.addGroup({
+
+	var led32 = Panel.addGroup({
 			id: 'hbtns-32',
 			numx:32, numy:1,
 			x:600, y:200,
@@ -79,6 +81,12 @@ $(document).ready(function() {
 				'red','red','red','red', 'red','red','red','red'],			
 			script: 'javascript:alert(this.id);'
 		});
+		
+	window.setInterval(function() { 
+		var newvalue = ~(-1<<Math.floor(32*Math.random()));
+		led32.setValue(newvalue);
+	}, 900);
+
 	var v8 = Panel.addGroup({
 			id: 'vbtns-8',
 			numx:1, numy:8,

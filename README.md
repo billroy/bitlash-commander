@@ -12,6 +12,8 @@ Here are screenshots of some of the examples that ship with Commander:
 
 ![You want Buttons?](https://raw.github.com/billroy/bitlash-commander/master/public/images/screenshot-buttons.png)
 
+![Button Groups?](https://raw.github.com/billroy/bitlash-commander/master/public/images/screenshot-buttongroups.png)
+
 Here is an overview of the architecture of Bitlash Commander:
 
 ![Bitlash Commander Architecture](https://raw.github.com/billroy/bitlash-commander/master/public/images/commander-architecture.png)
@@ -183,15 +185,13 @@ The push example in the file public/push.html shows event listeners in use:
 	color should be stroke; get rid of color
 	label should be text; get rid of label
 
+- make the panel label a text control
+
 - radio button control
 - button group
-	- bug: click doesn't edit properties?
-		- need 'delete()' for edit to work
-
+	- bug: don't save generated buttons (have a 'group' field)
+	
 	- bug: drag of bounding box loses the buttons and bounding box stays highlighted
-
-	- setvalue: bit pattern control of highlight, one bit per button
-		- vu meter, led bank
 
 	- optional radio button behavior: force other controls to 0 when a control is set to 1
 		- listeners on all buttons
@@ -199,7 +199,6 @@ The push example in the file public/push.html shows event listeners in use:
 		- persistent color highlight for the ON button
 
 	- touch or update can select button
-
 
 - generate an index page
 	- list of panels + new panel

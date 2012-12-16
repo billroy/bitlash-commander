@@ -257,6 +257,7 @@ console.log('Incoming Update XY:', data);
 			else if (items[i].type == 'Slider') this.addSlider(items[i]);
 			else if (items[i].type == 'Chart') this.addChart(items[i]);
 			else if (items[i].type == 'Text') this.addText(items[i]);
+			else if (items[i].type == 'Group') this.addGroup(items[i]);
 			else if (items[i].type == 'Panel') {
 				for (var f in items[i]) {
 					this.options[f] = this[f] = items[i][f];
@@ -432,7 +433,7 @@ console.log('Load:', panelid);
 
 		for (var f in this.controls[id].options) {				// for properties in original options
 			if (this.controls[id].options.hasOwnProperty(f)
-				&& (typeof this.controls[id][f] != 'object')
+				//&& (typeof this.controls[id][f] != 'object')
 				&& (typeof this.controls[id][f] != 'function')) {		// push current object value
 				data.push([f, this.controls[id][f] || this.controls[id].options[f]]);
 			}
@@ -453,9 +454,8 @@ console.log('Load:', panelid);
 
 		for (var f in this.controls[id].options) {				// for properties in original options
 			if (this.controls[id].options.hasOwnProperty(f)
-				&& (typeof this.controls[id][f] != 'object')
+				&& ((typeof this.controls[id][f] != 'object') || (this.controls[id][f] instanceof Array))
 				&& (typeof this.controls[id][f] != 'function')) {		// push current object value
-				//data.push([f, this.controls[id][f]]);
 				data[f] = this.controls[id][f];
 			}
 		}
@@ -469,7 +469,7 @@ console.log('p2e1:', this.options, this);
 		for (var f in this.options) {				// for properties in original options
 console.log('p2e:', f);
 			if (this.options.hasOwnProperty(f)
-				&& (typeof this.options[f] != 'object')
+				&& ((typeof this.options[f] != 'object') || (this.options[f] instanceof Array))
 				&& (typeof this.options[f] != 'function')) {		// push current object value
 				data.push([f, this.options[f] || this[f]]);
 			}
@@ -1662,7 +1662,10 @@ Group.prototype = {
 		this.fontsize = options.fontsize || 20;
 		this.repeat = options.repeat || 0;
 		this.running = 0;
-		this.corner = options.corner || this.parent.button_corner;
+
+		if (options.corner != undefined) this.corner = options.corner;
+		else this.corner = this.parent.button_corner;
+
 		this.subtype = options.subtype || '';	// default to rectangle
 		this.r = options.r || this.w/2;
 		this.autorun = options.autorun || false;
@@ -1700,11 +1703,11 @@ console.log('gutters:', this.gutterx, this.guttery);
 		var strokes = this.stroke;
 		if (!(strokes instanceof Array)) strokes = [strokes];
 
-		var y;
-		var x = this.x;
-		for (var col=0; col< this.numx; col++) {
-			y = this.y;
-			for (var row = 0; row < this.numy; row++) {
+		var x;
+		var y = this.y;
+		for (var row = 0; row < this.numy; row++) {
+			x = this.x;
+			for (var col=0; col< this.numx; col++) {
 				var opts = {};
 				for (var o in this.options) opts[o] = this.options[o];
 				opts.id = this.itemid(row, col);
@@ -1716,9 +1719,9 @@ console.log('gutters:', this.gutterx, this.guttery);
 				opts.stroke = strokes[nextstroke];
 				if (++nextstroke >= strokes.length) nextstroke = 0;
 				this.parent.addButton(opts);
-				y += (this.h + this.guttery);
+				x += (this.w + this.gutterx);
 			}
-			x += (this.w + this.gutterx);
+			y += (this.h + this.guttery);
 		}
 	},
 
@@ -1726,10 +1729,22 @@ console.log('gutters:', this.gutterx, this.guttery);
 		return  '' + this.id + '-' + row + '-' + col;
 	},
 
+	each: function(callback) {
+		for (var row = 0; row < this.numy; row++) {
+			for (var col = 0; col < this.numx; col++) {
+				callback(this.parent.controls[this.itemid(row, col)]);
+			}
+		}
+	},
+
 	delete: function() {
+		this.each(function(control) { control.parent.deletecontrol(control.id); });
+		this.elt.remove();
 	},
 	
 	attr: function(attrs) {
+		this.elt.attr(attrs);
+		this.each(function(control) { control.attr(attrs); });
 	},
 
 	setText: function(text) {
@@ -1749,15 +1764,15 @@ console.log('gutters:', this.gutterx, this.guttery);
 		this.options.y = this.y = newy;
 		this.elt.attr({x:this.x - this.gutterx, y:this.y - this.guttery});
 
-		var y;
-		var x = this.x;
-		for (var col = 0; col < this.numx; col++) {
-			y = this.y;
-			for (var row = 0; row < this.numy; row++) {
+		var x;
+		var y = this.y;
+		for (var row = 0; row < this.numy; row++) {
+			x = this.x;
+			for (var col=0; col< this.numx; col++) {
 				this.parent.controls[this.itemid(row, col)].move(x, y);
-				y += (this.h + this.guttery);
+				x += (this.w + this.gutterx);
 			}
-			x += (this.w + this.gutterx);
+			y += (this.h + this.guttery);
 		}
 	},
 	
@@ -1797,10 +1812,12 @@ console.log('gutters:', this.gutterx, this.guttery);
 		this.options.y = this.y;
 		delete this.drag;
 		this.dragging = false;
+/*
 		if (this.group) {
 			console.log('dragEnd calling:', this.row, this.col);
 			this.parent.controls[this.group].dragNotify(this);
 		}
+*/
 		return this.dragFinish(e);
 	},
 	
@@ -1823,6 +1840,7 @@ console.log('gutters:', this.gutterx, this.guttery);
 	
 	setValue: function(value) {
 		var bit = 0;
+		this.value = value;
 		for (var col = 0; col < this.numx; col++) {
 			for (var row = 0; row < this.numy; row++) {
 				var control = this.parent.controls[this.itemid(row, col)];
