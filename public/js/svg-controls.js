@@ -657,8 +657,10 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 	},
 
 	dragStart: function(x, y, event) {
-		//console.log('Drag start:', x, y, event);
-		if (!this.parent.editingpanel) return true;
+console.log('Drag start:', x, y, event);
+
+		if (!this.parent.editingpanel) return this.handleClick(event, x, y);
+
 		if (event && event.shiftKey) {
 			this.parent.showEditMenu(this.id, event);
 			return true;
@@ -711,30 +713,6 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 			this.y = this.drag.y + dy;
 		}
 		this.move(this.x, this.y);
-/****
-		if (this.subtype == 'circle') {
-			this.elt.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});
-			this.label.attr({cx:x-this.drag.xoff, cy:y-this.drag.yoff});		//??
-			if (this.readout) this.readout.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
-		}
-		else if (this.subtype == 'path') {
-			var bbox = this.elt.getBBox();
-			this.elt.transform(['t', this.x-this.drag.xoff, ',', this.y-this.drag.yoff, 's', this.scale].join(''));
-			var labely = bbox.y + this.h + this.fontsize;
-			this.label.attr({x:x-this.drag.xoff, y:labely - this.drag.yoff});
-			if (this.readout) this.readout.attr({x:x-this.drag.xoff , y:y-this.drag.yoff});
-		}
-		else {
-//			this.elt.attr({x:x-this.drag.xoff, y:y-this.drag.yoff});
-			this.elt.attr({x:this.x, y:this.y});
-			//this.label.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h + this.fontsize});
-			//if (this.readout) this.readout.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h/2});
-//			this.label.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h/2});
-//			if (this.readout) this.readout.attr({x:x-this.drag.xoff + this.w/2, y:y-this.drag.yoff + this.h + this.fontsize});
-			this.label.attr({x:this.x + this.w/2, y:this.y + this.h/2});
-			if (this.readout) this.readout.attr({x:this.x + this.w/2, y:this.y + this.h + this.fontsize});
-		}
-*****/
 		return this.dragFinish(e);
 	},
 
