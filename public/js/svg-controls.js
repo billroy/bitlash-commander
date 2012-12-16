@@ -1668,6 +1668,7 @@ Group.prototype = {
 		this.value = options.value || 0;
 		this.path = options.path || undefined;
 		this.scale = options.scale || 1;
+		this.color = options.color || this.parent.color;
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
@@ -1688,11 +1689,15 @@ console.log('gutters:', this.gutterx, this.guttery);
 			this.y - this.guttery, 
 			this.numx * (this.w + this.gutterx) + this.gutterx,
 			this.numy * (this.h + this.guttery) + this.guttery, this.corner)
-				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
+				.attr({fill:this.fill, stroke:this.color, 'stroke-width': this['stroke-width']})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-				.mouseup(function(e) { self.elt.attr({fill:self.fill});});
-				//.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+		var nextstroke = 0;
+		var strokes = this.stroke;
+		if (!(strokes instanceof Array)) strokes = [strokes];
 
 		var y;
 		var x = this.x;
@@ -1707,6 +1712,8 @@ console.log('gutters:', this.gutterx, this.guttery);
 				opts.y = y;
 				opts.row = row;
 				opts.col = col;
+				opts.stroke = strokes[nextstroke];
+				if (++nextstroke >= strokes.length) nextstroke = 0;
 				this.parent.addButton(opts);
 				y += (this.h + this.guttery);
 			}
