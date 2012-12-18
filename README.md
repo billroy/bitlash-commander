@@ -216,11 +216,12 @@ The push example in the file public/push.html shows event listeners in use:
 		-- deleting control requires a separate command?  or a null value?
 
 - bug: create new controls at menu location
-- BUG: sliders don't highlight with lighter(primary color)
 
 - really needs hover to highlight buttons
-	- highlight
-	- mouse cursor
+	- highlight/dehighlight cases for circle, svg button
+	- sliders need same treatment
+	- BUG: sliders don't highlight with lighter(primary color)
+
 
 - edit mode
 	- resize

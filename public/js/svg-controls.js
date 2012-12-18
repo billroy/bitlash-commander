@@ -629,29 +629,41 @@ console.log('bbox:', bbox);
 			this.elt = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.corner)
 				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 				.click(function(e) { return self.handleClick.call(self, e); })
-				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
-				//.mousedown(function(e) { self.elt.attr({opacity:0.5}); })
-				//.mouseup(function(e) { self.elt.attr({opacity:1.0});})
+				.mousedown(function(e) { self.highlight.call(self, e); return false;})
+				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 			this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h/2, this.text)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 				.click(function(e) { return self.handleClick.call(self, e); })
-				//.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-				//.mouseup(function(e) { self.elt.attr({fill:self.fill});})
-				.mousedown(function(e) { self.elt.attr({fill:self.fill, stroke:self.stroke}); })
-				.mouseup(function(e) { self.elt.attr({fill:self.stroke, stroke:self.stroke});})
+				.mousedown(function(e) { self.highlight.call(self, e); return false;})
+				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 			//if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h/2, ''+this.value)
 			if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize, '')
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
 				.click(function(e) { return self.handleClick.call(self, e); })
+				.mousedown(function(e) { self.highlight.call(self, e); return false;})
+				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 		}
 
 		return this;
+	},
+	
+	highlight: function(event) {
+		this.elt.attr({fill:this.fill_highlight});
+		var highlight_attr = {fill:this.fill, stroke: this.fill};
+		if (this.label) this.label.attr(highlight_attr);
+		//if (this.readout) this.readout.attr(highlight_attr);
+	},
+
+	dehighlight: function(event) {
+		this.elt.attr({fill:this.fill});
+		var dehighlight_attr = {fill:this.stroke, stroke: this.stroke};
+		if (this.label) this.label.attr(dehighlight_attr);
+		//if (this.readout) this.readout.attr(dehighlight_attr);
 	},
 
 	delete: function() {
@@ -674,21 +686,19 @@ console.log('bbox:', bbox);
 		this.label.attr({text:text});
 	},
 
-	dragStart: function(x, y, event) {
-console.log('Drag start:', x, y, event);
+	dragStart: function(x, y, e) {
+console.log('Drag start:', x, y, e);
 
-		if (!this.parent.editingpanel) {
-			//this.handleClick(event, x, y);
-			return this.dragFinish(event);
-		}
+		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
 
 		if (event && event.shiftKey) {
-			this.parent.showEditMenu(this.id, event);
+			this.parent.showEditMenu(this.id, e);
 			return true;
 		}
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
-		this.elt.attr({fill:this.fill_highlight});
+		//this.highlight();
+		this.attr({opacity:0.5});
 		this.toFront();
 	},
 
@@ -722,7 +732,8 @@ console.log('Drag start:', x, y, event);
 	},
 
 	dragMove: function(dx, dy, x, y, e) {
-		//console.log('move:',dx,dy,x,y,e);
+console.log('dragMove:',dx,dy,x,y,e);
+		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
 
 		var grid = this.parent.grid;
 		if (grid && !e.shiftKey) {
@@ -738,7 +749,11 @@ console.log('Drag start:', x, y, event);
 	},
 
 	dragEnd: function(e) {
-		this.elt.attr({fill:this.fill});
+console.log('dragEnd');
+		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
+		//this.elt.attr({fill:this.fill});
+		this.attr({opacity:1.0});
+		this.dehighlight();
 		this.options.x = this.x;
 		this.options.y = this.y;
 		delete this.drag;
@@ -751,12 +766,15 @@ console.log('Drag start:', x, y, event);
 	},
 	
 	dragFinish: function(e) {
-		e.preventDefault();
-		e.stopPropagation();
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
 		return false;
 	},
 
 	handleClick: function(e) {
+console.log('handleClick', e);
 		if (this.repeat) {
 			if (this.running) {
 				this.running = false;
@@ -770,21 +788,14 @@ console.log('Drag start:', x, y, event);
 
 				this.runningindicator = this.parent.paper.path('M19.275,3.849l1.695,8.56l1.875-1.642c2.311,3.59,1.72,8.415-1.584,11.317c-2.24,1.96-5.186,2.57-7.875,1.908l-0.84,3.396c3.75,0.931,7.891,0.066,11.02-2.672c4.768-4.173,5.521-11.219,1.94-16.279l2.028-1.775L19.275,3.849zM8.154,20.232c-2.312-3.589-1.721-8.416,1.582-11.317c2.239-1.959,5.186-2.572,7.875-1.909l0.842-3.398c-3.752-0.93-7.893-0.067-11.022,2.672c-4.765,4.174-5.519,11.223-1.939,16.283l-2.026,1.772l8.26,2.812l-1.693-8.559L8.154,20.232z')
 					.transform(translation)
-					.attr({fill:this.stroke, stroke: this.stroke})
-					.click(function(e) { 
-//						self.addButton({x:self.next_x+=self.next_inc, y:self.next_y+=self.next_inc});
-					});
+					.attr({fill:this.stroke, stroke: this.stroke});
 					
 				this.exec();
 			}
 		}
 		else this.exec();
 
-		if (e) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
-		return false;
+		return true;		//this.dragFinish();
 	},
 
 	exec: function() {
@@ -1701,8 +1712,8 @@ console.log('gutters:', this.gutterx, this.guttery);
 			this.numy * (this.h + this.guttery) + this.guttery, this.corner)
 				.attr({fill:this.fill, stroke:this.color, 'stroke-width': this['stroke-width']})
 				.click(function(e) { return self.handleClick.call(self, e); })
-				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				//.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
+				//.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		var nextstroke = 0;
@@ -1786,7 +1797,7 @@ console.log('gutters:', this.gutterx, this.guttery);
 	
 	dragStart: function(x, y, event) {
 		//console.log('Drag start:', x, y, event);
-		if (!this.parent.editingpanel) return true;
+		if (!this.parent.editingpanel) return this.dragFinish();
 		if (event && event.shiftKey) {
 			this.parent.showEditMenu(this.id, event);
 			return true;
@@ -1794,10 +1805,12 @@ console.log('gutters:', this.gutterx, this.guttery);
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
 		this.elt.attr({fill:this.fill_highlight}).toFront();
+		return true;
 	},
 
 	dragMove: function(dx, dy, x, y, e) {
 		//console.log('move:',dx,dy,x,y,e);
+		if (!this.parent.editingpanel) return this.dragFinish();
 
 		var grid = this.parent.grid;
 		if (grid && !e.shiftKey) {
@@ -1813,6 +1826,7 @@ console.log('gutters:', this.gutterx, this.guttery);
 	},
 
 	dragEnd: function(e) {
+		if (!this.parent.editingpanel) return this.dragFinish();
 		this.elt.attr({fill:this.fill});
 		this.options.x = this.x;
 		this.options.y = this.y;
@@ -1828,16 +1842,14 @@ console.log('gutters:', this.gutterx, this.guttery);
 	},
 	
 	dragFinish: function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		return false;
-	},
-
-	handleClick: function(e) {
 		if (e) {
 			e.preventDefault();
 			e.stopPropagation();
 		}
+		return false;
+	},
+
+	handleClick: function(e) {
 		return false;
 	},
 
