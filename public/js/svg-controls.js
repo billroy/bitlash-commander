@@ -596,7 +596,6 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 
 			this.elt = this.parent.paper.path(this.path)
 				.transform(translation)
-				//.scale(this.scale)
 				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
@@ -632,14 +631,17 @@ console.log('bbox:', bbox);
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
 				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				//.mousedown(function(e) { self.elt.attr({opacity:0.5}); })
+				//.mouseup(function(e) { self.elt.attr({opacity:1.0});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-			//this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize, this.text)
 			this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h/2, this.text)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 				.click(function(e) { return self.handleClick.call(self, e); })
-				.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-				.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				//.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
+				//.mouseup(function(e) { self.elt.attr({fill:self.fill});})
+				.mousedown(function(e) { self.elt.attr({fill:self.fill, stroke:self.stroke}); })
+				.mouseup(function(e) { self.elt.attr({fill:self.stroke, stroke:self.stroke});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 			//if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h/2, ''+this.value)
@@ -676,7 +678,7 @@ console.log('bbox:', bbox);
 console.log('Drag start:', x, y, event);
 
 		if (!this.parent.editingpanel) {
-			this.handleClick(event, x, y);
+			//this.handleClick(event, x, y);
 			return this.dragFinish(event);
 		}
 
