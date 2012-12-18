@@ -150,10 +150,12 @@ console.log('Incoming Update XY:', data);
 					self.attr({scale:scale});
 					//self.paper.scale(scale, scale);
 				}
+				else if (key == 'align') self.alignToGrid();
 			},
 			items: {
 				'newpanel': 	{name: 'New Panel', 	icon: 'newpanel'},
 				'editpanel': 	{name: 'Panel Properties...', 	icon: 'editpanel'},
+				'align': 		{name: 'Align to Grid', icon: 'editpanel'},
 				'sep1': 	 	'---------',
 				'addtext': 	{name: 'New Text', 		icon: 'addbutton'},
 				'sep2': 	 	'---------',
@@ -169,7 +171,7 @@ console.log('Incoming Update XY:', data);
 				'addchart':  	{name: 'New Chart', 	icon: 'addchart'},
 				'sep5': 	 	'---------',
 				'openpanel': 	{name: 'Open Panel', 	icon: 'openpanel'},
-				'scale': 	 	{name: 'Scale...', 	icon: 'save'},
+//				'scale': 	 	{name: 'Scale...', 	icon: 'save'},
 				'save': 	 	{name: 'Save Panel', 	icon: 'save'}
 			}
 		});
@@ -499,6 +501,16 @@ console.log('p2e:', f);
 		}
 		//console.log('Controls.ToStorage:', data);
 		return data;
+	},
+	
+	alignToGrid: function() {
+		if (!this.grid) return;
+		for (var id in this.controls) {
+			var control = this.controls[id];
+			var newx = this.grid * Math.floor(control.x / this.grid);
+			var newy = this.grid * Math.floor(control.y / this.grid);
+			control.move(newx, newy);
+		}
 	}
 }
 
@@ -592,6 +604,10 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 			var bbox = this.elt.getBBox();
+			var brect = this.parent.paper.rect(bbox.x, bbox.y, bbox.width, bbox.height)
+				.attr({fill:this.fill, stroke:this.stroke});
+			this.elt.toFront();
+console.log('bbox:', bbox);
 			this.w = bbox.width;
 			this.h = bbox.height;
 			var labely = bbox.y + this.h + this.fontsize;
@@ -659,7 +675,10 @@ console.log('Path:', translation, this.x, this.y, this.scale);
 	dragStart: function(x, y, event) {
 console.log('Drag start:', x, y, event);
 
-		if (!this.parent.editingpanel) return this.handleClick(event, x, y);
+		if (!this.parent.editingpanel) {
+			this.handleClick(event, x, y);
+			return this.dragFinish(event);
+		}
 
 		if (event && event.shiftKey) {
 			this.parent.showEditMenu(this.id, event);
@@ -1831,7 +1850,7 @@ console.log('gutters:', this.gutterx, this.guttery);
 				var control = this.parent.controls[this.itemid(row, col)];
 				var bitvalue = ((value & (1<<bit++)) != 0) ? 1 : 0;
 				var color = bitvalue ? control.fill_highlight : control.fill;
-				control.attr({fill:color});
+				control.attr({fill:color, stroke: control.stroke});
 			}
 		}
 		var update = {id: this.id, value: this.value};

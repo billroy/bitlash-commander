@@ -101,8 +101,32 @@ app.configure(function () {
 	app.use(express.static(__dirname + '/public'));
 });
 
+var panelpath = 'panel/';
+var htmlpath  = 'public/*.html';
+var fs = require('fs');
+var shell = require('shelljs');
+//var indextemplate = fs.readFileSync('public/indextemplate.html', 'utf8');
+var indextemplate;
+
 app.get('/', function(req, res) {
-	res.sendfile(__dirname + '/public/index.html');
+	indextemplate = fs.readFileSync('public/indextemplate.html', 'utf8');
+	var guipanels = shell.ls(panelpath);
+	var rawpanels = shell.ls(htmlpath);
+	var custompanels = [];
+	for (var i=0; i < rawpanels.length; i++) {
+		var p = rawpanels[i].split('/')[1];
+		p = p.replace(/.html$/, '');
+		if (p == 'template') continue;
+		if (p == 'indextemplate') continue;
+		custompanels.push(p);		
+	}
+
+console.log('panels:', guipanels, custompanels);
+
+	var html = indextemplate.replace(/{{guipanels}}/, JSON.stringify(guipanels));
+	html = html.replace(/{{custompanels}}/, JSON.stringify(custompanels));
+
+	res.send(html);
 });
 
 var paneltemplate = fs.readFileSync('public/template.html', 'utf8');
@@ -250,8 +274,6 @@ function executeBitlash(data) {
 //
 //	Set up Socket.io message handlers
 //
-var fs = require('fs');
-var panelpath = 'panels/';
 
 io.sockets.on('connection', function (socket) {
 	console.log('Client connected via', socket.transport);

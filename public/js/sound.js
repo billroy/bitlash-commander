@@ -43,7 +43,7 @@ var Sound = {
 				this.ready = true;
 			},
 			supplied: 'mp3',
-			swfPath: 'js/jplayer/Jplayer.swf',
+			swfPath: '/js/jplayer/Jplayer.swf',
 			solution: 'html,flash'
 		});
 		this.initialized = true;
@@ -52,7 +52,7 @@ var Sound = {
 	play: function(soundid) {
 		if (!this.initialized) this.init();
 		if (!this.sounds[soundid]) return;
-		var url = 'sound/' + this.sounds[soundid];
+		var url = '/sound/' + this.sounds[soundid];
 		console.log('play:', soundid, url);
 		var player = $('#player');
 		player.jPlayer('clearMedia');

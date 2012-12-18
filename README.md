@@ -1,6 +1,8 @@
 # Bitlash Commander
 
-Bitlash Commander is a node.js web interface toolkit for Arduino.  It serves a web page containing buttons and slider controls, easily customized, which trigger Bitlash scripts you specify to control the Arduino over the usb-serial link.  
+Bitlash Commander is a node.js web interface toolkit for Arduino.  It serves web pages containing buttons, sliders, and chart controls, easily customized, which trigger Bitlash scripts you specify to control the Arduino over the usb-serial link.  
+
+Commander includes a graphical panel editing environment suitable for bringing up simple control panels without any coding, as well as a hands-on Javascript/HTML page development environment with plenty of examples for deep customization.
 
 For documentation please see the Bitlash Commander wiki: https://github.com/billroy/bitlash-commander/wiki
 
@@ -162,9 +164,6 @@ The push example in the file public/push.html shows event listeners in use:
 ## To Do / Bugs
 
 
-- create new controls at menu location
-- BUG: sliders don't highlight with lighter(primary color)
-
 - BUG: id conflict causes items to warp out
 	- Button0 name can conflict
 	- duplicate causes conflict
@@ -216,6 +215,13 @@ The push example in the file public/push.html shows event listeners in use:
 		- delete the control, force the id, and broadcast update
 		-- deleting control requires a separate command?  or a null value?
 
+- bug: create new controls at menu location
+- BUG: sliders don't highlight with lighter(primary color)
+
+- really needs hover to highlight buttons
+	- highlight
+	- mouse cursor
+
 - edit mode
 	- resize
 	- color picker
@@ -232,20 +238,30 @@ The push example in the file public/push.html shows event listeners in use:
 	- for viewer nodes: fetch remote data for a chart on demand
 
 - doc:
+	- commander front page
+	- getting started
+	- server options
+		- starting and stopping
+
+	- customizing scripts
+	- the panel editor
+
 	- panel options
 		- channel
 		- title x and y
-	- button and slider options	
-		- autorun
-		- button shape = 'path' for svg icons
+
 	- javascript: scripts
+		- mustache templating
+
 	- link to Commander on bitlash.net
 	- button.attr() and slider.attr()
+		move()
+		toFront()
 		- iterates across subelements
 		- svg group?
 	- multiple server configurations with -r and -x
 	- examples
-	- auth
+	- security & auth
 
 - detect serial port closure and reconnect
 	- reconnect button
