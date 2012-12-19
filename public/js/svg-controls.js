@@ -987,7 +987,8 @@ Slider.prototype = {
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
 		//this.outerrect.attr({fill:this.fill_highlight}).toFront();
-		this.outerrect.attr({opacity:0.5}).toFront();
+		this.attr({opacity:0.5});
+		this.outerrect.toFront();
 		if (this.xbar) this.xbar.toFront();
 		if (this.ybar) this.ybar.toFront();
 		this.slide.toFront();
@@ -1256,6 +1257,8 @@ Chart.prototype = {
 		for (var f in attrs) textattrs[f] = attrs[f];
 		if (textattrs.stroke) textattrs.fill=attrs.stroke;
 		this.label.attr(textattrs);
+
+		this.svg.attr(attrs);
 	},
 	
 	render: function() {
@@ -1381,8 +1384,8 @@ Chart.prototype = {
 		}
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
-		this.outerrect.attr({fill:this.fill_highlight}).toFront();
-		this.outerrect.attr({opacity:0.5}).toFront();
+		this.attr({opacity:0.5});
+		this.outerrect.toFront();
 		this.label.toFront();
 		//this.svg.toFront();		
 	},
@@ -1410,7 +1413,7 @@ Chart.prototype = {
 
 	dragEnd: function(e) {
 		//this.outerrect.attr({fill:this.fill});
-		this.outerrect.attr({opacity:1.0});
+		this.attr({opacity:1.0});
 		this.options.x = this.x;
 		this.options.y = this.y;
 		delete this.drag;
@@ -1534,8 +1537,8 @@ Text.prototype = {
 		this.label = this.parent.paper.text(this.x, this.y, this.text)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 			.click(function(e) { return self.handleClick.call(self, e); })
-			.mousedown(function(e) { self.label.attr({fill:self.fill_highlight}); })
-			.mouseup(function(e) { self.label.attr({fill:self.fill});})
+			.mousedown(function(e) { self.attr({opacity:0.5}); })
+			.mouseup(function(e) { self.attr({opacity:1.0});})
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		return this;
@@ -1820,7 +1823,8 @@ Group.prototype = {
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
 		this.dragging = true;
 		//this.elt.attr({fill:this.fill_highlight}).toFront();
-		this.elt.attr({opacity:0.5}).toFront();
+		this.attr({opacity:0.5})
+		this.elt.toFront();
 		return true;
 	},
 
@@ -1844,7 +1848,7 @@ Group.prototype = {
 	dragEnd: function(e) {
 		if (!this.parent.editingpanel) return this.dragFinish();
 		//this.elt.attr({fill:this.fill});
-		this.elt.attr({opacity:1.0});
+		this.attr({opacity:1.0});
 		this.options.x = this.x;
 		this.options.y = this.y;
 		delete this.drag;
