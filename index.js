@@ -304,13 +304,11 @@ io.sockets.on('connection', function (socket) {
 		fs.writeFile(panelpath + data[0].id, JSON.stringify(data, null, '\t'));
 	});
 	socket.on('open', function(data) {
-console.log('Open:', data);
 		var controltext;
 		try {
 			controltext = fs.readFileSync(panelpath + data);
 			var controls = JSON.parse(controltext);
 			controls[0].id = data;		// set the panel id to the filename
-			console.log('Open2:', controls);
 			socket.emit('add', controls);
 		}
 		catch(e) {

@@ -163,6 +163,9 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+- BUG: buttons don't work on iPad
+- bug: panel save tx,ty
+	- break out text as separate control
 
 - BUG: id conflict causes items to warp out
 	- Button0 name can conflict

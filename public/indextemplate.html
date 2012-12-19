@@ -29,7 +29,7 @@ $(document).ready(function() {
 	//document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
 	
 	var Panel = new ControlPanel({color:'white', id: 'index',
-		label:'Bitlash Commander Home', tx:250});
+		label:'Bitlash Commander Home', tx:480});
 
 	var guipanels = {{guipanels}};
 	var custompanels = {{custompanels}};
@@ -37,34 +37,36 @@ $(document).ready(function() {
 	//console.log('guipanels:', guipanels.length, guipanels);
 	//console.log('custompanels:', custompanels.length, custompanels);
 
-	var x = 100;
-	var y = 150;
-	var dx = 60;
-	var dy = 40;
+	var x = 120;
+	var y = 120;
+	var dx = 72;
+	var dy = 48;
 
-	Panel.addText({x:x + 100, y:y, text:'Select an HTML Panel:'});
+	Panel.addText({x:x + 96, y:y, text:'Select an HTML Panel:'});
 	y += dy;
 	for (var i=0; i < custompanels.length; i++) {
-		Panel.addButton({x:x, y:y, w:200, h:40, corner:0,
+		Panel.addButton({x:x, y:y, w:216, h:48, corner:0,
 			text: custompanels[i],
 			script: 'javascript:location.href="/' + custompanels[i] + '.html";'
 		});
 		y += dy;
 	}
 
-	x = 500;
-	y = 150;
-	Panel.addText({x:x + 100, y:y, text:'Open in Panel Editor:'});
+	x = 384;
+	y = 120;
+	Panel.addText({x:x + 96, y:y, text:'Open in Panel Editor:'});
 	y += dy;
 	for (var i=0; i < guipanels.length; i++) {
-		Panel.addButton({x:x, y:y, w:200, h:40, corner:0,
+		Panel.addButton({x:x, y:y, w:216, h:48, corner:0,
 			text: guipanels[i],
 			script:'javascript:location.href="/panel/' + guipanels[i] + '";'});
 		y += dy;
 	}
 
-	x = 500;
-	y = 25;
+	x = 648;
+	y = 120;
+	Panel.addText({x:x+96, y:y, text:'Create a new panel:'});
+	y += dy;
 	Panel.addButton({x:x, y:y, w:200, h:40, corner:0,
 		text:'New Panel',
 		script:'javascript:location.href="/panel/" + prompt("Name the new panel:");'
