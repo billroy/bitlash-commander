@@ -163,64 +163,40 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
-- BUG: buttons don't work on iPad
+- BUG: panel properties color changes don't punch through to new buttons
+- mustache-expand the label text
 
-- BUG: id conflict causes items to warp out
-	- Button0 name can conflict
-	- duplicate causes conflict
+- BUG: buttons don't work on iPad
 
 - BUG: xy controls get wider on the roundtrip
 	- don't mess with w / h 
+	- BUG: path buttons get their w and h set: bug?
 
 - xy sliders
 	- BUG: update channel can't handle xvalue, yvalue
-	- but: slide position isn't right on page initialization
+	- bug: slide position isn't right on page initialization
 	- bug: slides move to center on drag
 	- recenter after command
 		- easing instead of one big jump
 
 - bug: dragging button doesn't drag repeat indicator
-- BUG: dragging a path button leaves the label and readout in the wrong place
-- revise label/readout placement for circle and svg buttons
 
 - fix handling of color: and label: properties in panel setup
 	color should be stroke; get rid of color
 	label should be text; get rid of label
 
-- radio button control
 - button group
-	- attribute arrays for text, stroke, fill, script
-	- grouped items should show the parent's menu
+	- bug: grouped items should show the parent's menu
 	- bug: don't save generated buttons (which have a 'group' field)
-	
-	- bug: drag of bounding box loses the buttons and bounding box stays highlighted
 
-	- optional radio button behavior: force other controls to 0 when a control is set to 1
-		- listeners on all buttons
-		- radio: none/row/column  undefined/r/c
-		- persistent color highlight for the ON button
-
-	- touch or update can select button
-
-- generate an index page
-	- list of panels + new panel
-	- extra credit for thumbnails
+- thumbnails for index page
 
 - localhost-only mode
 
 - property editor
-	- megaprop for editing the whole workspace at a go
 	- broadcast control updates
 		- delete the control, force the id, and broadcast update
 		-- deleting control requires a separate command?  or a null value?
-
-- bug: create new controls at menu location
-
-- really needs hover to highlight buttons
-	- highlight/dehighlight cases for circle, svg button
-	- sliders need same treatment
-	- BUG: sliders don't highlight with lighter(primary color)
-
 
 - edit mode
 	- drag resize
@@ -259,7 +235,6 @@ The push example in the file public/push.html shows event listeners in use:
 		toFront()
 		- iterates across subelements
 		- svg group?
-	- multiple server configurations with -r and -x
 	- examples
 	- security & auth
 

@@ -133,7 +133,7 @@ var paneltemplate = fs.readFileSync('public/template.html', 'utf8');
 
 app.get('/panel/:id', function(req, res) {
 	var panelid = req.params.id;
-	var html = paneltemplate.replace(/{{panelid}}/, panelid.toString());
+	var html = paneltemplate.replace(/{{panelid}}/g, panelid.toString());
 	res.send(html);
 });
 

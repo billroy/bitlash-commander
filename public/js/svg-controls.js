@@ -145,7 +145,7 @@ console.log('Incoming Update XY:', data);
 				else if (key == 'addhslider') self.addSlider({x:self.menux, y:self.menuy, subtype:'x', w:200, h:80});
 				else if (key == 'addchart') self.addChart({x:self.menux, y:self.menuy, });
 				else if (key == 'save') self.saveControls();
-				else if (key == 'editpanel') self.edit(self);
+				else if (key == 'editpanel') self.edit.call(self, self);
 				else if (key == 'addtext') self.addText({x:self.menux, y:self.menuy, });
 				else if (key == 'scale') {
 					var scale = prompt('Enter scale:');
@@ -157,7 +157,7 @@ console.log('Incoming Update XY:', data);
 				else if (key == 'align') self.alignToGrid();
 			},
 			items: {
-				'newpanel': 	{name: 'New Panel', 	icon: 'newpanel'},
+				//'newpanel': 	{name: 'New Panel', 	icon: 'newpanel'},
 				'editpanel': 	{name: 'Panel Properties...', 	icon: 'editpanel'},
 				'align': 		{name: 'Align to Grid', icon: 'editpanel'},
 				'sep1': 	 	'---------',
@@ -175,7 +175,7 @@ console.log('Incoming Update XY:', data);
 				'addchart':  	{name: 'New Chart', 	icon: 'addchart'},
 				'sep5': 	 	'---------',
 				'openpanel': 	{name: 'Open Panel', 	icon: 'openpanel'},
-//				'scale': 	 	{name: 'Scale...', 	icon: 'save'},
+				//'scale': 	 	{name: 'Scale...', 	icon: 'save'},
 				'save': 	 	{name: 'Save Panel', 	icon: 'save'}
 			}
 		});
@@ -307,8 +307,8 @@ console.log('Incoming Update XY:', data);
 
 	edit: function(object) {	// edit control.id or this
 
-		var x = (object == this) ? 100 : this.controls[object].x;
-		var y = (object == this) ? 100 : this.controls[object].y;
+		var x = (object == this) ? this.menux : this.controls[object].x;
+		var y = (object == this) ? this.menuy : this.controls[object].y;
 
 		var editor = $('#editor').css('background-color', 'white')
 			.css('zIndex', 9999)
@@ -317,8 +317,12 @@ console.log('Incoming Update XY:', data);
 			.css({left: x, top: y});
 
 		var data;
+console.log('pre-edit: options:', this.options);
+console.log('edit:', object==this, object, this);
 		if (object == this) data = this.panelToEditFormat();
 		else data = this.controlToEditFormat(object);
+
+console.log('edit:data:', data);
 
  		this.edittable = $('#dataTable').handsontable({
 			data: data,
@@ -451,6 +455,7 @@ console.log('Load:', panelid);
 
 		for (var f in this.controls[id].options) {				// for properties in original options
 			if (this.controls[id].options.hasOwnProperty(f)
+				&& (f != 'parent')
 				//&& (typeof this.controls[id][f] != 'object')
 				&& (typeof this.controls[id][f] != 'function')) {		// push current object value
 				data.push([f, this.controls[id][f] || this.controls[id].options[f]]);
@@ -583,7 +588,7 @@ Button.prototype = {
 
 		if (this.subtype == 'circle') {
 			this.elt = this.parent.paper.circle(this.x+this.r, this.y+this.r, this.r);
-			this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.r, this.text);
+			this.label = this.parent.paper.text(this.x + this.r, this.y + this.r, this.text);
 			if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + 2 * this.r + this.fontsize, this.value);
 		}
 		else if (this.subtype == 'path') {	// path button
@@ -595,14 +600,17 @@ Button.prototype = {
 			var bbox = this.elt.getBBox();
 			//var brect = this.parent.paper.rect(bbox.x, bbox.y, bbox.width, bbox.height)
 			//	.attr({fill:this.fill, stroke:this.stroke});
-			//console.log('bbox:', bbox);
+			//console.log('bbox:', this.x, this.y, bbox);
 			this.elt.toFront();
 
 			this.w = bbox.width;
 			this.h = bbox.height;
+			var labelx = this.x;
 			var labely = bbox.y + this.h + this.fontsize;
+			//var labelx = bbox.x + bbox.width/2;
+			//var labely = bbox.y + bbox.height/2;
 
-			this.label = this.parent.paper.text(this.x, labely, this.text);
+			this.label = this.parent.paper.text(labelx, labely, this.text);
 			if (!this.noreadout) this.readout = this.parent.paper.text(this.x, this.y, this.value);
 		}
 		else {		// default rectangular button
@@ -1008,7 +1016,13 @@ Slider.prototype = {
 			this.x = this.drag.x + dx;
 			this.y = this.drag.y + dy;
 		}
-
+		this.move(this.x, this.y);
+		return this.dragFinish(e);
+	},
+	
+	move: function(x, y) {
+		this.x = x;
+		this.y = y;
 		this.outerrect.attr({x:this.x, y:this.y});
 		if (this.xbar) this.xbar.attr({x:this.x, y:this.y + this.outerh/2});
 		if (this.ybar) this.ybar.attr({x:this.x + (this.w-this.barw)/2, y:this.y});
@@ -1017,12 +1031,11 @@ Slider.prototype = {
 		this.label.attr({x:this.x + this.w/2, y:this.y + this.outerh + this.fontsize*2});
 		if (this.xreadout) this.xreadout.attr({x:this.x + this.w/2, y:this.y + this.outerh + this.fontsize});
 		if (this.yreadout) this.yreadout.attr({x:this.x + this.outerw + this.fontsize, y:this.y + this.h/2});
-		return this.dragFinish(e);
 	},
 
 	dragEnd: function(e) {
 		//this.outerrect.attr({fill:this.fill});
-		this.outerrect.attr({opacity:1});
+		this.attr({opacity:1});
 		this.options.x = this.x;
 		this.options.y = this.y;
 		delete this.drag;
@@ -1035,7 +1048,6 @@ Slider.prototype = {
 		e.stopPropagation();
 		return false;
 	},
-
 
 	slideStart: function(x, y, event) {
 		this.sliding = true;
@@ -1172,7 +1184,7 @@ Slider.prototype = {
 			this.value = this.yvalue = value1;
 			if (this.yreadout && (this.value != undefined)) this.yreadout.attr({text: ''+this.value});
 			var slidey = this.slideYPos();
-console.log('slidey:', slidey);
+			//console.log('slidey:', slidey);
 			this.slide.attr({y:slidey});
 			var update = {id: this.id, value: this.value};
 			this.fire('update', update);
@@ -1401,14 +1413,19 @@ Chart.prototype = {
 			this.x = this.drag.x + dx;
 			this.y = this.drag.y + dy;
 		}
-
+		this.move(this.x, this.y);
+		return this.dragFinish(e);
+	},
+	
+	move: function(x, y) {
+		this.x = x;
+		this.y = y;
 		this.outerrect.attr({x:this.x, y:this.y});
 		this.label.attr({x:this.x + this.w/2, y:this.y + this.h + this.fontsize*2});
 
 		var translation = ['translate(', this.x, ',', this.y,')'].join('');
 		//console.log('translation:', translation)
 		this.svg.attr('transform', translation);
-		return this.dragFinish(e);
 	},
 
 	dragEnd: function(e) {
@@ -1539,6 +1556,7 @@ Text.prototype = {
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.mousedown(function(e) { self.attr({opacity:0.5}); })
 			.mouseup(function(e) { self.attr({opacity:1.0});})
+			.mouseout(function(e) { self.attr({opacity:1.0});})
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		return this;
