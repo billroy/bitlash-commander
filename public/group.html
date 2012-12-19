@@ -48,8 +48,9 @@ $(document).ready(function() {
 			corner:0,
 			//w:48, h:48,
 			noreadout: true,
-			text: 'id',
-			script: 'javascript:alert(this.id);'
+			text: ['stop', 'slow', 'go'],
+			value:'stop',
+			script: 'javascript:this.parent.controls[this.group].setValue(this.text);'
 		});
 	Panel.addGroup({
 			id: 'hbtns',

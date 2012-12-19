@@ -164,8 +164,6 @@ The push example in the file public/push.html shows event listeners in use:
 ## To Do / Bugs
 
 - BUG: buttons don't work on iPad
-- bug: panel save tx,ty
-	- break out text as separate control
 
 - BUG: id conflict causes items to warp out
 	- Button0 name can conflict
@@ -176,7 +174,7 @@ The push example in the file public/push.html shows event listeners in use:
 
 - xy sliders
 	- BUG: update channel can't handle xvalue, yvalue
-	- slide position initialization
+	- but: slide position isn't right on page initialization
 	- bug: slides move to center on drag
 	- recenter after command
 		- easing instead of one big jump
@@ -188,8 +186,6 @@ The push example in the file public/push.html shows event listeners in use:
 - fix handling of color: and label: properties in panel setup
 	color should be stroke; get rid of color
 	label should be text; get rid of label
-
-- make the panel label a text control
 
 - radio button control
 - button group
@@ -285,9 +281,6 @@ The push example in the file public/push.html shows event listeners in use:
 	- uploader button: click to upload a bitlash code file or url to the arduino
 		- autorunnable
 	- image, clickable to start/stop refresh
-	- LED bar, clickable leds with specifiable colors
-		- round/square leds
-		- redlight
 	- scrolling text panel
 	- knob
 	- syschat

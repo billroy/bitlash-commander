@@ -1680,7 +1680,7 @@ Group.prototype = {
 		if (options.guttery != undefined) this.guttery = options.guttery; 
 		else if (options.gutter != undefined) this.guttery = options.gutter;
 		else this.guttery = 20;
-console.log('gutters:', this.gutterx, this.guttery);
+
 		var self = this;
 
 		this.elt = this.parent.paper.rect(
@@ -1698,6 +1698,18 @@ console.log('gutters:', this.gutterx, this.guttery);
 		var strokes = this.stroke;
 		if (!(strokes instanceof Array)) strokes = [strokes];
 
+		var nextfill = 0;
+		var fills = this.fill;
+		if (!(fills instanceof Array)) fills = [fills];
+
+		var nexttext = 0;
+		var texts = this.text;
+		if (!(texts instanceof Array)) texts = [texts];
+
+		var nextscript = 0;
+		var scripts = this.script;
+		if (!(scripts instanceof Array)) scripts = [scripts];
+
 		var x;
 		var y = this.y;
 		for (var row = 0; row < this.numy; row++) {
@@ -1711,8 +1723,19 @@ console.log('gutters:', this.gutterx, this.guttery);
 				opts.y = y;
 				opts.row = row;
 				opts.col = col;
+
 				opts.stroke = strokes[nextstroke];
 				if (++nextstroke >= strokes.length) nextstroke = 0;
+
+				opts.fill = fills[nextfill];
+				if (++nextfill >= fills.length) nextfill = 0;
+
+				opts.text = texts[nexttext];
+				if (++nexttext >= texts.length) nexttext = 0;
+
+				opts.script = scripts[nextscript];
+				if (++nextscript >= scripts.length) nextscript = 0;
+
 				this.parent.addButton(opts);
 				x += (this.w + this.gutterx);
 			}
@@ -1833,16 +1856,27 @@ console.log('gutters:', this.gutterx, this.guttery);
 
 	exec: function() {
 	},
-	
+
 	setValue: function(value) {
 		var bit = 0;
 		this.value = value;
-		for (var row = 0; row < this.numy; row++) {
-			for (var col = 0; col < this.numx; col++) {
-				var control = this.parent.controls[this.itemid(row, col)];
-				var bitvalue = ((value & (1<<bit++)) != 0) ? 1 : 0;
-				var color = bitvalue ? control.fill_highlight : control.fill;
-				control.attr({fill:color, stroke: control.stroke});
+		if (typeof value == 'string') {
+			for (var row = 0; row < this.numy; row++) {
+				for (var col = 0; col < this.numx; col++) {
+					var control = this.parent.controls[this.itemid(row, col)];
+					if (this.value == control.text) control.highlight();
+					else control.dehighlight();
+				}
+			}
+		}
+		else if (typeof value == 'number') {
+			for (var row = 0; row < this.numy; row++) {
+				for (var col = 0; col < this.numx; col++) {
+					var control = this.parent.controls[this.itemid(row, col)];
+					var bitvalue = ((value & (1<<bit++)) != 0) ? 1 : 0;
+					if (bitvalue) control.highlight();
+					else control.dehighlight();
+				}
 			}
 		}
 		var update = {id: this.id, value: this.value};
