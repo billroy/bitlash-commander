@@ -223,7 +223,7 @@ The push example in the file public/push.html shows event listeners in use:
 
 
 - edit mode
-	- resize
+	- drag resize
 	- color picker
 
 - chart control
