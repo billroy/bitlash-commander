@@ -165,6 +165,7 @@ The push example in the file public/push.html shows event listeners in use:
 
 - BUG: panel properties color changes don't punch through to new buttons
 - mustache-expand the label text
+- grid-friendly default object sizes
 
 - BUG: buttons don't work on iPad
 
