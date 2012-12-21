@@ -46,13 +46,14 @@ ControlPanel.prototype = {
 		this.next_x = 96;
 		this.next_y = 96;
 		this.next_inc = 48;
+		if (options.noedit) this.noedit = options.noedit;
 
 		this.initSocketIO();
 		this.initContextMenu();
 		this.sync();
 
 		var self = this;
-		this.editbutton = this.paper.path('M25.31,2.872l-3.384-2.127c-0.854-0.536-1.979-0.278-2.517,0.576l-1.334,2.123l6.474,4.066l1.335-2.122C26.42,4.533,26.164,3.407,25.31,2.872zM6.555,21.786l6.474,4.066L23.581,9.054l-6.477-4.067L6.555,21.786zM5.566,26.952l-0.143,3.819l3.379-1.787l3.14-1.658l-6.246-3.925L5.566,26.952z')
+		if (!this.noedit) this.editbutton = this.paper.path('M25.31,2.872l-3.384-2.127c-0.854-0.536-1.979-0.278-2.517,0.576l-1.334,2.123l6.474,4.066l1.335-2.122C26.42,4.533,26.164,3.407,25.31,2.872zM6.555,21.786l6.474,4.066L23.581,9.054l-6.477-4.067L6.555,21.786zM5.566,26.952l-0.143,3.819l3.379-1.787l3.14-1.658l-6.246-3.925L5.566,26.952z')
 			.transform('T25,25')
 			.attr({fill:this.fill, stroke: this.stroke})
 			.click(function(e) { 
@@ -353,6 +354,10 @@ console.log('edit:data:', data);
 			if (opts.w) opts.w = parseInt(opts.w);
 			if (opts.h) opts.h = parseInt(opts.h);
 
+			if (opts.gutter)  opts.gutter = parseInt(opts.gutter);
+			if (opts.gutterx) opts.gutterx = parseInt(opts.gutterx);
+			if (opts.guttery) opts.guttery = parseInt(opts.guttery);
+
 			console.log('Saving:', opts);
 			if (this.editingcontrol == this) {
 				//for (var i=0; i < data.length; i++) {
@@ -624,6 +629,13 @@ Button.prototype = {
 			//.dblclick(function(e) { self.parent.showEditMenu(self.id, event); })
 			.mousedown(function(e) { self.highlight.call(self, e); return false;})
 			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
+
+			//.touchstart(function(e) { self.dragStart.call(self,e); return false;})
+			//.touchmove(function(e) { self.dragMove.call(self,e); return false;})
+			//.touchend(function(e) { self.dragEnd.call(self,e); return false;})
+
+			//.touchcancel(function(e) { self.handleClick.call(self,e); return false;})
+
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		if (this.label) this.label.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})

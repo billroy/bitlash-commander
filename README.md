@@ -166,6 +166,18 @@ The push example in the file public/push.html shows event listeners in use:
 - BUG: panel properties color changes don't punch through to new buttons
 - mustache-expand the label text
 - grid-friendly default object sizes
+- bug: one copy of panel label gets added per roundtrip
+
+- bug: group.delete doesn't delete subitems
+- bug: create new items on the grid, not off it
+	- coerce menu coordinates to the grid
+
+- grid fill with small image is costly and does not adapt to grid size
+	- try drawing the grid explicitly, at the grid size
+
+- commander page is too big for ipad
+
+- BUG: field edit: intermediate edits are lost on '+'
 
 - BUG: buttons don't work on iPad
 

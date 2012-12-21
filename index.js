@@ -14,6 +14,8 @@ var argv = opt.usage('Usage: $0 [flags]')
 	.describe('s', 'port for usbserial arduino connection')
 	.alias('b', 'baud')
 	.describe('b', 'baud rate for usbserial arduino connection (57600)')
+	.alias('c', 'cache')
+	.describe('c', 'load cached values on restart')
 	.alias('r', 'redis')
 	.describe('r', 'redis server url in redis-url format')
 	.alias('x', 'rexec')
@@ -225,14 +227,49 @@ if (1 || heroku) {
 io.set('log level', 1);
 
 var data_cache = {};		// caches updates per id by time
+var log_file = "log/datalog.txt";
 
 function addCache(id, value) {
 	if (!data_cache[id]) data_cache[id] = [];	// array of objects: {id:<id>, t:<time>, value:<value>}
+	var time = new Date().getTime();
 	data_cache[id].push({
-		time: new Date().getTime(),
+		time: time,
 		value: value
 	});
+
+	if (argv.cache) {
+		// Log the record to the JSON-like stream
+		var data_record = JSON.stringify({id:id, time:time, value:value}) + '\n';
+		fs.appendFile(log_file, data_record, function (err) {
+			if (err) console.log('LOG FILE WRITE ERROR:', data_record);
+			else {;}
+		});
+	}
 }
+
+function loadCache() {
+
+	// from http://stackoverflow.com/questions/6831918/node-js-read-a-text-file-into-an-array-each-line-an-item-in-the-array
+	require('readline').createInterface({
+		input: fs.createReadStream(log_file),
+		terminal: false
+	}).on('line', function(line){
+		var entry = JSON.parse(line);
+		console.log('Line:', line, entry);
+
+		// cache only the latest value per entry
+		data_cache[entry.id] = [{time:entry.time, value:entry.value}];
+
+		// restore all values to the cache
+		//data_cache[entry.id].push({time:entry.time, value:entry.value});
+
+	})
+	.on('close', function() {
+		console.log('Loaded cache:', data_cache);
+	});
+}
+if (argv.cache) loadCache();
+
 
 // for heroku,
 // per https://devcenter.heroku.com/articles/using-socket-io-with-node-js-on-heroku
