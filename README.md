@@ -172,6 +172,9 @@ The push example in the file public/push.html shows event listeners in use:
 - bug: create new items on the grid, not off it
 	- coerce menu coordinates to the grid
 
+- bug: duplicate item -> save -> item is lost
+	- id duplication?
+
 - grid fill with small image is costly and does not adapt to grid size
 	- try drawing the grid explicitly, at the grid size
 

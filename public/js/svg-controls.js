@@ -56,12 +56,21 @@ ControlPanel.prototype = {
 		if (!this.noedit) this.editbutton = this.paper.path('M25.31,2.872l-3.384-2.127c-0.854-0.536-1.979-0.278-2.517,0.576l-1.334,2.123l6.474,4.066l1.335-2.122C26.42,4.533,26.164,3.407,25.31,2.872zM6.555,21.786l6.474,4.066L23.581,9.054l-6.477-4.067L6.555,21.786zM5.566,26.952l-0.143,3.819l3.379-1.787l3.14-1.658l-6.246-3.925L5.566,26.952z')
 			.transform('T25,25')
 			.attr({fill:this.fill, stroke: this.stroke})
+			.mouseover(function(e) { self.editbutton.attr({cursor:'pointer'}); })
 			.click(function(e) { 
 				self.editingpanel = !self.editingpanel;
-				//if (self.editingpanel) self.editbutton.attr({fill:self.stroke, stroke:self.stroke});
-				//else self.editbutton.attr({fill:self.fill, stroke: self.stroke});
 				if (self.editingpanel) self.face.attr({fill:"url('/images/grid24-greenblack.png')", stroke:self.stroke});
 				else self.face.attr({fill:self.fill, stroke: self.stroke});
+/*
+				if (self.editingpanel) {
+					self.face.attr({fill:'black'});
+					self.drawGrid();
+				}
+				else {
+					self.eraseGrid();
+					self.face.attr({fill:self.fill, stroke: self.stroke});
+				}
+*/
 			});
 
 		// one-time initialization for editor buttons
@@ -73,13 +82,43 @@ ControlPanel.prototype = {
 		if (this.title) this.logo = this.addText({
 			x:this.tx,
 			y:this.ty,
-			text:this.title, 
+			text:this.title,
+			group:'panel',
 			fill:this.stroke, stroke:this.stroke, fontsize: 36
 		});
 
 		return this;
 	},
 
+
+	drawGrid: function() {
+		var grid = this.grid || 24;
+		this.gridlines = [];
+		for (var x=0; x<this.w; x+=grid) {
+			this.gridlines.push(
+				this.paper.rect(x, 0, 1, this.h)
+					.attr('stroke', 'gray')
+					.toBack()
+			);
+		}	
+		for (var y=0; y<this.h; y+=grid) {
+			this.gridlines.push(
+				this.paper.rect(0, y, this.w, 1)
+					.attr('stroke', this.stroke)
+					.toBack()
+			);
+		}
+		this.face.toBack();
+		// need to call all controls tofront 
+	},
+	
+	eraseGrid: function() {
+		for (var i=0; i<this.gridlines.length; i++) {
+			this.gridlines[i].remove();
+		}
+		delete this.gridlines;
+	},
+	
 	attr: function(attrs) {
 		this.face.attr(attrs);
 		this.editbutton.attr(attrs);
@@ -183,8 +222,14 @@ console.log('Incoming Update XY:', data);
 
 		this.face.click(function(e) {
 			if (self.editingpanel) {
-				self.menux = e.clientX;
-				self.menuy = e.clientY;
+				if (self.grid) {
+					self.menux = self.grid * Math.floor(e.clientX/self.grid);
+					self.menuy = self.grid * Math.floor(e.clientY/self.grid);
+				}
+				else {
+					self.menux = e.clientX;
+					self.menuy = e.clientY;
+				}
 				$('#contextmenu').contextMenu({x:self.menux, y:self.menuy});
 			}
 			e.preventDefault();
@@ -474,10 +519,10 @@ console.log('Load:', panelid);
 		var data = {};
 
 		//if (!this.controls[id].options) return;
+		if (this.controls[id].group) return undefined;
 
 		// force the id to be in the storage list, even if it wasn't specified
 		if (!(this.controls[id].options.hasOwnProperty('id')))
-
 			this.controls[id].options['id'] = id;
 
 		for (var f in this.controls[id].options) {				// for properties in original options
@@ -521,7 +566,8 @@ console.log('p2e:', f);
 		data.push(panelopts);
 
 		for (var id in this.controls) {
-			data.push(this.controlToStorageFormat(id));
+			var control = this.controlToStorageFormat(id);
+			if (control) data.push(control);
 		}
 		//console.log('Controls.ToStorage:', data);
 		return data;
@@ -629,6 +675,7 @@ Button.prototype = {
 			//.dblclick(function(e) { self.parent.showEditMenu(self.id, event); })
 			.mousedown(function(e) { self.highlight.call(self, e); return false;})
 			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
+			.mouseover(function(e) { self.attr.call(self, {cursor:'pointer'}); return false;})
 
 			//.touchstart(function(e) { self.dragStart.call(self,e); return false;})
 			//.touchmove(function(e) { self.dragMove.call(self,e); return false;})
@@ -803,7 +850,7 @@ console.log('handleClick', e);
 
 	exec: function() {
 		if (!this.script) {
-			this.setValue(!this.value);		// unscripted buttons toggle and gossip
+			//this.setValue(!this.value);		// unscripted buttons toggle and gossip
 			return;
 		}
 
@@ -950,7 +997,8 @@ Slider.prototype = {
 		this.slide = this.parent.paper.rect(this.x + (this.w - this.slidew)/2, this.slideYPos(), this.slidew, this.slideh, 5)
 			.attr({fill:this.stroke, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.slideMove, this.slideStart, this.slideEnd, this, this, this);
+			.drag(this.slideMove, this.slideStart, this.slideEnd, this, this, this)
+			.mouseover(function(e) { self.slide.attr({cursor:'pointer'});});
 
 		this.label = this.parent.paper.text(this.outerxmid, this.y + this.outerh + this.fontsize*2, this.text)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
@@ -1305,7 +1353,8 @@ Chart.prototype = {
 		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.parent.button_corner)
 			.attr({fill: this.fill, stroke: this.stroke, 'stroke-width':this.parent.control_stroke})
 			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this)
+			.mouseover(function(e) { self.outerrect.attr({cursor:'pointer'}); });
 
 		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize*2, this.text)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
@@ -1570,6 +1619,7 @@ Text.prototype = {
 			.mouseup(function(e) { self.attr({opacity:1.0});})
 			.mouseout(function(e) { self.attr({opacity:1.0});})
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+//			.mouseover(function(e) { self.label.attr({cursor:'pointer'}); });
 
 		return this;
 	},
@@ -1740,6 +1790,7 @@ Group.prototype = {
 				//.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
 				//.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+//				.mouseover(function(e) { self.label.attr({cursor:'pointer'}); });
 
 		var nextstroke = 0;
 		var strokes = this.stroke;

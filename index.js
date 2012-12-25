@@ -255,7 +255,7 @@ function loadCache() {
 		terminal: false
 	}).on('line', function(line){
 		var entry = JSON.parse(line);
-		console.log('Line:', line, entry);
+		//console.log('Line:', line, entry);
 
 		// cache only the latest value per entry
 		data_cache[entry.id] = [{time:entry.time, value:entry.value}];
