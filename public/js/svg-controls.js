@@ -186,7 +186,7 @@ console.log('Incoming Update XY:', data);
 				else if (key == 'addchart') self.addChart({x:self.menux, y:self.menuy, });
 				else if (key == 'save') self.saveControls();
 				else if (key == 'editpanel') self.edit.call(self, self);
-				else if (key == 'addtext') self.addText({x:self.menux, y:self.menuy, });
+				else if (key == 'addtext') self.addText({x:self.menux, y:self.menuy, text:'Text'});
 				else if (key == 'scale') {
 					var scale = prompt('Enter scale:');
 					//var transform = 's'+scale;
@@ -392,16 +392,22 @@ console.log('edit:data:', data);
 			var data = 	$('#dataTable').handsontable('getData');
 			//console.log('endedit:', save, data);
 			for (var i=0; i < data.length; i++) {
-				opts[data[i][0]] = data[i][1];
+				var field = data[i][0];
+				var value = data[i][1];
+				if ((typeof value == 'string') && value.match(/^-?\d+$/)) value = parseInt(value);
+				opts[field] = value;
 			}
+/*
 			if (opts.x) opts.x = parseInt(opts.x);
 			if (opts.y) opts.y = parseInt(opts.y);
 			if (opts.w) opts.w = parseInt(opts.w);
 			if (opts.h) opts.h = parseInt(opts.h);
+			if (opts.r) opts.r = parseInt(opts.r);
 
 			if (opts.gutter)  opts.gutter = parseInt(opts.gutter);
 			if (opts.gutterx) opts.gutterx = parseInt(opts.gutterx);
 			if (opts.guttery) opts.guttery = parseInt(opts.guttery);
+*/
 
 			console.log('Saving:', opts);
 			if (this.editingcontrol == this) {
@@ -640,7 +646,7 @@ Button.prototype = {
 		if (this.subtype == 'circle') {
 			this.elt = this.parent.paper.circle(this.x+this.r, this.y+this.r, this.r);
 			this.label = this.parent.paper.text(this.x + this.r, this.y + this.r, this.text);
-			if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + 2 * this.r + this.fontsize, this.value);
+			if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + 2 * this.r + this.fontsize, '');
 		}
 		else if (this.subtype == 'path') {	// path button
 			var translation = ['t', this.x, ',', this.y, 's', this.scale].join('');
@@ -662,7 +668,7 @@ Button.prototype = {
 			//var labely = bbox.y + bbox.height/2;
 
 			this.label = this.parent.paper.text(labelx, labely, this.text);
-			if (!this.noreadout) this.readout = this.parent.paper.text(this.x, this.y, this.value);
+			if (!this.noreadout) this.readout = this.parent.paper.text(this.x, this.y, '');
 		}
 		else {		// default rectangular button
 			this.elt = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.corner);
@@ -782,7 +788,7 @@ console.log('Drag start:', x, y, e);
 	},
 
 	dragMove: function(dx, dy, x, y, e) {
-console.log('dragMove:',dx,dy,x,y,e);
+		//console.log('dragMove:',dx,dy,x,y,e);
 		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
 
 		var grid = this.parent.grid;
@@ -799,7 +805,7 @@ console.log('dragMove:',dx,dy,x,y,e);
 	},
 
 	dragEnd: function(e) {
-console.log('dragEnd');
+		//console.log('dragEnd');
 		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
 		//this.elt.attr({fill:this.fill});
 		this.attr({opacity:1.0});
@@ -976,8 +982,12 @@ Slider.prototype = {
 
 		this.outerw = this.w; if (this.subtype != 'y') this.outerw += this.slidew;
 		this.outerh = this.h; if (this.subtype != 'x') this.outerh += this.slideh;
-		this.outerxmid = this.x + this.w/2; if (this.subtype !='y') this.outerxmid += (this.slidew/2);
-		this.outerymid = this.y + this.h/2; if (this.subtype !='x') this.outerymid += (this.slideh/2);
+
+		this.outerxmid = this.x + this.w/2; 
+		if (this.subtype !='y') this.outerxmid += (this.slidew/2);
+
+		this.outerymid = this.y + this.h/2; 
+		if (this.subtype !='x') this.outerymid += (this.slideh/2);
 
 		this.outerrect = this.parent.paper.rect(this.x, this.y, this.outerw, this.outerh, 10)
 			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width':this.parent.control_stroke})
@@ -1006,16 +1016,20 @@ Slider.prototype = {
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		if (!this.noreadout) {
-			if (this.subtype != 'x') this.yreadout = this.parent.paper
-				.text(this.outerxmid, this.y + this.outerh + this.fontsize, ''+(this.value || this.xvalue || ''))
-				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
-				.click(function(e) { return self.handleClick.call(self, e); })
-				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			if ((this.subtype == 'y') || (this.subtype == 'xy')) {
+				this.yreadout = this.parent.paper
+					.text(this.outerxmid, this.y + this.outerh + this.fontsize, ''+(this.value || this.xvalue || ''))
+					.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
+					.click(function(e) { return self.handleClick.call(self, e); })
+					.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			}
 
-			if (this.subtype != 'y') this.xreadout = this.parent.paper.text(this.x + this.outerw + this.fontsize, this.y + this.h/2, ''+(this.yvalue || ''))
-				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
-				.click(function(e) { return self.handleClick.call(self, e); })
-				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			if ((this.subtype == 'x') || (this.subtype == 'xy')) {
+				 this.xreadout = this.parent.paper.text(this.x + this.outerw + this.fontsize, this.y + this.h/2, ''+(this.yvalue || ''))
+					.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
+					.click(function(e) { return self.handleClick.call(self, e); })
+					.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			}
 		}
 		return this;
 	},
@@ -1089,8 +1103,8 @@ Slider.prototype = {
 		this.slide.attr({x:this.x + (this.w - this.slidew)/2, y:this.slideYPos()});
 
 		this.label.attr({x:this.x + this.w/2, y:this.y + this.outerh + this.fontsize*2});
-		if (this.xreadout) this.xreadout.attr({x:this.x + this.w/2, y:this.y + this.outerh + this.fontsize});
-		if (this.yreadout) this.yreadout.attr({x:this.x + this.outerw + this.fontsize, y:this.y + this.h/2});
+		if (this.xreadout) this.xreadout.attr({x:this.x + this.outerw + this.fontsize, y:this.y + this.h/2});
+		if (this.yreadout) this.yreadout.attr({x:this.x + this.w/2, y:this.y + this.outerh + this.fontsize});
 	},
 
 	dragEnd: function(e) {
@@ -1833,7 +1847,7 @@ Group.prototype = {
 
 				opts.script = scripts[nextscript];
 				if (++nextscript >= scripts.length) nextscript = 0;
-
+console.log('Group addbutton:', opts);
 				this.parent.addButton(opts);
 				x += (this.w + this.gutterx);
 			}

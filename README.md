@@ -165,12 +165,8 @@ The push example in the file public/push.html shows event listeners in use:
 
 - BUG: panel properties color changes don't punch through to new buttons
 - mustache-expand the label text
-- grid-friendly default object sizes
-- bug: one copy of panel label gets added per roundtrip
 
 - bug: group.delete doesn't delete subitems
-- bug: create new items on the grid, not off it
-	- coerce menu coordinates to the grid
 
 - bug: duplicate item -> save -> item is lost
 	- id duplication?
@@ -195,6 +191,8 @@ The push example in the file public/push.html shows event listeners in use:
 	- recenter after command
 		- easing instead of one big jump
 
+- bug: chart svg doesn't update color on a panel stroke change
+
 - bug: dragging button doesn't drag repeat indicator
 
 - fix handling of color: and label: properties in panel setup
@@ -202,6 +200,7 @@ The push example in the file public/push.html shows event listeners in use:
 	label should be text; get rid of label
 
 - button group
+	- bug: create a group of round buttons in panel editor: buttons don't show
 	- bug: grouped items should show the parent's menu
 	- bug: don't save generated buttons (which have a 'group' field)
 
@@ -210,6 +209,7 @@ The push example in the file public/push.html shows event listeners in use:
 - localhost-only mode
 
 - property editor
+	- for button group: decode array attributes from property editor
 	- broadcast control updates
 		- delete the control, force the id, and broadcast update
 		-- deleting control requires a separate command?  or a null value?
@@ -311,4 +311,7 @@ The push example in the file public/push.html shows event listeners in use:
 			- scripts addressed to bitlash1: would go to 192.168.1.17
 
 	- how to let heroku server know it can't dispatch to local bitlash
+
+- Incoming OSC
+	- map to controls by id
 	
