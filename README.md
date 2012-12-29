@@ -163,10 +163,17 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+- commander sketch with:
+	- update, updatestr
+	- outie
+	- tone
+
 - BUG: panel properties color changes don't punch through to new buttons
 - mustache-expand the label text
 
 - bug: group.delete doesn't delete subitems
+- bug: change the id in property editor -> duplicate items
+	- delete/remove old item when id changes during edit
 
 - bug: duplicate item -> save -> item is lost
 	- id duplication?
@@ -298,10 +305,19 @@ The push example in the file public/push.html shows event listeners in use:
 	- email
 
 - remote ethernet- and wifi- connected arduinos
-	- enhanced bitlash web client
-	- client POSTs to server-ip/update for the upstream path
+	- redis pipe command sink for Commander
+
+	- client POSTs to server-ip/update/:id/:value for the upstream path
 	- server POSTs bitlash commands to arduino
 		- how to configure IP and port for remote bitlash	
+	- security
+		- tls isn't available
+		- ip whitelist
+		- shared secret in the message
+	- firewall
+		- need continuous connection like redis client
+
+
 
 	- multiple arduino support
 		- command steering

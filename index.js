@@ -23,6 +23,8 @@ var argv = opt.usage('Usage: $0 [flags]')
 	.boolean('l')
 	.alias('l', 'login')
 	.describe('l', 'require a valid login to use the server')
+	.alias('u', 'update')
+	.describe('u', 'allow HTTP updates via POST /update/:id/:value')
 	.argv;
 
 if (argv.help) {
@@ -123,7 +125,7 @@ app.get('/', function(req, res) {
 		custompanels.push(p);		
 	}
 
-console.log('panels:', guipanels, custompanels);
+	//console.log('panels:', guipanels, custompanels);
 
 	var html = indextemplate.replace(/{{guipanels}}/, JSON.stringify(guipanels));
 	html = html.replace(/{{custompanels}}/, JSON.stringify(custompanels));
@@ -139,9 +141,22 @@ app.get('/panel/:id', function(req, res) {
 	res.send(html);
 });
 
-app.post('/update', function(req, res) {
-	console.log('Update:', req.body);
-});
+
+function handleUpdate(req, res) {
+	var id = req.params.id;
+	var value = req.params.value;
+	addCache(id, value);
+	data = {id:id, value:value};
+	console.log('Update:', id, value, data);
+	io.sockets.emit('update', data);
+	res.send(value);
+}
+
+if (argv.update) {
+	var mountpoint = '/update/:id/:value';
+	app.post(mountpoint, handleUpdate);
+	app.get(mountpoint, handleUpdate);
+}
 
 app.get('/d3/:id', function(req, res) {		// serve D3 chart series for given control :id
 	//console.log('D3Get:', req.params.id, data_cache);
