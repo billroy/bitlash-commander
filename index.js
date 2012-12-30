@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 //////////
 //
 //	index.js: Run the Bitlash Commander server
@@ -148,7 +149,7 @@ function handleUpdate(req, res) {
 	addCache(id, value);
 	data = {id:id, value:value};
 	console.log('Update:', id, value, data);
-	io.sockets.emit('update', data);
+	io.sockets.emit('update', data);	// or broadcastJSONUpdate
 	res.send(value);
 }
 

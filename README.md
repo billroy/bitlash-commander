@@ -317,8 +317,6 @@ The push example in the file public/push.html shows event listeners in use:
 	- firewall
 		- need continuous connection like redis client
 
-
-
 	- multiple arduino support
 		- command steering
 		- node registry / configuration
