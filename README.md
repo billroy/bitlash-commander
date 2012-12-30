@@ -42,21 +42,31 @@ This wouldn't be a bad time to connect to Bitlash on the arduino using the Seria
 
 # Install Prerequisites: node.js, git, build environment
 
-You need node.js (http://nodejs.org) and git (http://git-scm.com).  Do those installs, and return here.
+You need node.js (http://nodejs.org) and optionally git (http://git-scm.com).  Do those installs, and return here.
+
+It's a little easier to get the latest builds of Commander if you use the git method.  It's fine to proceed without git if you don't want the bleeding edge versions.
 
 You also need a compiler and build environment for your platform so that the serial port driver will build successfully.  Follow the guidance for your platform here in the section titled "To Install" before proceeding: https://github.com/voodootikigod/node-serialport
 
 
 # Install Bitlash Commander
 
-In a new terminal window, incant:
+Option 1: If you don't have git installed: in a new terminal window:
+
+	$ npm install bitlash-commander
+	$ cd node_modules/bitlash-commander
+	$ node index.js
+
+
+Option 2: If you do have git installed: in a new terminal window:
 
 	$ git clone http://github.com/billroy/bitlash-commander
 	$ cd bitlash-commander
 	$ npm install
 	$ node index.js
 
-Open a web browser on localhost:3000 to see the default control panel.
+
+In either case, open a web browser on localhost:3000 to see the default control panel.
 
 To start the web server on a different port:
 
@@ -78,8 +88,15 @@ For help:
 	Usage: node ./index.js [flags]
 	
 	Options:
-	  -p, --port        port for the http server             
-	  -s, --serialport  port for usbserial arduino connection
+	  -p, --port        TCP port for the http server (3000)                    
+	  -s, --serialport  port for usbserial arduino connection                  
+	  -b, --baud        baud rate for usbserial arduino connection (57600)     
+	  -c, --cache       load cached values on restart                          
+	  -r, --redis       redis server url in redis-url format                   
+	  -x, --rexec       set true to accept remote bitlash commands on socket.io
+	  -l, --login       require a valid login to use the server                  [boolean]
+	  -u, --update      allow HTTP updates via POST /update/:id/:value         
+
 
 ## Customize
 
@@ -163,10 +180,12 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
-- commander sketch with:
-	- update, updatestr
-	- outie
-	- tone
+- doc: commander sketch	
+
+- BUG: npm install fails at startup
+	- can't open log/datalog
+	- there is no panels directory so save doesn't work
+
 
 - BUG: panel properties color changes don't punch through to new buttons
 - mustache-expand the label text

@@ -115,7 +115,6 @@ var indextemplate;
 
 app.get('/', function(req, res) {
 	indextemplate = fs.readFileSync('public/indextemplate.html', 'utf8');
-	var guipanels = shell.ls(panelpath);
 	var rawpanels = shell.ls(htmlpath);
 	var custompanels = [];
 	for (var i=0; i < rawpanels.length; i++) {
@@ -126,7 +125,15 @@ app.get('/', function(req, res) {
 		custompanels.push(p);		
 	}
 
-	//console.log('panels:', guipanels, custompanels);
+	var rawguipanels = shell.ls(panelpath);
+	var guipanels = [];
+	for (var i=0; i < rawguipanels.length; i++) {
+		if (rawguipanels[i].charAt(0) != '.') {
+			guipanels.push(rawguipanels[i]);
+		}
+	}
+
+	console.log('panels:', guipanels, custompanels);
 
 	var html = indextemplate.replace(/{{guipanels}}/, JSON.stringify(guipanels));
 	html = html.replace(/{{custompanels}}/, JSON.stringify(custompanels));
@@ -264,6 +271,8 @@ function addCache(id, value) {
 }
 
 function loadCache() {
+
+	if (!fs.existsSync(log_file)) return;
 
 	// from http://stackoverflow.com/questions/6831918/node-js-read-a-text-file-into-an-array-each-line-an-item-in-the-array
 	require('readline').createInterface({
