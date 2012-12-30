@@ -1,7 +1,7 @@
 {
 	"name": "bitlash-commander", 
 	"description": "Web control panel builder for Arduino",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"private": false,
 	"preferGlobal": false, 
 	"author": {
@@ -19,13 +19,13 @@
 		"type": "MIT",
 		"url": "https://raw.github.com/billroy/bitlash-commander/master/LICENSE"
 	},
-	"main": "index.js",
+	"main": "./index.js",
 	"scripts": {
 		"start": "forever start index.js",
 		"stop": "forever stop index.js"
 	}, 
 	"bin": {
-		"commander": "index.js"
+		"commander": "./index.js"
 	},
 	"dependencies": {
 		"express": ">=3.0.3",
