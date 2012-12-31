@@ -180,12 +180,10 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
-- doc: commander sketch	
-
-- BUG: npm install fails at startup
-	- can't open log/datalog
-	- there is no panels directory so save doesn't work
-
+- doc:
+	- new frontpage 
+	- new install
+	- commander sketch	
 
 - BUG: panel properties color changes don't punch through to new buttons
 - mustache-expand the label text
@@ -193,9 +191,6 @@ The push example in the file public/push.html shows event listeners in use:
 - bug: group.delete doesn't delete subitems
 - bug: change the id in property editor -> duplicate items
 	- delete/remove old item when id changes during edit
-
-- bug: duplicate item -> save -> item is lost
-	- id duplication?
 
 - grid fill with small image is costly and does not adapt to grid size
 	- try drawing the grid explicitly, at the grid size

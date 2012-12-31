@@ -268,7 +268,7 @@ console.log('Incoming Update XY:', data);
 	uniqueid: function(basestring) {
 		var id;
 		for (;;) {
-			id = basestring + this.next_id++;
+			id = basestring + '.' + this.next_id++;
 			if (!this.controls[id]) return id;
 		}
 	},
@@ -484,6 +484,7 @@ console.log('Load:', panelid);
 		for (var f in this.controls[id].options) {
 			newopts[f] = this.controls[id].options[f];
 		}
+		newopts.id = this.uniqueid(id);
 		this.add([newopts]);
 	},
 	
