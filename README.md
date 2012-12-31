@@ -184,24 +184,24 @@ The push example in the file public/push.html shows event listeners in use:
 	- new frontpage 
 	- new install
 	- commander sketch	
-
-- BUG: panel properties color changes don't punch through to new buttons
-- mustache-expand the label text
-
-- bug: group.delete doesn't delete subitems
-
-- grid fill with small image is costly and does not adapt to grid size
-	- try drawing the grid explicitly, at the grid size
-
-- commander page is too big for ipad
-
-- BUG: field edit: intermediate edits are lost on '+'
+	- -c and -u
+	- ssl
 
 - BUG: buttons don't work on iPad
 
 - BUG: xy controls get wider on the roundtrip
 	- don't mess with w / h 
 	- BUG: path buttons get their w and h set: bug?
+
+- BUG: field edit: intermediate edits are lost on '+'
+
+- BUG: panel properties color changes don't punch through to new buttons
+- mustache-expand the label text
+
+- grid fill with small image is costly and does not adapt to grid size
+	- try drawing the grid explicitly, at the grid size
+
+- commander page is too big for ipad
 
 - xy sliders
 	- BUG: update channel can't handle xvalue, yvalue
@@ -221,7 +221,6 @@ The push example in the file public/push.html shows event listeners in use:
 - button group
 	- bug: create a group of round buttons in panel editor: buttons don't show
 	- bug: grouped items should show the parent's menu
-	- bug: don't save generated buttons (which have a 'group' field)
 
 - thumbnails for index page
 

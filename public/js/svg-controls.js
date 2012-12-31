@@ -181,8 +181,8 @@ console.log('Incoming Update XY:', data);
 				});
 				else if (key == 'addgroup') self.addGroup({x:self.menux, y:self.menuy, numx:3, numy:3});
 				else if (key == 'addslider') self.addSlider({x:self.menux, y:self.menuy, });
-				else if (key == 'addxyslider') self.addSlider({x:self.menux, y:self.menuy, subtype:'xy', w:100, h:100});
-				else if (key == 'addhslider') self.addSlider({x:self.menux, y:self.menuy, subtype:'x', w:200, h:80});
+				else if (key == 'addxyslider') self.addSlider({x:self.menux, y:self.menuy, subtype:'xy', w:96, h:96});
+				else if (key == 'addhslider') self.addSlider({x:self.menux, y:self.menuy, subtype:'x', w:192, h:72});
 				else if (key == 'addchart') self.addChart({x:self.menux, y:self.menuy, });
 				else if (key == 'save') self.saveControls();
 				else if (key == 'editpanel') self.edit.call(self, self);
@@ -965,7 +965,7 @@ Slider.prototype = {
 		this.subtype = this.options.subtype = options.subtype || 'y';
 		if (this.subtype == 'xy') {
 			this.slidew = options.slidew || 1+Math.floor(this.w / 12);
-			this.w += this.slidew;
+			//this.w += this.slidew;
 			this.slideh = options.slideh || 1+Math.floor(this.h / 12);
 		}
 		else if (this.subtype == 'x') {
