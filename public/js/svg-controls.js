@@ -425,6 +425,7 @@ console.log('edit:data:', data);
 			}
 			else {
 				this.controls[this.editingcontrol].delete();
+				delete this.controls[this.editingcontrol];
 				this.add([opts]);
 			}
 		}

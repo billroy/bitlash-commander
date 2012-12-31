@@ -189,8 +189,6 @@ The push example in the file public/push.html shows event listeners in use:
 - mustache-expand the label text
 
 - bug: group.delete doesn't delete subitems
-- bug: change the id in property editor -> duplicate items
-	- delete/remove old item when id changes during edit
 
 - grid fill with small image is costly and does not adapt to grid size
 	- try drawing the grid explicitly, at the grid size
