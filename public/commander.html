@@ -29,36 +29,36 @@ $(document).ready(function() {
 	//document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
 	
 	var Panel = new ControlPanel({stroke:'yellow', id: 'commander'});
-	Panel.addButton({x:100, y: 20, 
+	Panel.addButton({x:96, y: 24, 
 		text:'Setup',
 		autorun: true,
 		script:'pinmode(2,1);pinmode(4,1);pinmode(7,1);pinmode(8,1);pinmode(12,1);print "GO"'
 	});
-	Panel.addButton({x:100, y:120, text:'Toggle2', script:'d2=!d2;print d2'});
-	Panel.addButton({x:100, y:220, text:'Toggle4', script:'d4=!d4;print d4'});
-	Panel.addButton({x:100, y:320, text:'Toggle7', script:'d7=!d7;print d7'});
-	Panel.addButton({x:100, y:420, text:'Toggle8', script:'d8=!d8;print d8'});
-	Panel.addButton({x:100, y:520, text:'Toggle12', script:'d12=!d12;if d12 print "on"; else print "off";'});
-	Panel.addButton({x:100, y:620, text:'Blink13', script:'d13=!d13;print d13', repeat:1000, id:'blink13'});
+	Panel.addButton({x:96, y:120, text:'Toggle2', script:'d2=!d2;print d2'});
+	Panel.addButton({x:96, y:216, text:'Toggle4', script:'d4=!d4;print d4'});
+	Panel.addButton({x:96, y:312, text:'Toggle7', script:'d7=!d7;print d7'});
+	Panel.addButton({x:96, y:408, text:'Toggle8', script:'d8=!d8;print d8'});
+	Panel.addButton({x:96, y:504, text:'Toggle12', script:'d12=!d12;if d12 print "on"; else print "off";'});
+	Panel.addButton({x:96, y:600, text:'Blink13', script:'d13=!d13;print d13', repeat:1000, id:'blink13'});
 
-	Panel.addButton({x:350, y:400, text:'a0', script:'print a0', id:'a0', repeat:125});
-	Panel.addButton({x:500, y:400, text:'a1', script:'print a1'});
-	Panel.addButton({x:650, y:400, text:'a2', script:'print a2'});
-	Panel.addButton({x:800, y:400, text:'a3', script:'print a3'});
+	Panel.addButton({x:336, y:384, text:'a0', script:'print a0', id:'a0', repeat:125});
+	Panel.addButton({x:480, y:384, text:'a1', script:'print a1'});
+	Panel.addButton({x:648, y:384, text:'a2', script:'print a2'});
+	Panel.addButton({x:792, y:384, text:'a3', script:'print a3'});
 	
-	Panel.addButton({x:350, y:500, text:'a4', script:'print a4'});
-	Panel.addButton({x:500, y:500, text:'a5', script:'print a5'});
-	Panel.addButton({x:650, y:500, text:'a6', script:'print a6'});
-	Panel.addButton({x:800, y:500, text:'a7', script:'print a7'});
+	Panel.addButton({x:336, y:480, text:'a4', script:'print a4'});
+	Panel.addButton({x:480, y:480, text:'a5', script:'print a5'});
+	Panel.addButton({x:648, y:480, text:'a6', script:'print a6'});
+	Panel.addButton({x:792, y:480, text:'a7', script:'print a7'});
 
-	Panel.addSlider({x:350, y:100, text:'pwm3',  script:'print a3={{value}}'});
-	Panel.addSlider({x:450, y:100, text:'pwm5',  script:'print a5={{value}}'});
-	Panel.addSlider({x:550, y:100, text:'pwm6',  script:'print a6={{value}}'});
-	Panel.addSlider({x:650, y:100, text:'pwm9',  script:'print a9={{value}}'});
-	Panel.addSlider({x:750, y:100, text:'pwm10', script:'print a10={{value}}'});
-	Panel.addSlider({x:850, y:100, text:'pwm11', script:'print a11={{value}}'});
+	Panel.addSlider({x:336, y:96, text:'pwm3',  script:'print a3={{value}}'});
+	Panel.addSlider({x:432, y:96, text:'pwm5',  script:'print a5={{value}}'});
+	Panel.addSlider({x:528, y:96, text:'pwm6',  script:'print a6={{value}}'});
+	Panel.addSlider({x:648, y:96, text:'pwm9',  script:'print a9={{value}}'});
+	Panel.addSlider({x:744, y:96, text:'pwm10', script:'print a10={{value}}'});
+	Panel.addSlider({x:840, y:96, text:'pwm11', script:'print a11={{value}}'});
 
-	Panel.addChart({id:'chart-a0', x:1000, y:40, text:'Chart', script:'print random(1000)',
+	Panel.addChart({id:'chart-a0', x:984, y:24, text:'Chart', script:'print random(1000)',
 		text: 'random(1000)',
 		target: '$random',	// id of control whose data we chart
 		autorun: false,
@@ -66,14 +66,14 @@ $(document).ready(function() {
 		//repeat: 500,
 		refresh: 0
 	})
-	Panel.addChart({id:'chart-a1', x:1000, y:270, text:'Chart', script:'print random(1000)',
+	Panel.addChart({id:'chart-a1', x:984, y:264, text:'Chart', script:'print random(1000)',
 		target: 'a0',	// id of control whose data we chart
 		text: 'a0',
 		//autorun: true,
 		//repeat: 500,
 		refresh: 0
 	});
-	Panel.addChart({id:'chart-d0', x:1000, y:500, text:'Chart', script:'print random(1000)',
+	Panel.addChart({id:'chart-d0', x:984, y:480, text:'Chart', script:'print random(1000)',
 		target: 'blink13',	// id of control whose data we chart
 		text: 'd13',
 		ymax: 1.2,

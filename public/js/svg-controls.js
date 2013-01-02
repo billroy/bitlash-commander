@@ -538,10 +538,10 @@ console.log('Incoming Update XY:', data);
 	},
 
 	panelToEditFormat: function() {
-console.log('p2e1:', this.options, this);
+		//console.log('p2e1:', this.options, this);
 		var data = [];
 		for (var f in this.options) {				// for properties in original options
-console.log('p2e:', f);
+		//console.log('p2e:', f);
 			if (this.options.hasOwnProperty(f)
 				&& ((typeof this.options[f] != 'object') || (this.options[f] instanceof Array))
 				&& (typeof this.options[f] != 'function')) {		// push current object value
@@ -677,6 +677,7 @@ Button.prototype = {
 			.mousedown(function(e) { self.highlight.call(self, e); return false;})
 			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
 			.mouseover(function(e) { self.attr.call(self, {cursor:'pointer'}); return false;})
+			.touchend(function(e) { self.handleClick.call(self,e); return false;})
 
 			//.touchstart(function(e) { self.dragStart.call(self,e); return false;})
 			//.touchmove(function(e) { self.dragMove.call(self,e); return false;})
@@ -691,6 +692,7 @@ Button.prototype = {
 			//.dblclick(function(e) { self.parent.showEditMenu(self.id, event); })
 			.mousedown(function(e) { self.highlight.call(self, e); return false;})
 			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
+			.touchend(function(e) { self.handleClick.call(self,e); return false;})
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		if (this.readout) this.readout.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
@@ -999,11 +1001,13 @@ Slider.prototype = {
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-		this.slide = this.parent.paper.rect(this.x + (this.w - this.slidew)/2, this.slideYPos(), this.slidew, this.slideh, 5)
+		this.slide = this.parent.paper.rect(this.slideXPos(), this.slideYPos(), this.slidew, this.slideh, 5)
 			.attr({fill:this.stroke, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.slideMove, this.slideStart, this.slideEnd, this, this, this)
 			.mouseover(function(e) { self.slide.attr({cursor:'pointer'});});
+
+		if (this.recenter) this.slideToCenter();
 
 		this.label = this.parent.paper.text(this.outerxmid, this.y + this.outerh + this.fontsize*2, this.text)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})

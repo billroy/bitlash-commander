@@ -180,6 +180,8 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+- BUG: duplicated panel labels
+
 - BUG: groups need color for outside AND inside separate from button colors
 	childopts {}
 
@@ -203,8 +205,6 @@ The push example in the file public/push.html shows event listeners in use:
 
 - xy sliders
 	- BUG: update channel can't handle xvalue, yvalue
-	- bug: slide position isn't right on page initialization
-	- bug: slides move to center on drag
 	- recenter after command
 		- rename to "returnto" and use the value provided as the reset point
 		- easing instead of one big jump
@@ -226,6 +226,7 @@ The push example in the file public/push.html shows event listeners in use:
 
 - property editor
 	- for button group: decode array attributes from property editor
+		- BUG: editing of array attributes is broken
 	- broadcast control updates
 		- delete the control, force the id, and broadcast update
 		-- deleting control requires a separate command?  or a null value?
