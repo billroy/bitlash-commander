@@ -180,6 +180,11 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+- BUG: groups need color for outside AND inside separate from button colors
+	childopts {}
+
+- BUG: buttons don't work on iPad
+
 - doc:
 	- new frontpage 
 	- new install
@@ -187,15 +192,8 @@ The push example in the file public/push.html shows event listeners in use:
 	- -c and -u
 	- ssl
 
-- BUG: buttons don't work on iPad
+- BUG: path buttons get their w and h set: bug?
 
-- BUG: xy controls get wider on the roundtrip
-	- don't mess with w / h 
-	- BUG: path buttons get their w and h set: bug?
-
-- BUG: field edit: intermediate edits are lost on '+'
-
-- BUG: panel properties color changes don't punch through to new buttons
 - mustache-expand the label text
 
 - grid fill with small image is costly and does not adapt to grid size
@@ -208,15 +206,15 @@ The push example in the file public/push.html shows event listeners in use:
 	- bug: slide position isn't right on page initialization
 	- bug: slides move to center on drag
 	- recenter after command
+		- rename to "returnto" and use the value provided as the reset point
 		- easing instead of one big jump
 
 - bug: chart svg doesn't update color on a panel stroke change
 
 - bug: dragging button doesn't drag repeat indicator
 
-- fix handling of color: and label: properties in panel setup
-	color should be stroke; get rid of color
-	label should be text; get rid of label
+- panel label handling has problems
+	label should be called text; get rid of label
 
 - button group
 	- bug: create a group of round buttons in panel editor: buttons don't show

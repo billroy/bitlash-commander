@@ -27,7 +27,7 @@ $(document).ready(function() {
 	document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
 
 	// open a Panel with a channel specifier ('panic') to segregate update traffic
-	var Panel = new ControlPanel({title: "Don't Panic!", color: 'white', id: 'panic', channel:'panic'});
+	var Panel = new ControlPanel({title: "Don't Panic!", stroke: 'white', id: 'panic', channel:'panic'});
 
 	Panel.addButton({
 		id: 'panic',

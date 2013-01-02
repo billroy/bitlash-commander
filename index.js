@@ -33,6 +33,8 @@ if (argv.help) {
 	process.exit();
 } 
 
+console.log('Bitlash Commander here!', argv);
+
 
 //////////
 //

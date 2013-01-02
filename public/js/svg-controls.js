@@ -24,10 +24,9 @@ ControlPanel.prototype = {
 		this.y = options.y || ($(window).height() - this.h)/2;
 		this.tx = options.tx || this.x + (this.w/2);
 		this.ty = options.ty || this.y + 48;
-		this.color = options.color || 'greenyellow';
+		this.stroke = options.stroke || 'greenyellow';
 		this.fill = options.fill || 'black';
 		this.fill_highlight = options.fill_highlight || 'white';
-		this.stroke = options.stroke || this.color;
 		this.face_corner = options.face_corner || 20;
 		this.button_corner = options.button_corner || 10;
 		this.control_stroke = options.control_stroke || 3;
@@ -329,7 +328,7 @@ console.log('Incoming Update XY:', data);
 				var panelopts = {};
 				if (items[i].fill) this.fill = panelopts.fill = items[i].fill;
 				if (items[i].stroke) this.stroke = panelopts.stroke = items[i].stroke;
-				if (items[i].color) this.stroke = this.color = panelopts.stroke = items[i].color;
+				if (items[i].color) this.stroke = panelopts.stroke = items[i].color;
 				this.attr(panelopts);
 			}
 			else console.log('Unknown type in Add:', items[i]);
@@ -359,16 +358,16 @@ console.log('Incoming Update XY:', data);
 		var editor = $('#editor').css('background-color', 'white')
 			.css('zIndex', 9999)
 			.css('position', 'absolute')
-			//.css('width', '50%')
 			.css({left: x, top: y});
 
+		console.log('pre-edit: options:', this.options);
+		console.log('edit:', object==this, object, this);
+
 		var data;
-console.log('pre-edit: options:', this.options);
-console.log('edit:', object==this, object, this);
 		if (object == this) data = this.panelToEditFormat();
 		else data = this.controlToEditFormat(object);
 
-console.log('edit:data:', data);
+		console.log('edit:data:', data);
 
  		this.edittable = $('#dataTable').handsontable({
 			data: data,
@@ -411,17 +410,11 @@ console.log('edit:data:', data);
 
 			console.log('Saving:', opts);
 			if (this.editingcontrol == this) {
-				//for (var i=0; i < data.length; i++) {
-				//	if (typeof this[data[i][0] == 'number') opts[data[i][0]] = parseInt(data[i][1]);
-				//	else opts[data[i][0]] = data[i][1];
-				//}
-				//var attrs = {};
 				for (var f in opts) {
 					this.options[f] = this[f] = opts[f];
 				}
 				if (opts.fill) this.attr({fill:opts.fill});
 				if (opts.stroke) this.attr({stroke:opts.stroke});
-				if (opts.color) this.attr({stroke:opts.color});
 			}
 			else {
 				this.controls[this.editingcontrol].delete();
@@ -439,9 +432,9 @@ console.log('edit:data:', data);
 	},
 
 	load: function(panelid) {
-console.log('Load:', panelid);
-		this.id = panelid;
-		this.socket.emit('open', panelid);
+		if (panelid) this.id = panelid;
+		console.log('Load:', this.id);
+		this.socket.emit('open', this.id);
 	},
 
 	editAddField: function() {
@@ -451,6 +444,7 @@ console.log('Load:', panelid);
 		if (!newfield) return;
 		var newvalue = prompt('Value for new field:');
 
+		this.endEdit(1);
 		if (this.editingcontrol == this) {
 			this.options[newfield] = newvalue;
 			this[newfield] = newvalue;
@@ -459,7 +453,6 @@ console.log('Load:', panelid);
 			this.controls[id].options[newfield] = newvalue;
 			this.controls[id][newfield] = newvalue;
 		}
-		this.endEdit(0);
 		this.edit(id);
 	},
 	
@@ -468,6 +461,7 @@ console.log('Load:', panelid);
 		console.log('addfield:', id);
 		var doomedfield = prompt('Field to delete:');
 		if (!doomedfield) return;
+		this.endEdit(1);
 		if (this.editingcontrol == this) {
 			if (this.options.hasOwnProperty(doomedfield))
 				delete this.options[doomedfield];
@@ -476,7 +470,6 @@ console.log('Load:', panelid);
 			if (this.controls[id].options.hasOwnProperty(doomedfield))
 				delete this.controls[id].options[doomedfield];
 		}
-		this.endEdit(0);
 		this.edit(id);
 	},
 	
@@ -622,7 +615,7 @@ Button.prototype = {
 		this.text = options.text || '';
 		this.noreadout = options.noreadout || false;
 		this.script = options.script || '';
-		this.stroke = options.stroke || this.parent.color;
+		this.stroke = options.stroke || this.parent.stroke;
 		this.fill = options.fill || 'black';
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
@@ -938,7 +931,7 @@ Slider.prototype = {
 		this.text = options.text || '';
 		this.noreadout = options.noreadout || false;
 		this.script = options.script || '';
-		this.stroke = options.stroke || this.parent.color;
+		this.stroke = options.stroke || this.parent.stroke;
 		this.fill = options.fill || 'black';
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
@@ -1171,9 +1164,11 @@ Slider.prototype = {
 	},
 
 	slideToCenter: function() {
-		if (this.subtype == 'xy') this.setValue((this.xmax + this.xmin)/2, (this.ymax + this.ymin)/2);
-		else if (this.subtype == 'x') this.setValue((this.xmax + this.xmin)/2);
-		else this.setValue((this.ymax + this.ymin)/2);
+		if (this.subtype == 'xy') 
+			this.setValue(Math.floor((this.xmax + this.xmin)/2), 
+				Math.floor((this.ymax + this.ymin)/2));
+		else if (this.subtype == 'x') this.setValue(Math.floor((this.xmax + this.xmin)/2));
+		else this.setValue(Math.floor((this.ymax + this.ymin)/2));
 		this.exec();
 	},
 
@@ -1313,7 +1308,7 @@ Chart.prototype = {
 		this.script = options.script || '';
 		this.fill = options.fill || 'black';
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
-		this.stroke = options.stroke || this.parent.color;
+		this.stroke = options.stroke || this.parent.stroke;
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
 		this.fontsize = options.fontsize || 20;
 		this.repeat = options.repeat || 0;
@@ -1619,7 +1614,7 @@ Text.prototype = {
 		this.y = this.parent.y + (options.y || 100);
 		this.text = options.text || '';
 
-		this.stroke = options.stroke || this.parent.color;
+		this.stroke = options.stroke || this.parent.stroke;
 		this.fill = options.fill || 'black';
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
@@ -1763,7 +1758,7 @@ Group.prototype = {
 		this.text = options.text || '';
 		this.noreadout = options.noreadout || false;
 		this.script = options.script || '';
-		this.stroke = options.stroke || this.parent.color;
+		this.stroke = options.stroke || this.parent.stroke;
 		this.fill = options.fill || 'black';
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
@@ -1780,7 +1775,6 @@ Group.prototype = {
 		this.value = options.value || 0;
 		this.path = options.path || undefined;
 		this.scale = options.scale || 1;
-		this.color = options.color || this.parent.color;
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
@@ -1794,6 +1788,22 @@ Group.prototype = {
 		else if (options.gutter != undefined) this.guttery = options.gutter;
 		else this.guttery = 20;
 
+		var nextstroke = 0;
+		this.strokes = this.stroke;
+		if (!(this.strokes instanceof Array)) this.strokes = [this.strokes];
+
+		var nextfill = 0;
+		this.fills = this.fill;
+		if (!(this.fills instanceof Array)) this.fills = [this.fills];
+
+		var nexttext = 0;
+		this.texts = this.text;
+		if (!(this.texts instanceof Array)) this.texts = [this.texts];
+
+		var nextscript = 0;
+		this.scripts = this.script;
+		if (!(this.scripts instanceof Array)) this.scripts = [this.scripts];
+
 		var self = this;
 
 		this.elt = this.parent.paper.rect(
@@ -1801,28 +1811,13 @@ Group.prototype = {
 			this.y - this.guttery, 
 			this.numx * (this.w + this.gutterx) + this.gutterx,
 			this.numy * (this.h + this.guttery) + this.guttery, this.corner)
-				.attr({fill:this.fill, stroke:this.color, 'stroke-width': this['stroke-width']})
+				.attr({fill:this.fill, stroke:this.strokes[0], 'stroke-width': this['stroke-width']})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				//.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
 				//.mouseup(function(e) { self.elt.attr({fill:self.fill});})
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 //				.mouseover(function(e) { self.label.attr({cursor:'pointer'}); });
 
-		var nextstroke = 0;
-		var strokes = this.stroke;
-		if (!(strokes instanceof Array)) strokes = [strokes];
-
-		var nextfill = 0;
-		var fills = this.fill;
-		if (!(fills instanceof Array)) fills = [fills];
-
-		var nexttext = 0;
-		var texts = this.text;
-		if (!(texts instanceof Array)) texts = [texts];
-
-		var nextscript = 0;
-		var scripts = this.script;
-		if (!(scripts instanceof Array)) scripts = [scripts];
 
 		var x;
 		var y = this.y;
@@ -1838,17 +1833,17 @@ Group.prototype = {
 				opts.row = row;
 				opts.col = col;
 
-				opts.stroke = strokes[nextstroke];
-				if (++nextstroke >= strokes.length) nextstroke = 0;
+				opts.stroke = this.strokes[nextstroke];
+				if (++nextstroke >= this.strokes.length) nextstroke = 0;
 
-				opts.fill = fills[nextfill];
-				if (++nextfill >= fills.length) nextfill = 0;
+				opts.fill = this.fills[nextfill];
+				if (++nextfill >= this.fills.length) nextfill = 0;
 
-				opts.text = texts[nexttext];
-				if (++nexttext >= texts.length) nexttext = 0;
+				opts.text = this.texts[nexttext];
+				if (++nexttext >= this.texts.length) nexttext = 0;
 
-				opts.script = scripts[nextscript];
-				if (++nextscript >= scripts.length) nextscript = 0;
+				opts.script = this.scripts[nextscript];
+				if (++nextscript >= this.scripts.length) nextscript = 0;
 console.log('Group addbutton:', opts);
 				this.parent.addButton(opts);
 				x += (this.w + this.gutterx);
