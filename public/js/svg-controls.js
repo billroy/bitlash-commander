@@ -745,7 +745,8 @@ console.log('Drag start:', x, y, e);
 		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
 
 		if (event && event.shiftKey) {
-			this.parent.showEditMenu(this.id, e);
+			var id = (this.group != undefined) ? this.group : this.id;
+			this.parent.showEditMenu(id, e);
 			return true;
 		}
 		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
@@ -1749,6 +1750,15 @@ Group.prototype = {
 
 		this.options = {};
 		for (var o in options) this.options[o] = options[o];
+	
+		this.childopts = {};
+		if (options.childopts) {
+			for (var o in options) this.childopts[o] = options[o];
+			for (var o in options.childopts) {
+				if (o != 'childopts') this.childopts[o] = options.childopts[o];
+			}
+		}
+console.log('Group init:', options, this.options, this.childopts);
 
 		if (options.id) this.id = options.id;
 		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
@@ -1757,8 +1767,8 @@ Group.prototype = {
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
 		this.x = this.parent.x + (options.x || 50);
 		this.y = this.parent.y + (options.y || 50);
-		this.w = options.w || 125;
-		this.h = options.h || 50;
+		this.w = options.w || this.childopts.w || 125;
+		this.h = options.h || this.childopts.h || 50;
 		this.text = options.text || '';
 		this.noreadout = options.noreadout || false;
 		this.script = options.script || '';
@@ -1774,7 +1784,7 @@ Group.prototype = {
 		else this.corner = this.parent.button_corner;
 
 		this.subtype = options.subtype || '';	// default to rectangle
-		this.r = options.r || this.w/2;
+		if (this.subtype == 'circle') this.r = options.r || this.w/2;
 		this.autorun = options.autorun || false;
 		this.value = options.value || 0;
 		this.path = options.path || undefined;
@@ -1793,29 +1803,30 @@ Group.prototype = {
 		else this.guttery = 20;
 
 		var nextstroke = 0;
-		this.strokes = this.stroke;
+		this.strokes = this.childopts.stroke || this.stroke;
 		if (!(this.strokes instanceof Array)) this.strokes = [this.strokes];
 
 		var nextfill = 0;
-		this.fills = this.fill;
+		this.fills = this.childopts.fill || this.fill;
 		if (!(this.fills instanceof Array)) this.fills = [this.fills];
 
 		var nexttext = 0;
-		this.texts = this.text;
+		this.texts = this.childopts.text || this.text;
 		if (!(this.texts instanceof Array)) this.texts = [this.texts];
 
 		var nextscript = 0;
-		this.scripts = this.script;
+		this.scripts = this.childopts.script || this.script;
 		if (!(this.scripts instanceof Array)) this.scripts = [this.scripts];
 
 		var self = this;
 
+		// bug: we don't have accurate this.w and this.h for path buttons here
 		this.elt = this.parent.paper.rect(
 			this.x - this.gutterx,
 			this.y - this.guttery, 
 			this.numx * (this.w + this.gutterx) + this.gutterx,
 			this.numy * (this.h + this.guttery) + this.guttery, this.corner)
-				.attr({fill:this.fill, stroke:this.strokes[0], 'stroke-width': this['stroke-width']})
+				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				//.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
 				//.mouseup(function(e) { self.elt.attr({fill:self.fill});})
@@ -1829,7 +1840,7 @@ Group.prototype = {
 			x = this.x;
 			for (var col=0; col< this.numx; col++) {
 				var opts = {};
-				for (var o in this.options) opts[o] = this.options[o];
+				for (var o in this.childopts) opts[o] = this.childopts[o];
 				opts.id = this.itemid(row, col);
 				opts.group = this.id;
 				opts.x = x;

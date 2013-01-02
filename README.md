@@ -185,8 +185,6 @@ The push example in the file public/push.html shows event listeners in use:
 - BUG: groups need color for outside AND inside separate from button colors
 	childopts {}
 
-- BUG: buttons don't work on iPad
-
 - doc:
 	- new frontpage 
 	- new install
@@ -213,12 +211,12 @@ The push example in the file public/push.html shows event listeners in use:
 
 - bug: dragging button doesn't drag repeat indicator
 
-- panel label handling has problems
+- panel label handling
 	label should be called text; get rid of label
 
 - button group
 	- bug: create a group of round buttons in panel editor: buttons don't show
-	- bug: grouped items should show the parent's menu
+	- bug: drag a group member should drag the parent
 
 - thumbnails for index page
 
