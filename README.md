@@ -182,8 +182,6 @@ The push example in the file public/push.html shows event listeners in use:
 
 - BUG: duplicated panel labels
 
-- BUG: groups need color for outside AND inside separate from button colors
-	childopts {}
 
 - doc:
 	- new frontpage 
@@ -191,6 +189,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- commander sketch	
 	- -c and -u
 	- ssl
+	- group.childopts
 
 - BUG: path buttons get their w and h set: bug?
 
@@ -214,7 +213,8 @@ The push example in the file public/push.html shows event listeners in use:
 - panel label handling
 	label should be called text; get rid of label
 
-- button group
+- group
+	- slider group: extend height for readout and label
 	- bug: create a group of round buttons in panel editor: buttons don't show
 	- bug: drag a group member should drag the parent
 

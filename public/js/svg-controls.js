@@ -315,7 +315,7 @@ console.log('Incoming Update XY:', data);
 	
 	add: function(items) {		// add an array of items to the panel
 		for (var i=0; i < items.length; i++) {
-			//console.log('Add:', items[i]);
+console.log('Add:', items[i]);
 			if (items[i].type == 'Button') this.addButton(items[i]);
 			else if (items[i].type == 'Slider') this.addSlider(items[i]);
 			else if (items[i].type == 'Chart') this.addChart(items[i]);
@@ -1752,12 +1752,14 @@ Group.prototype = {
 		for (var o in options) this.options[o] = options[o];
 	
 		this.childopts = {};
-		if (options.childopts) {
-			for (var o in options) this.childopts[o] = options[o];
-			for (var o in options.childopts) {
-				if (o != 'childopts') this.childopts[o] = options.childopts[o];
-			}
+		for (var o in options) {
+			if ((o != 'childopts') && (o != 'type')) this.childopts[o] = options[o];
 		}
+		if (options.childopts) {
+			for (var o in options.childopts) this.childopts[o] = options.childopts[o];
+		}
+		if (this.childopts.type == 'Group') this.childopts.type == 'Button';
+
 console.log('Group init:', options, this.options, this.childopts);
 
 		if (options.id) this.id = options.id;
@@ -1820,12 +1822,18 @@ console.log('Group init:', options, this.options, this.childopts);
 
 		var self = this;
 
+		this.outerh = this.numy * (this.h + this.guttery) + this.guttery;
+		if (this.childopts.type == 'Slider') {
+			this.outerh += 3 * this.fontsize;
+		}
+
 		// bug: we don't have accurate this.w and this.h for path buttons here
 		this.elt = this.parent.paper.rect(
 			this.x - this.gutterx,
 			this.y - this.guttery, 
 			this.numx * (this.w + this.gutterx) + this.gutterx,
-			this.numy * (this.h + this.guttery) + this.guttery, this.corner)
+			//this.numy * (this.h + this.guttery) + this.guttery, this.corner)
+			this.outerh, this.corner)
 				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				//.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
@@ -1859,8 +1867,9 @@ console.log('Group init:', options, this.options, this.childopts);
 
 				opts.script = this.scripts[nextscript];
 				if (++nextscript >= this.scripts.length) nextscript = 0;
-console.log('Group addbutton:', opts);
-				this.parent.addButton(opts);
+console.log('Group add:', opts.type, opts);
+				if (opts.type) this.parent.add([opts]);
+				else this.parent.addButton(opts);
 				x += (this.w + this.gutterx);
 			}
 			y += (this.h + this.guttery);

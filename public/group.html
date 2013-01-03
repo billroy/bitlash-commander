@@ -40,6 +40,25 @@ $(document).ready(function() {
 				script: 'javascript:alert(this.id);'
 			}
 		});
+
+	Panel.addGroup({
+			id: '3slide',
+			numx:3, numy:1,
+			x:200, y:400,
+			gutterx: 10, guttery:10,
+			stroke:'gray',
+			fill:'90-black-99:white',
+			childopts:{
+				type:'Slider',
+				subtype:'y',
+				w:24, h:96,
+				min:0, max:255,
+				text:['r','g','b'],
+				stroke:['red','green','blue'],
+				fill:['90-black:1-red:99', '90-black:1-green:99', '90-black:1-blue:99']
+			}
+		});
+
 	Panel.addGroup({
 			id: 'vbtns',
 			numx:1, numy:3,
