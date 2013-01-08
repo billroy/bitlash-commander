@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!-- Copyright 2012 by Bill Roy - MIT license - See LICENSE file -->
+<html><head>
+	<title>Bitlash Commander</title>
+
+	<script type='text/javascript' src='/js/jquery-1.8.2.min.js'></script>
+	<script type='text/javascript' src='/js/fastclick.js'></script>
+	<script type='text/javascript' src='/js/raphael.js'></script>
+	<script type='text/javascript' src='/js/d3.v2.min.js'></script>
+	<script type='text/javascript' src='/js/mustache.js'></script>
+	<script type='text/javascript' src='/socket.io/socket.io.js'></script>
+	<script type='text/javascript' src='/js/handsontable/jquery.handsontable.full.js'></script>
+	<script type='text/javascript' src='/js/jQuery-contextMenu/jquery.contextMenu.js'></script>
+	<script type='text/javascript' src='/js/jQuery-contextMenu/jquery.ui.position.js'></script>
+	<script type='text/javascript' src='/js/jplayer/jquery.jplayer.min.js'></script>
+
+	<script type='text/javascript' src='/js/svg-controls.js'></script>
+	<script type='text/javascript' src='/js/sound.js'></script>
+
+	<link rel='stylesheet' media='screen' href='/js/handsontable/jquery.handsontable.full.css'>
+	<link rel='stylesheet' media='screen' href='/js/jQuery-contextMenu/jquery.contextMenu.css'>
+
+</head><body style='background:gray, font-family:sans-serif'>
+
+<script type='text/javascript' charset='utf8'>
+
+$(document).ready(function() {
+
+	//document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
+
+	var Panel = new ControlPanel({id:'elevator', stroke:'yellow', title:'Elevator', tx: 144, ty:48});
+
+	var num_floors = 32;
+	var floor_height = 18;
+	var button_width = 48;
+
+	var floor = Panel.addSlider({
+		id:'floor',
+		text:'floor',
+		x:360, y: 24,
+		w:24, h: num_floors * floor_height,
+		min:0, max:num_floors-1
+	});
+
+	var call_buttons = Panel.addGroup({
+		x:288, y:24,
+		id:'calls',
+		numx:1, numy:32,
+		gutter:0,
+		reversebits:true,
+		childopts: {
+			w:button_width, h:floor_height,
+			script:'callcar(' + (num_floors-1) + '-{{row}});'
+		}
+	});
+
+	var drops = Panel.addGroup({
+		x:408, y:24,
+		id:'drops',
+		numx:1, numy:32,
+		gutter:0,
+		reversebits:true,
+		childopts: {
+			w:button_width, h:floor_height
+		}
+	});
+
+	var state = Panel.addGroup({
+		id:'state',
+		x:96, y:264,
+		numx:1, numy:3,		
+		w:73, h:36,
+		childopts:{
+			text:['up', 'wait', 'down'],
+		}
+	});
+
+
+
+
+}); 	// document.ready
+</script>
+<div id='editor'>
+	<div id='dataTable'></div>
+	<input type='button' value='cancel' id='editcancel'></input>
+	<input type='button' value='+' id='editadd'></input>
+	<input type='button' value='-' id='editdelete'></input>
+	<input type='button' value='save' id='editsave'></input>
+</div>
+<div id='contextmenu'></div>
+<div id='editmenu'></div>
+<div id='player'></div>
+</body></html>

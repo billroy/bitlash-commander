@@ -182,6 +182,7 @@ The push example in the file public/push.html shows event listeners in use:
 
 - BUG: duplicated panel labels
 
+- right-click menus
 
 - doc:
 	- new frontpage 
@@ -191,9 +192,16 @@ The push example in the file public/push.html shows event listeners in use:
 	- ssl
 	- group.childopts
 
+- commander-mega
+- chart: rename target to source, as it should have been
+
+- BUG: group takes width from parent, not childopts
+
+- inherit fontsize from panel
+
 - BUG: path buttons get their w and h set: bug?
 
-- mustache-expand the label text
+- mustache-expand the label text?
 
 - grid fill with small image is costly and does not adapt to grid size
 	- try drawing the grid explicitly, at the grid size

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<!-- Copyright 2012 by Bill Roy - MIT license - See LICENSE file -->
+<html><head>
+	<title>Bitlash Commander</title>
+
+	<script type='text/javascript' src='/js/jquery-1.8.2.min.js'></script>
+	<script type='text/javascript' src='/js/fastclick.js'></script>
+	<script type='text/javascript' src='/js/raphael.js'></script>
+	<script type='text/javascript' src='/js/d3.v2.min.js'></script>
+	<script type='text/javascript' src='/js/mustache.js'></script>
+	<script type='text/javascript' src='/socket.io/socket.io.js'></script>
+	<script type='text/javascript' src='/js/handsontable/jquery.handsontable.full.js'></script>
+	<script type='text/javascript' src='/js/jQuery-contextMenu/jquery.contextMenu.js'></script>
+	<script type='text/javascript' src='/js/jQuery-contextMenu/jquery.ui.position.js'></script>
+	<script type='text/javascript' src='/js/jplayer/jquery.jplayer.min.js'></script>
+
+	<script type='text/javascript' src='/js/svg-controls.js'></script>
+	<script type='text/javascript' src='/js/sound.js'></script>
+
+	<link rel='stylesheet' media='screen' href='/js/handsontable/jquery.handsontable.full.css'>
+	<link rel='stylesheet' media='screen' href='/js/jQuery-contextMenu/jquery.contextMenu.css'>
+
+</head><body style='background:gray, font-family:sans-serif'>
+
+<script type='text/javascript' charset='utf8'>
+
+$(document).ready(function() {
+
+	//document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
+
+	var Panel = new ControlPanel({
+		id:'mega',
+		stroke:'white',
+		fill:'teal',
+		title:'Mega Commander',
+		tx:380, ty:48,
+		fontsize:14
+	});
+
+	var digitalbank = Panel.addGroup({
+		x:780, y:48,
+		numx:2, numy:16,
+		gutter:6,
+		childopts:{
+			type:'Button',
+			w:48, h:24,
+			//script:'dw({{text}},!dr({{text}}));print dr({{text}});',
+			script:'pinmode({{text}},1);dw({{text}},!dr({{text}}));',
+			text:[
+				'23', '24', '25', '26', '27', '28', '29', 
+				'30', '31', '32', '33', '34', '35', '36', '37', '38', '39',
+				'40', '41', '42', '43', '44', '45', '46', '47', '48', '49',
+				'50', '51', '52', '53', '54'
+			]
+		}
+	});
+	
+	var sliderbank = Panel.addGroup({
+		x:48, y:120,
+		numx:12, numy:1,
+		gutter:6,
+		childopts: {
+			type:'Slider',
+			subtype:'y',
+			w:51, h:144,
+			fontsize:14,
+			script:'aw(13-{{col}},{{value}});print {{value}}',
+			text:[
+				'pwm13', 'pwm12', 'pwm11', 'pwm10',
+				'pwm9', 'pwm8', 'pwm7', 'pwm6',
+				'pwm5', 'pwm4', 'pwm3', 'pwm2'
+			]
+		}
+	});
+
+	var analogbank = Panel.addGroup({
+		x:60, y:384,
+		numx:8, numy:2,
+		gutter: 24,
+		childopts:{
+			type:"Button",
+			w:60, h:48,
+			script:'print ar({{row}}*8+{{col}})',
+			fontsize:16,
+			text:[
+				'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7',
+				'a8', 'a9', 'a10', 'a11', 'a12', 'a13', 'a14', 'a15'
+			]
+		}
+	});
+
+}); 	// document.ready
+</script>
+<div id='editor'>
+	<div id='dataTable'></div>
+	<input type='button' value='cancel' id='editcancel'></input>
+	<input type='button' value='+' id='editadd'></input>
+	<input type='button' value='-' id='editdelete'></input>
+	<input type='button' value='save' id='editsave'></input>
+</div>
+<div id='contextmenu'></div>
+<div id='editmenu'></div>
+<div id='player'></div>
+</body></html>

@@ -194,13 +194,18 @@ console.log('Incoming Update XY:', data);
 					//self.paper.scale(scale, scale);
 				}
 				else if (key == 'align') self.alignToGrid();
+				else if (key == 'about') window.open('https://github.com/billroy/bitlash-commander', true);
+				else if (key == 'home') window.open('/');
 			},
 			items: {
-				//'newpanel': 	{name: 'New Panel', 	icon: 'newpanel'},
+				//'newpanel': 	{name: 'New Panel', 			icon: 'newpanel'},
+				'home':			{name: 'Home', 					icon: 'editpanel'},
+				'about':		{name: 'About Commander...', 	icon: 'editpanel'},
+				'sep0': 	 	'---------',
 				'editpanel': 	{name: 'Panel Properties...', 	icon: 'editpanel'},
-				'align': 		{name: 'Align to Grid', icon: 'editpanel'},
+				'align': 		{name: 'Align to Grid', 		icon: 'editpanel'},
 				'sep1': 	 	'---------',
-				'addtext': 	{name: 'New Text', 		icon: 'addbutton'},
+				'addtext': 	{name: 'New Text', 					icon: 'addbutton'},
 				'sep2': 	 	'---------',
 				'addbutton': 	{name: 'New Button', 	icon: 'addbutton'},
 				'addrbutton': 	{name: 'New Round Button', 	icon: 'addbutton'},
@@ -213,7 +218,7 @@ console.log('Incoming Update XY:', data);
 				'sep4': 	 	'---------',
 				'addchart':  	{name: 'New Chart', 	icon: 'addchart'},
 				'sep5': 	 	'---------',
-				'openpanel': 	{name: 'Open Panel', 	icon: 'openpanel'},
+				//'openpanel': 	{name: 'Open Panel', 	icon: 'openpanel'},
 				//'scale': 	 	{name: 'Scale...', 	icon: 'save'},
 				'save': 	 	{name: 'Save Panel', 	icon: 'save'}
 			}
@@ -445,7 +450,7 @@ console.log('Add:', items[i]);
 		var newvalue = prompt('Value for new field:');
 
 		this.endEdit(1);
-		if (this.editingcontrol == this) {
+		if (id == this) {
 			this.options[newfield] = newvalue;
 			this[newfield] = newvalue;
 		}
@@ -462,7 +467,7 @@ console.log('Add:', items[i]);
 		var doomedfield = prompt('Field to delete:');
 		if (!doomedfield) return;
 		this.endEdit(1);
-		if (this.editingcontrol == this) {
+		if (id == this) {
 			if (this.options.hasOwnProperty(doomedfield))
 				delete this.options[doomedfield];
 		}
@@ -616,7 +621,7 @@ Button.prototype = {
 		this.noreadout = options.noreadout || false;
 		this.script = options.script || '';
 		this.stroke = options.stroke || this.parent.stroke;
-		this.fill = options.fill || 'black';
+		this.fill = options.fill || this.parent.fill;
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
 		this.fontsize = options.fontsize || 20;
@@ -686,6 +691,15 @@ Button.prototype = {
 			//.touchcancel(function(e) { self.handleClick.call(self,e); return false;})
 
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+		//console.log('Element:', this.elt);
+		$(this.elt.node).bind("contextmenu", function(event) {
+			var id = (self.group != undefined) ? self.group : self.id;
+			self.parent.showEditMenu(id, event);
+			event.preventDefault();
+			event.stopPropagation();
+			return false;
+		});
 
 		if (this.label) this.label.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
 			.click(function(e) { return self.handleClick.call(self, e); })
@@ -935,10 +949,14 @@ Slider.prototype = {
 		this.noreadout = options.noreadout || false;
 		this.script = options.script || '';
 		this.stroke = options.stroke || this.parent.stroke;
-		this.fill = options.fill || 'black';
+		this.fill = options.fill || this.parent.fill;
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
 		this.fontsize = options.fontsize || 20;
+
+		if (options.group) this.group = options.group;
+		if (options.row != undefined) this.row = options.row;
+		if (options.col != undefined) this.col = options.col;
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
@@ -1093,7 +1111,19 @@ Slider.prototype = {
 		this.move(this.x, this.y);
 		return this.dragFinish(e);
 	},
-	
+
+	toFront: function() {
+		this.outerrect.toFront();
+		if (this.xbar) this.xbar.toFront();
+		if (this.ybar) this.ybar.toFront();
+		this.slide.toFront();
+		this.label.toFront();
+		if (this.xreadout) this.xreadout.toFront();
+		if (this.yreadout) this.yreadout.toFront();
+	},
+
+
+
 	move: function(x, y) {
 		this.x = x;
 		this.y = y;
@@ -1311,7 +1341,7 @@ Chart.prototype = {
 		this.h = options.h || 144;
 		this.text = options.text || '';
 		this.script = options.script || '';
-		this.fill = options.fill || 'black';
+		this.fill = options.fill || this.parent.fill;
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this.stroke = options.stroke || this.parent.stroke;
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
@@ -1620,7 +1650,7 @@ Text.prototype = {
 		this.text = options.text || '';
 
 		this.stroke = options.stroke || this.parent.stroke;
-		this.fill = options.fill || 'black';
+		this.fill = options.fill || this.parent.fill;
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
 		this.fontsize = options.fontsize || 20;
@@ -1775,7 +1805,7 @@ console.log('Group init:', options, this.options, this.childopts);
 		this.noreadout = options.noreadout || false;
 		this.script = options.script || '';
 		this.stroke = options.stroke || this.parent.stroke;
-		this.fill = options.fill || 'black';
+		this.fill = options.fill || this.parent.fill;
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
 		this.fontsize = options.fontsize || 20;
@@ -1791,6 +1821,8 @@ console.log('Group init:', options, this.options, this.childopts);
 		this.value = options.value || 0;
 		this.path = options.path || undefined;
 		this.scale = options.scale || 1;
+
+		if (options.reversebits != undefined) this.reversebits = options.reversebits;
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
@@ -2006,12 +2038,25 @@ console.log('Group add:', opts.type, opts);
 			}
 		}
 		else if (typeof value == 'number') {
-			for (var row = 0; row < this.numy; row++) {
-				for (var col = 0; col < this.numx; col++) {
-					var control = this.parent.controls[this.itemid(row, col)];
-					var bitvalue = ((value & (1<<bit++)) != 0) ? 1 : 0;
-					if (bitvalue) control.highlight();
-					else control.dehighlight();
+			if (this.reversebits) {
+console.log('reversing bits');
+				for (var row = this.numy-1; row >= 0; row--) {
+					for (var col = this.numx-1; col >= 0; col--) {
+						var control = this.parent.controls[this.itemid(row, col)];
+						var bitvalue = ((value & (1<<bit++)) != 0) ? 1 : 0;
+						if (bitvalue) control.highlight();
+						else control.dehighlight();
+					}
+				}
+			}
+			else {
+				for (var row = 0; row < this.numy; row++) {
+					for (var col = 0; col < this.numx; col++) {
+						var control = this.parent.controls[this.itemid(row, col)];
+						var bitvalue = ((value & (1<<bit++)) != 0) ? 1 : 0;
+						if (bitvalue) control.highlight();
+						else control.dehighlight();
+					}
 				}
 			}
 		}
