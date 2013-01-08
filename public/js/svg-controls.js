@@ -25,6 +25,7 @@ ControlPanel.prototype = {
 		this.tx = options.tx || this.x + (this.w/2);
 		this.ty = options.ty || this.y + 48;
 		this.stroke = options.stroke || 'greenyellow';
+		this.fontsize = options.fontsize || 20;
 		this.fill = options.fill || 'black';
 		this.fill_highlight = options.fill_highlight || 'white';
 		this.face_corner = options.face_corner || 20;
@@ -624,7 +625,7 @@ Button.prototype = {
 		this.fill = options.fill || this.parent.fill;
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
-		this.fontsize = options.fontsize || 20;
+		this.fontsize = options.fontsize || this.parent.fontsize;
 		this.repeat = options.repeat || 0;
 		this.running = 0;
 		if (options.corner != undefined) this.corner = options.corner;
@@ -952,7 +953,7 @@ Slider.prototype = {
 		this.fill = options.fill || this.parent.fill;
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
-		this.fontsize = options.fontsize || 20;
+		this.fontsize = options.fontsize || this.parent.fontsize;
 
 		if (options.group) this.group = options.group;
 		if (options.row != undefined) this.row = options.row;
@@ -1345,7 +1346,7 @@ Chart.prototype = {
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this.stroke = options.stroke || this.parent.stroke;
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
-		this.fontsize = options.fontsize || 20;
+		this.fontsize = options.fontsize || this.parent.fontsize;
 		this.repeat = options.repeat || 0;
 		this.running = 0;
 		this.corner = options.corner || this.parent.button_corner;
@@ -1466,6 +1467,7 @@ Chart.prototype = {
 					.attr('class', 'line')
 					.attr('d', function(d) { return line(d.values); })
 					.style('stroke', function(d) { return color(d.name); })
+					.style('fill', self.fill)
 					.style('stroke-width', self['stroke-width']);
 		
 			self.svgvalue.append('text')
@@ -1653,7 +1655,7 @@ Text.prototype = {
 		this.fill = options.fill || this.parent.fill;
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
-		this.fontsize = options.fontsize || 20;
+		this.fontsize = options.fontsize || this.parent.fontsize;
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
 		var self = this;
@@ -1808,7 +1810,7 @@ console.log('Group init:', options, this.options, this.childopts);
 		this.fill = options.fill || this.parent.fill;
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
-		this.fontsize = options.fontsize || 20;
+		this.fontsize = options.fontsize || this.parent.fontsize;
 		this.repeat = options.repeat || 0;
 		this.running = 0;
 

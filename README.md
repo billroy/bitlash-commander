@@ -192,12 +192,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- ssl
 	- group.childopts
 
-- commander-mega
 - chart: rename target to source, as it should have been
-
-- BUG: group takes width from parent, not childopts
-
-- inherit fontsize from panel
 
 - BUG: path buttons get their w and h set: bug?
 
@@ -292,6 +287,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- integrate with cosm for upload
 
 - controls
+	- dropdown selector
 	- uploader button: click to upload a bitlash code file or url to the arduino
 		- autorunnable
 	- image, clickable to start/stop refresh
