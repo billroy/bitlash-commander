@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Copyright 2012 by Bill Roy - MIT license - See LICENSE file -->
+<!-- Copyright 2013 by Bill Roy - MIT license - See LICENSE file -->
 <html><head>
 	<title>Bitlash Commander</title>
 
@@ -44,8 +44,9 @@ $(document).ready(function() {
 		childopts:{
 			type:'Button',
 			w:48, h:24,
-			//script:'dw({{text}},!dr({{text}}));print dr({{text}});',
-			script:'pinmode({{text}},1);dw({{text}},!dr({{text}}));',
+			noreadout:true,
+			highlighttrue:true,
+			script:'z={{text}};pinmode(z,1);dw(z,!dr(z));print dr(z);',
 			text:[
 				'22', '23', '24', '25', '26', '27', '28', '29', 
 				'30', '31', '32', '33', '34', '35', '36', '37', '38', '39',
@@ -54,7 +55,8 @@ $(document).ready(function() {
 			]
 		}
 	});
-	
+
+
 	var sliderbank = Panel.addGroup({
 		x:48, y:120,
 		numx:12, numy:1,
@@ -78,8 +80,8 @@ $(document).ready(function() {
 		numx:8, numy:2,
 		gutterx:24, guttery:30,
 		childopts:{
-			type:"Button",
-			w:60, h:48,
+			type:'Button',
+			w:60, h:36,
 			script:'print ar({{row}}*8+{{col}})',
 			fontsize:16,
 			text:[

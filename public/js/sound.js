@@ -1,7 +1,7 @@
 //
 // sound.js: Bitlash Commander sound effects
 //
-//	Copyright 2012 Bill Roy (MIT License; see LICENSE file)
+//	Copyright 2012-2013 Bill Roy (MIT License; see LICENSE file)
 //
 
 // The sounds used below are from http://www.freesound.org

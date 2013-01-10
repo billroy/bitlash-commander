@@ -3,7 +3,7 @@
 //
 //	index.js: Run the Bitlash Commander server
 //
-//	Copyright 2012 Bill Roy (MIT License; see LICENSE file)
+//	Copyright 2012-2013 Bill Roy (MIT License; see LICENSE file)
 //
 //
 var opt = require('optimist');

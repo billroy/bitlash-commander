@@ -1,7 +1,7 @@
 //
 // svg-controls.js: SVG control library for Bitlash Commander
 //
-//	Copyright 2012 Bill Roy (MIT License; see LICENSE file)
+//	Copyright 2012-2013 Bill Roy (MIT License; see LICENSE file)
 //
 
 //////////
@@ -624,6 +624,7 @@ Button.prototype = {
 		this.stroke = options.stroke || this.parent.stroke;
 		this.fill = options.fill || this.parent.fill;
 		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
+		if (options.highlighttrue) this.highlighttrue = options.highlighttrue;
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
 		this.fontsize = options.fontsize || this.parent.fontsize;
 		this.repeat = options.repeat || 0;
@@ -897,6 +898,10 @@ console.log('handleClick', e);
 		this.value = value;
 		//this.label.attr({text: this.text + ': ' + this.value});
 		if (this.readout) this.readout.attr({text: '' + this.value});
+		else if (this.highlighttrue) {
+			if (parseInt(this.value) != 0) this.highlight();
+			else this.dehighlight();
+		}
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
 	},

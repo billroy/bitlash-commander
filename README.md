@@ -217,6 +217,11 @@ The push example in the file public/push.html shows event listeners in use:
 	label should be called text; get rid of label
 
 - group
+	- individual button update via highlight instead of readout
+		(mega.html)
+	- how to add individual button on() handlers?
+		or should update be propagated to the group?
+	- text group
 	- slider group: extend height for readout and label
 	- bug: create a group of round buttons in panel editor: buttons don't show
 	- bug: drag a group member should drag the parent
