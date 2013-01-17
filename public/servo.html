@@ -52,14 +52,14 @@ $(document).ready(function() {
 	});
 
 	Panel.addSlider({
-		text:'X Servo X=D11',
+		text:'X Servo X=D10',
 		x:700, y:400, w:250, h:100,
 		subtype: 'x',
 		fill: '0-#f00:1-#000:50-#f00:99',
 		xmin: 0, xmax: 180,
 		recenter: true,
 		xvalue: 90,
-		script:'servo(11,{{value}});'
+		script:'servo(10,{{value}});'
 	});
 
 	Panel.addSlider({

@@ -41,8 +41,8 @@ $(document).ready(function() {
 			}
 		});
 
-	Panel.addGroup({
-			id: '3slide',
+	var rgb = Panel.addGroup({
+			id: 'rgbslide',
 			numx:3, numy:1,
 			x:200, y:400,
 			gutterx: 10, guttery:10,
@@ -55,9 +55,34 @@ $(document).ready(function() {
 				min:0, max:255,
 				text:['r','g','b'],
 				stroke:['red','green','blue'],
+				script:'javascript:this.parent.controls[this.group].setBackgroundColor();',
 				fill:['90-black:1-red:99', '90-black:1-green:99', '90-black:1-blue:99']
 			}
 		});
+
+	function toHex(primary) {
+		var hex = primary.toString(16);
+		while (hex.length < 2) hex = '0' + hex;
+		return hex;
+	}
+
+	rgb.setBackgroundColor = function() {
+		console.log('setcolor:', rgb);
+		var red 	= this.parent.controls[this.itemid(0,0)].value || 0;
+		var green 	= this.parent.controls[this.itemid(0,1)].value || 0;
+		var blue 	= this.parent.controls[this.itemid(0,2)].value || 0;
+		var color   = '#' + toHex(red) + toHex(green) + toHex(blue);
+		console.log('color:', color);
+
+		this.value = color;
+		var update = {id: this.id, value: this.value};
+		this.fire('update', update);
+	};
+
+	rgb.on('update', function(data) {
+		Panel.attr({'fill': data.value});
+		//$('html').css('background', color);
+	});
 
 	Panel.addGroup({
 			id: 'vbtns',

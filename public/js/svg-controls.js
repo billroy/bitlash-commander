@@ -35,7 +35,7 @@ ControlPanel.prototype = {
 		this.channel = options.channel || '';
 		this.grid = options.grid || 24;
 
-		this.paper = Raphael(0, 0, $(window).width(), $(window).height());
+		this.paper = Raphael(this.x, this.y, this.w, this.h);
 
 		this.face = this.paper.rect(this.x, this.y, this.w, this.h, this.face_corner)
 			.attr({stroke: this.stroke, fill: this.fill, 'stroke-width': 2 * this.control_stroke});
