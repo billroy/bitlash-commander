@@ -9,6 +9,8 @@
 var opt = require('optimist');
 var url = require('url');
 var argv = opt.usage('Usage: $0 [flags]')
+	.alias('i', 'ipclient')
+	.describe('ipclient', 'Network address or hostname for Bitlash-over-IP')
 	.alias('p', 'port')
 	.describe('p', 'TCP port for the http server (3000)')
 	.alias('s', 'serialport')
@@ -203,6 +205,7 @@ var bitlash_options = {
 		debug: true, 
 		echo: true,
 		port: argv.serialport,
+		ipclient: argv.ipclient,
 		json_callback: broadcastJSONUpdate
 }
 if (argv.baud) bitlash_options.baud = argv.baud;

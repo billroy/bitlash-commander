@@ -248,6 +248,8 @@ The push example in the file public/push.html shows event listeners in use:
 	- multiple data sources [a0,d1,random(100)]
 		- best handled with push to the control id
 		- control can ignore the update or note it to trigger refresh
+	- chart windowing
+		http://computationallyendowed.com/blog/2013/01/21/bounded-panning-in-d3.html
 
 - server:
 	- for viewer nodes: fetch remote data for a chart on demand

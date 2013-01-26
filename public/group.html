@@ -72,7 +72,7 @@ $(document).ready(function() {
 		var green 	= this.parent.controls[this.itemid(0,1)].value || 0;
 		var blue 	= this.parent.controls[this.itemid(0,2)].value || 0;
 		var color   = '#' + toHex(red) + toHex(green) + toHex(blue);
-		console.log('color:', color);
+		//console.log('color:', color);
 
 		this.value = color;
 		var update = {id: this.id, value: this.value};
