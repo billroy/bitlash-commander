@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- Copyright 2013 by Bill Roy - MIT license - See LICENSE file -->
+<!-- Copyright 2012-2013 by Bill Roy - MIT license - See LICENSE file -->
 <html><head>
-	<title>Bitlash Commander</title>
+	<title>{{multi}}</title>
 
 	<script type='text/javascript' src='/js/jquery-1.8.2.min.js'></script>
 	<script type='text/javascript' src='/js/fastclick.js'></script>
@@ -26,57 +26,45 @@
 
 $(document).ready(function() {
 
-	//document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
+	var x = 120; 
+	var orig_x = x;
+	var y = 120;
+	var xsize = 240;
+	var ysize = 240;
+	var gutter = 20;
 
-	var Panel = new ControlPanel({id:'elevator', stroke:'yellow', title:'Elevator', tx: 144, ty:48});
+	var panelcount = 0;
+	
+	while (1) {
+		var panelid = 'Panel' + panelcount++;
 
-	var num_floors = 32;
-	var floor_height = 18;
-	var button_width = 48;
+		var panel = new ControlPanel({x:x, y:y, w:xsize, h:ysize,
+			id:panelid, title:panelid, tx:xsize/2,
+			stroke:Raphael.getColor()	//'red'
+		});
 
-	var floor = Panel.addSlider({
-		id:'floor',
-		text:'floor',
-		x:360, y: 24,
-		w:24, h: num_floors * floor_height,
-		min:0, max:num_floors-1
-	});
+		var button = panel.addButton({
+			x:24, y:96, w:xsize/4, h:.1*ysize, 
+			id:'t13', text:'t13',  
+			script:'print d13=!d13'
+		});
 
-	var call_buttons = Panel.addGroup({
-		x:288, y:24,
-		id:'calls',
-		numx:1, numy:32,
-		gutter:0,
-		reversebits:true,
-		childopts: {
-			w:button_width, h:floor_height,
-			script:'callcar(' + (num_floors-1) + '-{{row}});'
+		var slider = panel.addSlider({
+			x:xsize/2, y:96, w:xsize/4, h:.3*ysize, 
+			id:'pwm3', text:'pwm3',  
+			script:'print a3={{value}}'
+		});
+
+
+
+console.log('Panel:', panel);
+		x = x + xsize + gutter;
+		if ((x + xsize) > $(window).width()) {
+			x = orig_x;
+			y = y + ysize + gutter;
+			if ((y + ysize) > $(window).height()) break;
 		}
-	});
-
-	var drops = Panel.addGroup({
-		x:408, y:24,
-		id:'drops',
-		numx:1, numy:32,
-		gutter:0,
-		reversebits:true,
-		childopts: {
-			w:button_width, h:floor_height
-		}
-	});
-
-	var state = Panel.addGroup({
-		id:'state',
-		x:96, y:264,
-		numx:1, numy:3,		
-		w:73, h:36,
-		childopts:{
-			text:['up', 'wait', 'down'],
-		}
-	});
-
-
-
+	}
 
 }); 	// document.ready
 </script>

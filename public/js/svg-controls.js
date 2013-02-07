@@ -96,8 +96,8 @@ ControlPanel.prototype = {
 		this.h = options.h || $(window).height();
 		this.x = options.x || ($(window).width() - this.w)/2;
 		this.y = options.y || ($(window).height() - this.h)/2;
-		this.tx = options.tx || this.x + (this.w/2);
-		this.ty = options.ty || this.y + 48;
+		this.tx = options.tx || (this.w/2);
+		this.ty = options.ty || 48;
 		this.stroke = options.stroke || 'greenyellow';
 		this.fontsize = options.fontsize || 20;
 		this.fill = options.fill || 'black';
@@ -111,7 +111,8 @@ ControlPanel.prototype = {
 
 		this.paper = Raphael(this.x, this.y, this.w, this.h);
 
-		this.face = this.paper.rect(this.x, this.y, this.w, this.h, this.face_corner)
+		//this.face = this.paper.rect(this.x, this.y, this.w, this.h, this.face_corner)
+		this.face = this.paper.rect(0, 0, this.w, this.h, this.face_corner)
 			.attr({stroke: this.stroke, fill: this.fill, 'stroke-width': 2 * this.control_stroke});
 
 		this.controls = {};
@@ -132,7 +133,7 @@ ControlPanel.prototype = {
 
 		var self = this;
 		if (!this.noedit) this.editbutton = this.paper.path('M25.31,2.872l-3.384-2.127c-0.854-0.536-1.979-0.278-2.517,0.576l-1.334,2.123l6.474,4.066l1.335-2.122C26.42,4.533,26.164,3.407,25.31,2.872zM6.555,21.786l6.474,4.066L23.581,9.054l-6.477-4.067L6.555,21.786zM5.566,26.952l-0.143,3.819l3.379-1.787l3.14-1.658l-6.246-3.925L5.566,26.952z')
-			.transform('T25,25')
+			.transform('T24,24')
 			.attr({fill:this.fill, stroke: this.stroke})
 			.mouseover(function(e) { self.editbutton.attr({cursor:'pointer'}); })
 			.click(function(e) { 
@@ -152,10 +153,12 @@ ControlPanel.prototype = {
 			});
 
 		// one-time initialization for editor buttons
-		$('#editsave').click(function() { console.log('save!'); self.endEdit(1); });
+		$('#editsave').click(function() { self.endEdit(1); });
 		$('#editcancel').click(function() { self.endEdit(0); });
 		$('#editadd').click(function() { self.editAddField(); });
 		$('#editdelete').click(function() { self.editDeleteField(); });
+
+		$('#editor').hide();
 
 /*
 		if (this.title) this.text = this.addText({
@@ -447,7 +450,8 @@ console.log('Add:', items[i]);
 		var x = (object == this) ? this.menux : this.controls[object].x;
 		var y = (object == this) ? this.menuy : this.controls[object].y;
 
-		var editor = $('#editor').css('background-color', 'white')
+		var editor = $('#editor').show()
+			.css('background-color', 'white')
 			.css('zIndex', 9999)
 			.css('position', 'absolute')
 			.css({left: x, top: y});
@@ -702,8 +706,8 @@ Button.prototype = {
 		else this.id = this.parent.uniqueid(this.type);
 
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-		this.x = this.parent.x + (options.x || 48);
-		this.y = this.parent.y + (options.y || 48);
+		this.x = options.x || 48;
+		this.y = options.y || 48;
 		this.w = options.w || 120;
 		this.h = options.h || 48;
 		this.text = options.text || '';
@@ -1035,8 +1039,8 @@ Slider.prototype = {
 		else this.id = this.parent.uniqueid(this.type);
 
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-		this.x = this.parent.x + (options.x || 48);
-		this.y = this.parent.y + (options.y || 48);
+		this.x = options.x || 48;
+		this.y = options.y || 48;
 		this.w = options.w || 72;
 		this.h = options.h || 192;
 		this.text = options.text || '';
@@ -1117,7 +1121,7 @@ Slider.prototype = {
 		this.slide = this.parent.paper.rect(this.slideXPos(), this.slideYPos(), this.slidew, this.slideh, 5)
 			.attr({fill:this.stroke, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.slideMove, this.slideStart, this.slideEnd, this, this, this)
+			.drag(self.slideMove, self.slideStart, self.slideEnd, self, self, self)
 			.mouseover(function(e) { self.slide.attr({cursor:'pointer'});});
 
 		if (this.recenter) this.slideToCenter();
@@ -1172,13 +1176,14 @@ Slider.prototype = {
 	},
 
 	dragStart: function(x, y, event) {
-		//console.log('Drag start:', x, y, event);
+console.log('Drag start:', x, y, event);
 		if (!this.parent.editingpanel) return true;
 		if (event && event.shiftKey) {
 			this.parent.showEditMenu(this.id, event);
 			return true;
 		}
-		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
+		//this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
+		this.drag = {x:this.x, y:this.y};
 		this.dragging = true;
 		//this.outerrect.attr({fill:this.fill_highlight}).toFront();
 		this.attr({opacity:0.5});
@@ -1192,7 +1197,7 @@ Slider.prototype = {
 	},
 
 	dragMove: function(dx, dy, x, y, e) {
-		//console.log('move:',dx,dy,x,y,e);
+console.log('move:',dx,dy,x,y,e);
 		var grid = this.parent.grid;
 		if (grid && !e.shiftKey) {
 			this.x = this.drag.x + (grid * Math.floor(dx / grid));
@@ -1215,8 +1220,6 @@ Slider.prototype = {
 		if (this.xreadout) this.xreadout.toFront();
 		if (this.yreadout) this.yreadout.toFront();
 	},
-
-
 
 	move: function(x, y) {
 		this.x = x;
@@ -1248,13 +1251,17 @@ Slider.prototype = {
 	},
 
 	slideStart: function(x, y, event) {
+		//console.log('Slide start:', x, y, event);
+		this.dragslide = {x:this.x, y:this.y};
 		this.sliding = true;
 		this.slide.attr({fill:this.fill});
-		//this.glow = this.slide.glow({color:'white'});
 	},
 
 	slideMove: function(dx, dy, x, y, e) {
-		//console.log('slidemove:',dx,dy,x,y,e)
+		//console.log('Slide move:', dx, dy, x, y, e);
+		x = x - this.parent.x;
+		y = y - this.parent.y;
+
 		if (y < this.y) y = this.y;
 		else if (y > this.y + this.h) y = this.y + this.h;
 		if (x < this.x) x = this.x;
@@ -1272,7 +1279,7 @@ Slider.prototype = {
 	},
 
 	slideEnd: function(e) {
-		//this.glow.remove();
+		//console.log('Slide end:', e);
 		this.slide.attr({fill:this.stroke});
 		return this.slideFinish(e);
 	},
@@ -1280,6 +1287,7 @@ Slider.prototype = {
 	slideFinish: function(e) {
 		e.preventDefault();
 		e.stopPropagation();
+		delete this.dragslide;
 		this.sliding = false;
 		this.exec();
 		var self = this;
@@ -1384,7 +1392,7 @@ Slider.prototype = {
 			this.value = this.yvalue = value1;
 			if (this.yreadout && (this.value != undefined)) this.yreadout.attr({text: ''+this.value});
 			var slidey = this.slideYPos();
-			//console.log('slidey:', slidey);
+console.log('slidey:', slidey);
 			this.slide.attr({y:slidey});
 			var update = {id: this.id, value: this.value};
 			this.fire('update', update);
@@ -1429,8 +1437,8 @@ Chart.prototype = {
 		else this.id = this.parent.uniqueid(this.type);
 
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-		this.x = this.parent.x + (options.x || 50);
-		this.y = this.parent.y + (options.y || 50);
+		this.x = options.x || 48;
+		this.y = options.y || 48;
 		this.w = options.w || 288;
 		this.h = options.h || 144;
 		this.text = options.text || '';
@@ -1740,8 +1748,8 @@ Text.prototype = {
 		else this.id = this.parent.uniqueid(this.type);
 
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-		this.x = this.parent.x + (options.x || 100);
-		this.y = this.parent.y + (options.y || 100);
+		this.x = options.x || 96;
+		this.y = options.y || 96;
 		this.text = options.text || '';
 
 		this.stroke = options.stroke || this.parent.stroke;
@@ -1894,10 +1902,10 @@ console.log('Group init:', options, this.options, this.childopts);
 		else this.id = this.parent.uniqueid(this.type);
 
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-		this.x = this.parent.x + (options.x || 50);
-		this.y = this.parent.y + (options.y || 50);
-		this.w = options.w || this.childopts.w || 125;
-		this.h = options.h || this.childopts.h || 50;
+		this.x = options.x || 48;
+		this.y = options.y || 48;
+		this.w = options.w || this.childopts.w || 120;
+		this.h = options.h || this.childopts.h || 48;
 		this.text = options.text || '';
 		this.noreadout = options.noreadout || false;
 		this.script = options.script || '';

@@ -180,12 +180,10 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
-- BUG: duplicated panel labels
-
 - right-click menus
 
-- BUG: too many .html panels overflows index page
-	- clean it up
+- multi panel
+	- BUG: editor buttons show up in the background
 
 - doc:
 	- new frontpage 
