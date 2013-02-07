@@ -184,6 +184,9 @@ The push example in the file public/push.html shows event listeners in use:
 
 - right-click menus
 
+- BUG: too many .html panels overflows index page
+	- clean it up
+
 - doc:
 	- new frontpage 
 	- new install
@@ -217,6 +220,7 @@ The push example in the file public/push.html shows event listeners in use:
 	label should be called text; get rid of label
 
 - group
+	- color picker
 	- individual button update via highlight instead of readout
 		(mega.html)
 	- how to add individual button on() handlers?
@@ -255,6 +259,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- for viewer nodes: fetch remote data for a chart on demand
 
 - doc:
+	- -a http client option and security impact
 	- commander front page
 	- getting started
 	- server options
@@ -282,11 +287,6 @@ The push example in the file public/push.html shows event listeners in use:
 - detect serial port closure and reconnect
 	- reconnect button
 - detect socket.io port closure and reconnect
-
-- twitter integration
-	- server credentials/auth/sender
-	- send tweet from client
-	- receive tweets as commands?
 
 - datalogging
 	- limit number of points per series
@@ -323,27 +323,12 @@ The push example in the file public/push.html shows event listeners in use:
 	- sms
 	- email
 
-- remote ethernet- and wifi- connected arduinos
-	- redis pipe command sink for Commander
-
-	- client POSTs to server-ip/update/:id/:value for the upstream path
-	- server POSTs bitlash commands to arduino
-		- how to configure IP and port for remote bitlash	
-	- security
-		- tls isn't available
-		- ip whitelist
-		- shared secret in the message
-	- firewall
-		- need continuous connection like redis client
-
-	- multiple arduino support
-		- command steering
-		- node registry / configuration
-		- ip-accept list
-			[['bitlash1', '192.168.1.17'], ...]
-			- scripts addressed to bitlash1: would go to 192.168.1.17
-
-	- how to let heroku server know it can't dispatch to local bitlash
+- multiple arduino support
+	- command steering
+	- node registry / configuration
+	- ip-accept list
+		[['bitlash1', '192.168.1.17'], ...]
+		- scripts addressed to bitlash1: would go to 192.168.1.17
 
 - Incoming OSC
 	- map to controls by id

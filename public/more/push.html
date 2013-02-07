@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!-- Copyright 2012-2013 by Bill Roy - MIT license - See LICENSE file -->
+<html><head>
+	<title>Bitlash Commander</title>
+	<script type='text/javascript' src='js/jquery-1.8.2.min.js'></script>
+	<script type='text/javascript' src='js/fastclick.js'></script>
+	<script type='text/javascript' src='js/raphael.js'></script>
+	<script type='text/javascript' src='js/d3.v2.min.js'></script>
+	<script type='text/javascript' src='js/mustache.js'></script>
+	<script type='text/javascript' src='socket.io/socket.io.js'></script>
+	<script type='text/javascript' src='js/handsontable/jquery.handsontable.full.js'></script>
+	<script type='text/javascript' src='js/jQuery-contextMenu/jquery.contextMenu.js'></script>
+	<script type='text/javascript' src='js/jQuery-contextMenu/jquery.ui.position.js'></script>
+
+	<script type='text/javascript' src='js/svg-controls.js'></script>
+
+	<link rel='stylesheet' media='screen' href='js/handsontable/jquery.handsontable.full.css'>
+	<link rel='stylesheet' media='screen' href='js/jQuery-contextMenu/jquery.contextMenu.css'>
+</head><body style='background:gray'>
+
+<script type='text/javascript' charset='utf8'>
+
+$(document).ready(function() {
+
+	document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
+	
+	var Panel = new ControlPanel({stroke:'turquoise', id:'push'});
+	Panel.addButton({id:'millis', x:100, y:100, w:250, text:'millis', script:'print millis'});
+	Panel.addButton({id:'clock',  x:100, y:200, w:250, text:'clock', script:''});
+	Panel.addButton({id:'clock2', x:100, y:300, w:250, text:'clock2', script:''});
+	Panel.addButton({id:'alert',  x:100, y:400, w:250, text:'alert', script:'javascript:alert("hello");'});
+	Panel.addButton({id:'time',   x:100, y:500, w:250, text:'time', 
+		autorun: true,
+		repeat: 1000,
+		script:'javascript:this.setText(new Date().toString().split(" ")[4]);'});
+	Panel.addButton({id:'error',  x:100, y:600, w:250, text:'error', script:'foobar();'});
+
+	Panel.controls['millis'].on('update', function(data) {
+		Panel.controls['clock'].setValue(data.value);
+	});
+
+	Panel.controls['clock'].on('update', function(data) {
+		Panel.controls['clock2'].setValue(data.value);
+	});
+
+}); 	// document.ready
+</script>
+<div id='editor'>
+	<div id='dataTable'></div>
+	<input type='button' value='cancel' id='editcancel'></input>
+	<input type='button' value='+' id='editadd'></input>
+	<input type='button' value='-' id='editdelete'></input>
+	<input type='button' value='save' id='editsave'></input>
+</div>
+<div id='contextmenu'></div>
+<div id='editmenu'></div>
+<div id='player'></div>
+</body></html>

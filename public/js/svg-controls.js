@@ -6,6 +6,80 @@
 
 //////////
 //
+//	Control Panel Boss (Singleton)
+//
+var ControlPanelBoss = {
+
+	panels: [],
+	currentpanel: undefined,
+
+	init: function() {
+		this.initSocketIO();
+	},
+
+	initSocketIO: function() {
+		this.socket = io.connect();
+		console.log('Socket connected', this.socket);
+
+		var self = this;
+
+		this.socket.on('update', function(data) {
+			console.log('Update:', data);
+			if (typeof data[0] == 'undefined') data = [data];
+			for (var i=0; i < data.length; i++) {
+				for (var p=0; p < self.panels.length; p++) {
+					var ctrl = self.panels[p].controls[data[i].id];
+					if (ctrl) {
+						if ((data[i].xvalue != undefined) && (data[i].yvalue != undefined)) {
+							console.log('Incoming Update XY:', data);
+							ctrl.setValue(data[i].xvalue, data[i].yvalue);
+						}
+						else if (data[i].value != undefined) ctrl.setValue(data[i].value);
+						else console.log('Malformed update:', i, data);
+					}
+				}
+			}
+		});
+
+		this.socket.on('add', function(data) {
+			self.add(data);
+		});
+	},
+
+	load: function(id) {
+		console.log('Load:', id);
+		this.socket.emit('open', id);
+	},
+
+	add: function(items) {		// add an array of items to the panel
+
+		var panel = undefined;
+		if (this.currentpanel) panel = this.panels[this.currentpanel];
+
+		for (var i=0; i < items.length; i++) {
+			console.log('Boss Add:', items[i]);
+			if (items[i].type == 'Panel') {			// panel decl must be first in the data
+				panel = new ControlPanel(items[i]);
+			}
+			else if (items[i].type == 'Button') panel.addButton(items[i]);
+			else if (items[i].type == 'Slider') panel.addSlider(items[i]);
+			else if (items[i].type == 'Chart') panel.addChart(items[i]);
+			else if (items[i].type == 'Text') panel.addText(items[i]);
+			else if (items[i].type == 'Group') panel.addGroup(items[i]);
+			else console.log('Unknown type in Add:', items[i]);
+		}
+	}
+}
+
+function LoadControlPanel(id) {
+	ControlPanelBoss.load(id);
+}
+
+ControlPanelBoss.init();
+
+
+//////////
+//
 //	ControlPanel object
 //
 function ControlPanel(options) {
@@ -48,7 +122,11 @@ ControlPanel.prototype = {
 		this.next_inc = 48;
 		if (options.noedit) this.noedit = options.noedit;
 
-		this.initSocketIO();
+		this.boss = ControlPanelBoss;
+		this.boss.panels.push(this);
+		this.boss.currentpanel = this.id;
+
+		//this.initSocketIO();
 		this.initContextMenu();
 		this.sync();
 
@@ -79,13 +157,19 @@ ControlPanel.prototype = {
 		$('#editadd').click(function() { self.editAddField(); });
 		$('#editdelete').click(function() { self.editDeleteField(); });
 
-		if (this.title) this.logo = this.addText({
+/*
+		if (this.title) this.text = this.addText({
 			x:this.tx,
 			y:this.ty,
 			text:this.title,
 			group:'panel',
 			fill:this.stroke, stroke:this.stroke, fontsize: 36
 		});
+*/
+		if (this.title) {
+			this.text = this.paper.text(this.tx, this.ty, this.title)
+				.attr({stroke:this.stroke, fill:this.stroke, 'font-size':36});
+		}
 
 		return this;
 	},
@@ -122,11 +206,12 @@ ControlPanel.prototype = {
 	attr: function(attrs) {
 		this.face.attr(attrs);
 		this.editbutton.attr(attrs);
-		if (attrs.stroke) this.logo.attr({stroke:attrs.stroke, fill:attrs.stroke});
+		if (attrs.stroke) this.text.attr({stroke:attrs.stroke, fill:attrs.stroke});
 		for (var id in this.controls) this.controls[id].attr(attrs);
 		return this;
 	},
 
+/*****
 	initSocketIO: function() {
 		this.socket = io.connect();
 		console.log('Socket connected', this.socket);
@@ -164,6 +249,7 @@ console.log('Incoming Update XY:', data);
 			self.socket.emit('ping', {'timestamp': new Date().getTime()});
 		}, 10000);
 	},
+*****/
 
 	initContextMenu: function() {
 		var self = this;
@@ -267,7 +353,7 @@ console.log('Incoming Update XY:', data);
 	},
 	
 	sync: function() {
-		this.socket.emit('sync', {});
+		this.boss.socket.emit('sync', {});
 	},
 
 	uniqueid: function(basestring) {
@@ -342,11 +428,11 @@ console.log('Add:', items[i]);
 	},
 
 	sendCommand: function(command, data) {
-		this.socket.emit(command, data);
+		this.boss.socket.emit(command, data);
 	},
 
 	sendUpdate: function(command, data) {
-		this.socket.emit(command, data);
+		this.boss.socket.emit(command, data);
 	},
 	
 	lighter: function(color) {
@@ -434,14 +520,16 @@ console.log('Add:', items[i]);
 	},
 	
 	saveControls: function() {
-		this.socket.emit('save', this.panelToStorageFormat());
+		this.boss.socket.emit('save', this.panelToStorageFormat());
 	},
 
+/*****
 	load: function(panelid) {
 		if (panelid) this.id = panelid;
 		console.log('Load:', this.id);
-		this.socket.emit('open', this.id);
+		this.boss.socket.emit('open', this.id);
 	},
+*****/
 
 	editAddField: function() {
 		var id = this.editingcontrol;
@@ -1666,7 +1754,9 @@ Text.prototype = {
 		var self = this;
 
 		this.label = this.parent.paper.text(this.x, this.y, this.text)
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+			.attr({fill:this.stroke, stroke:this.stroke, 
+				'font-size': this.fontsize,
+				'text-anchor': 'start'})	// http://stackoverflow.com/questions/2124763/raphael-js-and-text-positioning
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.mousedown(function(e) { self.attr({opacity:0.5}); })
 			.mouseup(function(e) { self.attr({opacity:1.0});})

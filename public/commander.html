@@ -28,7 +28,11 @@ $(document).ready(function() {
 
 	//document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
 	
-	var Panel = new ControlPanel({id: 'commander', stroke:'white', fill: 'teal'});
+	var Panel = new ControlPanel({
+		id: 'commander', 
+		tx:600,
+		stroke:'mediumseagreen', fill: 'black'
+	});
 
 	Panel.addButton({x:96, y: 24, 
 		text:'Setup',
