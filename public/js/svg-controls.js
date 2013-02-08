@@ -352,6 +352,7 @@ console.log('Incoming Update XY:', data);
 
 	showEditMenu: function(id, event) {
 		this.menuowner = id;
+console.log('Menu owner:', id);
 		$('#editmenu').contextMenu({x: event.clientX, y:event.clientY});
 	},
 	

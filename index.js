@@ -380,7 +380,8 @@ io.sockets.on('connection', function (socket) {
 		}
 		catch(e) {
 			console.log('Panel not found:', data);
-			socket.emit('add', [{type: "Panel"}]);
+			var panel = {type: "Panel", id:data};
+			socket.emit('add', [panel]);
 		}
 	});
 	socket.on('ping', function(data) {

@@ -182,8 +182,19 @@ The push example in the file public/push.html shows event listeners in use:
 
 - right-click menus
 
+- BUG: .delete methods should be .remove
+
 - multi panel
-	- BUG: editor buttons show up in the background
+
+	- BUG: All menu commands end up targeted at Panel0
+		- Delete a control in any panel but the first fails
+		- Same with Duplicate
+		- Create a button in Panel7, shows up in Panel0
+
+		- symptom: 'this' is wrong, so this.menuowner is undefined
+			- menuowner is set in the correct panel Panel7
+			- 'this' is Panel0
+			- could save 'menupanel' as well as owner
 
 - doc:
 	- new frontpage 

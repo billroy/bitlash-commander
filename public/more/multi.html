@@ -20,15 +20,15 @@
 	<link rel='stylesheet' media='screen' href='/js/handsontable/jquery.handsontable.full.css'>
 	<link rel='stylesheet' media='screen' href='/js/jQuery-contextMenu/jquery.contextMenu.css'>
 
-</head><body style='background:gray, font-family:sans-serif'>
+</head><body bgcolor='black' style='font-family:sans-serif'>
 
 <script type='text/javascript' charset='utf8'>
 
 $(document).ready(function() {
 
-	var x = 120; 
+	var x = 60; 
 	var orig_x = x;
-	var y = 120;
+	var y = 60;
 	var xsize = 240;
 	var ysize = 240;
 	var gutter = 20;
@@ -40,6 +40,7 @@ $(document).ready(function() {
 
 		var panel = new ControlPanel({x:x, y:y, w:xsize, h:ysize,
 			id:panelid, title:panelid, tx:xsize/2,
+			face_corner:1,
 			stroke:Raphael.getColor()	//'red'
 		});
 
@@ -54,8 +55,6 @@ $(document).ready(function() {
 			id:'pwm3', text:'pwm3',  
 			script:'print a3={{value}}'
 		});
-
-
 
 console.log('Panel:', panel);
 		x = x + xsize + gutter;
