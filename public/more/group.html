@@ -90,12 +90,12 @@ $(document).ready(function() {
 			x:400, y:200,
 			gutter:10,
 			corner:0,
+			radio:1,
 			childopts:{
 				noreadout: true,
 				text: ['stop', 'slow', 'go'],
 				stroke: ['red','yellow','green'],
 				value:'stop',
-				script: 'javascript:this.parent.controls[this.group].setValue(this.text);'
 			}
 		});
 	Panel.addGroup({

@@ -962,6 +962,12 @@ console.log('handleClick', e);
 	},
 
 	exec: function() {
+
+		// handle radio button side effects
+		if (this.group && this.parent.controls[this.group].radio) {
+			this.parent.controls[this.group].setValue(this.text);
+		}
+
 		if (!this.script) {
 			//this.setValue(!this.value);		// unscripted buttons toggle and gossip
 			return;
@@ -1920,6 +1926,8 @@ console.log('Group init:', options, this.options, this.childopts);
 
 		if (options.corner != undefined) this.corner = options.corner;
 		else this.corner = this.parent.button_corner;
+		
+		if (options.radio != undefined) this.radio = options.radio;
 
 		this.subtype = options.subtype || '';	// default to rectangle
 		if (this.subtype == 'circle') this.r = options.r || this.w/2;
