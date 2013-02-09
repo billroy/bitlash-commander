@@ -514,7 +514,7 @@ console.log('Add:', items[i]);
 				if (opts.stroke) this.attr({stroke:opts.stroke});
 			}
 			else {
-				this.controls[this.editingcontrol].delete();
+				this.controls[this.editingcontrol].remove();
 				delete this.controls[this.editingcontrol];
 				this.add([opts]);
 			}
@@ -582,7 +582,7 @@ console.log('Add:', items[i]);
 	},
 	
 	deletecontrol: function(id) {
-		this.controls[id].delete();
+		this.controls[id].remove();
 		delete this.controls[id];	
 	},
 
@@ -828,7 +828,7 @@ Button.prototype = {
 		//if (this.readout) this.readout.attr(dehighlight_attr);
 	},
 
-	delete: function() {
+	remove: function() {
 		this.elt.remove();
 		this.label.remove();
 		if (this.readout) this.readout.remove();
@@ -1157,7 +1157,7 @@ Slider.prototype = {
 		return this;
 	},
 
-	delete: function() {
+	remove: function() {
 		this.outerrect.remove();
 		if (this.xbar) this.xbar.remove();
 		if (this.ybar) this.ybar.remove();
@@ -1442,8 +1442,40 @@ Chart.prototype = {
 		if (options.id) this.id = options.id;
 		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
 		else this.id = this.parent.uniqueid(this.type);
-
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
+
+		this.defaults = {
+			x:48, y:48, w:288, h:144,
+			text: undefined,
+			script: undefined,
+			fill: this.parent.fill,
+			fill_highlight: this.parent.lighter(this.parent.stroke), 	// ??
+			stroke: this.parent.stroke,
+			'stroke-width': this.parent.control_stroke,
+			fontsize: this.parent.fontsize,
+			repeat: 0,
+			running: 0,
+			corner: this.parent.button_corner,
+			subtype: undefined,
+			r: this.w/2,		//?? chart??
+			autorun: undefined,
+			interpolate: 'step-after',	// vs. 'basis'	
+			ticks: 5,
+			target: undefined,
+			refresh: 0,
+			ymax: undefined,
+			ymin: undefined
+		}
+		console.log('Chart defaults:', this.defaults);
+
+		for (var prop in this.defaults) {
+console.log('merging:', prop);
+			if (options.hasOwnProperty(prop)) this[prop] = options[prop];
+			else if (this.defaults[prop] != undefined) this[prop] = this.defaults[prop];
+		}
+console.log('merged:', this); 
+
+/*
 		this.x = options.x || 48;
 		this.y = options.y || 48;
 		this.w = options.w || 288;
@@ -1462,14 +1494,13 @@ Chart.prototype = {
 		this.r = options.r || this.w/2;
 		this.autorun = options.autorun || false;
 		this.interpolate = options.interpolate || 'step-after';		// 'basis'
-
-		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
-
 		this.ticks = options.ticks || 5;
 		this.target = options.target || this.id;
 		this.refresh = options.refresh || 0;
 		if (options.ymax) this.ymax = options.ymax;
 		if (options.ymin) this.ymin = options.ymin;
+*/
+		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 		this.render();		// render D3 chart
 		
 		var self = this;
@@ -1598,7 +1629,7 @@ Chart.prototype = {
 		}
 	},
 
-	delete: function() {
+	remove: function() {
 		this.outerrect.remove();
 		this.label.remove();
 		this.svg.remove();
@@ -1782,7 +1813,7 @@ Text.prototype = {
 		return this;
 	},
 
-	delete: function() {
+	remove: function() {
 		this.label.remove();
 	},
 	
@@ -2034,7 +2065,7 @@ console.log('Group add:', opts.type, opts);
 		}
 	},
 
-	delete: function() {
+	remove: function() {
 		this.each(function(control) { control.parent.deletecontrol(control.id); });
 		this.elt.remove();
 	},

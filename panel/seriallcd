@@ -1,0 +1,74 @@
+[
+	{
+		"type": "Panel",
+		"id": "frex",
+		"tx": 360,
+		"title": "Serial LCD",
+		"stroke": "steelblue"
+	},
+	{
+		"x": 216,
+		"y": 120,
+		"type": "Slider",
+		"subtype": "y",
+		"id": "Slider.2",
+		"text": "bright",
+		"script": "print({{value}});bright({{value}});",
+		"max": 30
+	},
+	{
+		"x": 72,
+		"y": 120,
+		"type": "Slider",
+		"subtype": "y",
+		"id": "Slider.0",
+		"text": "slider",
+		"script": "print {{value}};printat(0,0,\"Slider: %d \",{{value}});",
+		"max": 1000
+	},
+	{
+		"x": 360,
+		"y": 120,
+		"type": "Button",
+		"id": "Button.0",
+		"text": "display",
+		"script": "print d=!d;display(d);"
+	},
+	{
+		"x": 360,
+		"y": 264,
+		"type": "Button",
+		"id": "Button.2",
+		"text": "under",
+		"script": "under(1);"
+	},
+	{
+		"x": 360,
+		"y": 216,
+		"type": "Button",
+		"id": "Button.1",
+		"text": "box",
+		"script": "box(1)"
+	},
+	{
+		"x": 360,
+		"y": 312,
+		"type": "Button",
+		"id": "Button.3",
+		"text": "no cursor",
+		"script": "box(0);"
+	},
+	{
+		"x": 96,
+		"y": 408,
+		"subtype": "xy",
+		"w": 96,
+		"h": 96,
+		"type": "Slider",
+		"id": "Slider.1",
+		"xmax": 15,
+		"ymax": 1,
+		"text": "move",
+		"script": "move({{yvalue}},{{xvalue}})"
+	}
+]

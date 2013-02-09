@@ -197,6 +197,7 @@ The push example in the file public/push.html shows event listeners in use:
 			- could save 'menupanel' as well as owner
 
 - doc:
+	- radio attribute in groups
 	- new frontpage 
 	- new install
 	- commander sketch	
