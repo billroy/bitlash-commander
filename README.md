@@ -196,6 +196,12 @@ The push example in the file public/push.html shows event listeners in use:
 			- 'this' is Panel0
 			- could save 'menupanel' as well as owner
 
+- meter control
+	- drag move batons[] and labels[]
+	- attr() for batons[] and labels[]
+	- draw the arc
+	- animate the motion for damping?
+
 - doc:
 	- radio attribute in groups
 	- new frontpage 

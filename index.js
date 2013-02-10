@@ -364,7 +364,7 @@ io.sockets.on('connection', function (socket) {
 		}
 		//console.log('Sync:', response);
 		// only to requester
-		socket.emit('update', response);
+		if (response.length > 0) socket.emit('update', response);
 	});
 	socket.on('save', function(data) {
 		console.log('Save:', data);

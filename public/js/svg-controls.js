@@ -20,16 +20,41 @@ var ControlPanelBoss = {
 	initSocketIO: function() {
 		this.socket = io.connect();
 		console.log('Socket connected', this.socket);
-
 		var self = this;
-
 		this.socket.on('update', function(data) {
-			console.log('Update:', data);
-			if (typeof data[0] == 'undefined') data = [data];
-			for (var i=0; i < data.length; i++) {
-				for (var p=0; p < self.panels.length; p++) {
-					var ctrl = self.panels[p].controls[data[i].id];
-					if (ctrl) {
+			self.handleUpdate(data);
+		});
+		this.socket.on('add', function(data) {
+			self.add(data);
+		});
+	},
+
+	handleUpdate: function(data) {
+		console.log('Update:', data, data.length);
+		//if (data.length == 0) return;
+		if (typeof data[0] == 'undefined') data = [data];
+
+		// dispatch to commands in all panels whose id field matches the update
+		for (var i=0; i < data.length; i++) {
+			for (var p=0; p < this.panels.length; p++) {
+				var ctrl = this.panels[p].controls[data[i].id];
+				if (ctrl) {
+					if ((data[i].xvalue != undefined) && (data[i].yvalue != undefined)) {
+						console.log('Incoming Update XY:', data);
+						ctrl.setValue(data[i].xvalue, data[i].yvalue);
+					}
+					else if (data[i].value != undefined) ctrl.setValue(data[i].value);
+					else console.log('Malformed update:', i, data);
+				}
+			}
+		}
+
+		// dispatch to commands in all panels whose source field matches the update
+		for (var i=0; i < data.length; i++) {
+			for (var p=0; p < this.panels.length; p++) {
+				for (var c in this.panels[p].controls) {
+					var ctrl = this.panels[p].controls[c];
+					if (ctrl.source == data[i].id) {
 						if ((data[i].xvalue != undefined) && (data[i].yvalue != undefined)) {
 							console.log('Incoming Update XY:', data);
 							ctrl.setValue(data[i].xvalue, data[i].yvalue);
@@ -39,11 +64,7 @@ var ControlPanelBoss = {
 					}
 				}
 			}
-		});
-
-		this.socket.on('add', function(data) {
-			self.add(data);
-		});
+		}
 	},
 
 	load: function(id) {
@@ -1410,7 +1431,7 @@ console.log('move:',dx,dy,x,y,e);
 			this.value = this.yvalue = value1;
 			if (this.yreadout && (this.value != undefined)) this.yreadout.attr({text: ''+this.value});
 			var slidey = this.slideYPos();
-console.log('slidey:', slidey);
+			//console.log('slidey:', slidey);
 			this.slide.attr({y:slidey});
 			var update = {id: this.id, value: this.value};
 			this.fire('update', update);
@@ -2291,13 +2312,14 @@ Meter.prototype = {
 
 		this.min = options.min || 0;
 		this.max = options.max || 1024;
+		if (options.source) this.source = options.source;
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 
 		var self = this;
 
 		this.elt = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.corner);
-		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h - this.fontsize*2, this.text);
+		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h - 1.5 * this.fontsize, this.text);
 		if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + (this.h/2) + this.fontsize, '420');
 
 		// needle
@@ -2571,7 +2593,9 @@ console.log('handleClick', e);
 		if (this.readout) this.readout.attr({text: '' + this.value});
 
 		this.angle = this.needleAngle(value);
-		this.needle.transform("r" + this.angle + " " + this.nx + " " + this.ny);
+		var transform = "r" + this.angle + " " + this.nx + " " + this.ny;
+		//this.needle.transform(transform);
+		this.needle.animate({transform:transform}, 1000);
 
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);

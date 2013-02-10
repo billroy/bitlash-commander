@@ -59,17 +59,19 @@ console.log('page update:', data);
 	});
 	
 	var meter = Panel.addMeter({
-		x:500, y:120, corner:50,
+		x:500, y:120, corner:80,
 		id:'vU', text:'vU',
+		source:'testslide'
 	});
 
-	var minimmeter = Panel.addMeter({
+	var minimeter = Panel.addMeter({
 		x:500, y:440,
-		w:96, h:96,
-		ticks:3,
+		w:72, h:72,
+		ticks:2,
 		noreadout:true,
-		stroke:'blue', fill:'white',
+		stroke:'black', fill:'white',
 		id:'minivU', text:'vU',
+		source:'testslide'
 	});
 
 	var testslide = Panel.addSlider({
@@ -78,10 +80,23 @@ console.log('page update:', data);
 		min:0, max:1024
 	});
 
-	Panel.controls['testslide'].on('update', function(data) {
-		Panel.controls['vU'].setValue(data.value);
-		Panel.controls['minivU'].setValue(data.value);
+	var random_value = Math.floor((meter.max + meter.min)/2);
+	var offset = 100;
+
+/*
+	testslide.on('update', function(data) {
+		random_value = data.value;
+		meter.setValue(data.value);
+		minimeter.setValue(data.value);
 	});
+
+	window.setInterval(function() {
+		random_value = random_value + Math.floor(Math.random()*offset) - offset/2;
+		if (random_value < meter.min) random_value = meter.min;
+		if (random_value > meter.max) random_value = meter.max;
+		meter.setValue(random_value);
+	}, 1000);
+*/
 
 }); 	// document.ready
 </script>
