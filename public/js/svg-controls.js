@@ -273,6 +273,7 @@ console.log('Incoming Update XY:', data);
 				else if (key == 'addxyslider') self.addSlider({x:self.menux, y:self.menuy, subtype:'xy', w:96, h:96});
 				else if (key == 'addhslider') self.addSlider({x:self.menux, y:self.menuy, subtype:'x', w:192, h:72});
 				else if (key == 'addchart') self.addChart({x:self.menux, y:self.menuy, });
+				else if (key == 'addmeter') self.addMeter({x:self.menux, y:self.menuy, });
 				else if (key == 'save') self.saveControls();
 				else if (key == 'editpanel') self.edit.call(self, self);
 				else if (key == 'addtext') self.addText({x:self.menux, y:self.menuy, text:'Text'});
@@ -307,6 +308,7 @@ console.log('Incoming Update XY:', data);
 				'addhslider': 	{name: 'New H-Slider', 	icon: 'addslider'},
 				'sep4': 	 	'---------',
 				'addchart':  	{name: 'New Chart', 	icon: 'addchart'},
+				'addmeter':  	{name: 'New Meter', 	icon: 'addchart'},
 				'sep5': 	 	'---------',
 				//'openpanel': 	{name: 'Open Panel', 	icon: 'openpanel'},
 				//'scale': 	 	{name: 'Scale...', 	icon: 'save'},
@@ -391,6 +393,15 @@ console.log('Menu owner:', id);
 		this.controls[chart.id] = chart;
 		if (chart.autorun) chart.handleClick();
 		return chart;
+	},
+
+	addMeter: function(options) {
+		options.parent = this;
+		options.type = 'Meter';
+		var meter = new Meter(options);
+		this.controls[meter.id] = meter;
+		//if (meter.autorun) meter.handleClick();
+		return meter;
 	},
 
 	addText: function(options) {
@@ -2205,6 +2216,355 @@ console.log('reversing bits');
 				}
 			}
 		}
+		var update = {id: this.id, value: this.value};
+		this.fire('update', update);
+	},
+
+	on: function(eventname, listener) {
+		if (!this.listeners[eventname]) this.listeners[eventname] = [];
+		this.listeners[eventname].push(listener);
+		//console.log('On:', this.id, this.listeners.length, this.listeners);
+	},
+
+	fire: function(eventname, data) {
+		var listeners = this.listeners[eventname];
+		//console.log('listeners:', listeners);
+		if (!listeners) return;
+		for (var i=0; i<listeners.length; i++) {
+			var func = listeners[i];
+			//console.log('firing listener', i, data);
+			func(data);
+		}
+	}	
+}
+
+
+
+//////////
+//
+//	Meter control
+//
+function Meter(options) {
+	return this.init(options || {});
+}
+
+Meter.prototype = {
+
+	init: function(options) {
+		this.type = options.type = 'Meter';
+		this.parent = options.parent;
+
+		this.options = {};
+		for (var o in options) this.options[o] = options[o];
+
+		if (options.id) this.id = options.id;
+		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
+		else this.id = this.parent.uniqueid(this.type);
+
+		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
+		this.x = options.x || 48;
+		this.y = options.y || 48;
+		this.w = options.w || 240;
+		this.h = options.h || 240;
+		this.text = options.text || '';
+		this.noreadout = options.noreadout || false;
+		this.script = options.script || '';
+		this.stroke = options.stroke || this.parent.stroke;
+		this.fill = options.fill || this.parent.fill;
+		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
+		if (options.highlighttrue) this.highlighttrue = options.highlighttrue;
+		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
+		this.fontsize = options.fontsize || this.parent.fontsize;
+		this.repeat = options.repeat || 0;
+		this.running = 0;
+		if (options.corner != undefined) this.corner = options.corner;
+		else this.corner = this.parent.button_corner;
+		this.subtype = options.subtype || '';	// default to rectangle
+		this.r = options.r || this.w/2;
+		this.autorun = options.autorun || false;
+		this.value = options.value || 0;
+		this.path = options.path || undefined;
+		this.scale = options.scale || 1;
+		if (options.group) this.group = options.group;
+		if (options.row != undefined) this.row = options.row;
+		if (options.col != undefined) this.col = options.col;
+
+		this.min = options.min || 0;
+		this.max = options.max || 1024;
+
+		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
+
+		var self = this;
+
+		this.elt = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.corner);
+		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h - this.fontsize*2, this.text);
+		if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + (this.h/2) + this.fontsize, '420');
+
+		// needle
+		this.resetBearing();
+		this.nfill = 'red';
+		this.nstroke = 'red';
+		this.min_angle = -45;
+		this.max_angle = 45;
+
+		this.bearing = this.parent.paper.circle(this.nx, this.ny, 3)
+			.attr({fill:this.nfill, stroke:this.nstroke});
+
+		this.needle = this.parent.paper.rect(this.nx, this.ny - this.nl, 1, this.nl)
+			.attr({fill:this.nfill, stroke:this.nstroke});
+
+		this.ticks = 7;
+		this.batons = [];
+		this.baton_height = 5;
+		this.by = this.ny - this.nl - this.baton_height - 1;
+
+		var step = (this.max - this.min) / (this.ticks-1);
+		for (var t=0; t<this.ticks; t++) {
+			var value = Math.floor(this.min + (t * step));
+			var baton = this.parent.paper.rect(this.nx, this.by, 1, this.baton_height)
+				.attr({fill:this.stroke, stroke:this.stroke})
+				//.transform("r" + this.needleAngle(value) + " " + this.nx + " " + this.ny-this.nl);
+				.rotate(this.needleAngle(value), this.nx, this.ny);
+
+			this.batons.push(baton);
+		}
+
+		var font_factor = .7;
+		this.ly = this.by - 1.5 * (font_factor * this.fontsize);
+		var minlabel = this.parent.paper.text(this.nx, this.ly, ''+this.min)
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size':font_factor * this.fontsize})
+				.rotate(this.needleAngle(this.min), this.nx, this.ny);
+
+		var maxlabel = this.parent.paper.text(this.nx, this.ly, ''+this.max)
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size':font_factor * this.fontsize})
+				.rotate(this.needleAngle(this.max), this.nx, this.ny);
+
+
+		this.elt
+			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
+			.click(function(e) { return self.handleClick.call(self, e); })
+			.mousedown(function(e) { self.highlight.call(self, e); return false;})
+			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
+			.mouseover(function(e) { self.attr.call(self, {cursor:'pointer'}); return false;})
+			.touchend(function(e) { self.handleClick.call(self,e); return false;})
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+		//console.log('Element:', this.elt);
+		$(this.elt.node).bind("contextmenu", function(event) {
+			var id = (self.group != undefined) ? self.group : self.id;
+			self.parent.showEditMenu(id, event);
+			event.preventDefault();
+			event.stopPropagation();
+			return false;
+		});
+
+		if (this.label) this.label.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+			.click(function(e) { return self.handleClick.call(self, e); })
+			//.dblclick(function(e) { self.parent.showEditMenu(self.id, event); })
+			.mousedown(function(e) { self.highlight.call(self, e); return false;})
+			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
+			.touchend(function(e) { self.handleClick.call(self,e); return false;})
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+		if (this.readout) this.readout.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
+			.click(function(e) { return self.handleClick.call(self, e); })
+			//.dblclick(function(e) { self.parent.showEditMenu(self.id, event); })
+			.mousedown(function(e) { self.highlight.call(self, e); return false;})
+			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+		this.setValue(this.value);
+
+		return this;
+	},
+	
+	resetBearing: function() {
+		this.nx = this.x + .5 * this.w;
+		this.ny = this.y + .75 * this.h;
+		this.nl = .5 * this.h;
+	},
+	
+	highlight: function(event) {
+		this.elt.attr({fill:this.fill_highlight});
+		var highlight_attr = {fill:this.fill, stroke: this.fill};
+		if (this.label) this.label.attr(highlight_attr);
+		//if (this.readout) this.readout.attr(highlight_attr);
+	},
+
+	dehighlight: function(event) {
+		this.elt.attr({fill:this.fill});
+		var dehighlight_attr = {fill:this.stroke, stroke: this.stroke};
+		if (this.label) this.label.attr(dehighlight_attr);
+		//if (this.readout) this.readout.attr(dehighlight_attr);
+	},
+
+	remove: function() {
+		this.elt.remove();
+		this.label.remove();
+		if (this.readout) this.readout.remove();
+	},
+	
+	attr: function(attrs) {
+		this.elt.attr(attrs);
+
+		var textattrs = {};
+		for (var f in attrs) textattrs[f] = attrs[f];
+		if (textattrs.stroke) textattrs.fill=attrs.stroke;
+		this.label.attr(textattrs);
+		if (this.readout) this.readout.attr(textattrs);
+	},
+
+	setText: function(text) {
+		this.label.attr({text:text});
+	},
+
+	dragStart: function(x, y, e) {
+console.log('Drag start:', x, y, e);
+
+		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
+
+		if (event && event.shiftKey) {
+			var id = (this.group != undefined) ? this.group : this.id;
+			this.parent.showEditMenu(id, e);
+			return true;
+		}
+		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
+		this.dragging = true;
+		//this.highlight();
+		this.attr({opacity:0.5});
+		this.toFront();
+	},
+
+	toFront: function() {
+		this.elt.toFront();
+		if (this.readout) this.readout.toFront();
+		this.label.toFront();
+
+		this.needle.toFront();
+		this.bearing.toFront();
+	},
+
+	move: function(x, y) {
+		//console.log('move:', x, y, this);
+		this.x = x;
+		this.y = y;
+		this.elt.attr({x:x, y:y});
+		this.label.attr({x:x + this.w/2, y:y + this.h/2});
+		if (this.readout) this.readout.attr({x:x + this.w/2, y:y + this.h/2 + this.fontsize});
+
+		this.resetBearing();
+		this.bearing.attr({x:this.nx, y:this.ny});
+		this.needle.attr({x:this.nx, y:this.ny});
+	},
+
+	dragMove: function(dx, dy, x, y, e) {
+		//console.log('dragMove:',dx,dy,x,y,e);
+		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
+
+		var grid = this.parent.grid;
+		if (grid && !e.shiftKey) {
+			this.x = this.drag.x + (grid * Math.floor(dx / grid));
+			this.y = this.drag.y + (grid * Math.floor(dy / grid));
+		}
+		else {
+			this.x = this.drag.x + dx;
+			this.y = this.drag.y + dy;
+		}
+		this.move(this.x, this.y);
+		return this.dragFinish(e);
+	},
+
+	dragEnd: function(e) {
+		//console.log('dragEnd');
+		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
+		//this.elt.attr({fill:this.fill});
+		this.attr({opacity:1.0});
+		this.dehighlight();
+		this.options.x = this.x;
+		this.options.y = this.y;
+		delete this.drag;
+		this.dragging = false;
+		if (this.group) {
+			console.log('dragEnd calling:', this.row, this.col);
+			this.parent.controls[this.group].dragNotify(this);
+		}
+		return this.dragFinish(e);
+	},
+	
+	dragFinish: function(e) {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		return false;
+	},
+
+	handleClick: function(e) {
+console.log('handleClick', e);
+		if (this.repeat) {
+			if (this.running) {
+				this.running = false;
+				clearInterval(this.intervalid);
+				delete this.intervalid;
+				this.runningindicator.remove();
+				delete this.runningindicator;
+			} else {
+				this.running = true;
+				var translation = ['t', this.x, ',', this.y, 's', .75].join('');
+
+				this.runningindicator = this.parent.paper.path('M19.275,3.849l1.695,8.56l1.875-1.642c2.311,3.59,1.72,8.415-1.584,11.317c-2.24,1.96-5.186,2.57-7.875,1.908l-0.84,3.396c3.75,0.931,7.891,0.066,11.02-2.672c4.768-4.173,5.521-11.219,1.94-16.279l2.028-1.775L19.275,3.849zM8.154,20.232c-2.312-3.589-1.721-8.416,1.582-11.317c2.239-1.959,5.186-2.572,7.875-1.909l0.842-3.398c-3.752-0.93-7.893-0.067-11.022,2.672c-4.765,4.174-5.519,11.223-1.939,16.283l-2.026,1.772l8.26,2.812l-1.693-8.559L8.154,20.232z')
+					.transform(translation)
+					.attr({fill:this.stroke, stroke: this.stroke});
+					
+				this.exec();
+			}
+		}
+		else this.exec();
+
+		return true;		//this.dragFinish();
+	},
+
+	exec: function() {
+
+		if (!this.script) {
+			//this.setValue(!this.value);		// unscripted buttons toggle and gossip
+			return;
+		}
+
+		if (typeof this.script == 'function') {
+			return this.script.call(this);
+		}
+		
+		var cmd = Mustache.render(this.script, this);
+		//console.log('button exec:', cmd);
+
+		if (cmd.match(/^javascript\:/)) {			// javascript command
+			cmd = cmd.replace('javascript:', '');
+			eval(cmd);
+		}
+		else {										// bitlash command
+			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id});
+		}
+		if (this.repeat && !this.intervalid) {
+			var self = this;
+			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
+		}
+	},
+
+	needleAngle: function(value) {
+		var fraction = (value - this.min) / (this.max - this.min);
+		var raw_angle = this.min_angle + fraction * (this.max_angle - this.min_angle);
+		return raw_angle % 360;
+	},
+
+	setValue: function(value) {
+		this.value = value;
+		//this.label.attr({text: this.text + ': ' + this.value});
+		if (this.readout) this.readout.attr({text: '' + this.value});
+
+		this.angle = this.needleAngle(value);
+		this.needle.transform("r" + this.angle + " " + this.nx + " " + this.ny);
+
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
 	},

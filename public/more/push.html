@@ -58,6 +58,28 @@ console.log('page update:', data);
 		Panel.controls['output'].attr({text:data.value});
 	});
 	
+	var meter = Panel.addMeter({
+		x:500, y:120, corner:50,
+		id:'vU', text:'vU',
+	});
+
+	var minimmeter = Panel.addMeter({
+		x:500, y:440,
+		w:48, h:48,
+		id:'minivU', text:'vU',
+	});
+
+	var testslide = Panel.addSlider({
+		x:800, y:120,
+		id:'testslide', text:'test',
+		min:0, max:1024
+	});
+
+	Panel.controls['testslide'].on('update', function(data) {
+		Panel.controls['vU'].setValue(data.value);
+		Panel.controls['minivU'].setValue(data.value);
+	});
+
 }); 	// document.ready
 </script>
 <div id='editor'>
