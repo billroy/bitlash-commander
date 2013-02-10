@@ -87,6 +87,7 @@ var ControlPanelBoss = {
 			else if (items[i].type == 'Chart') panel.addChart(items[i]);
 			else if (items[i].type == 'Text') panel.addText(items[i]);
 			else if (items[i].type == 'Group') panel.addGroup(items[i]);
+			else if (items[i].type == 'Meter') panel.addMeter(items[i]);
 			else console.log('Unknown type in Add:', items[i]);
 		}
 	}
@@ -98,178 +99,6 @@ function LoadControlPanel(id) {
 
 ControlPanelBoss.init();
 
-
-//////////
-//
-//	Control base class
-//
-Control = function() {
-	
-	this.highlight = function(event) {
-		for (var i=0; i<this.elts.len; i++) this.elts[i].attr({fill:this.fill_highlight});
-		var highlight_attr = {fill:this.fill, stroke:this.fill};
-		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(highlight_attr);
-	};
-
-	this.dehighlight = function(event) {
-		for (var i=0; i<this.elts.len; i++) this.elts[i].attr({fill:this.fill});
-		var dehighlight_attr = {fill:this.stroke, stroke:this.stroke};
-		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(dehighlight_attr);
-	};
-
-	this.remove = function() {
-		for (var i=0; i<this.elts.len; i++) this.elts[i].remove();
-		this.label.remove();
-		if (this.readout) this.readout.remove();
-	};
-	
-	this.attr = function(attrs) {
-		for (var i=0; i<this.elts.len; i++) this.elts[i].attr(attrs);
-		var textattrs = {};
-		for (var f in attrs) textattrs[f] = attrs[f];
-		if (textattrs.stroke) textattrs.fill=attrs.stroke;
-		for (var i=0; i<this.textelts.len; i++) this.textelts[i].attr(textattrs);
-	};
-
-	this.toFront = function() {
-		for (var i=0; i<this.elts.len; i++) this.elts[i].toFront();
-		for (var i=0; i<this.textelts.len; i++) this.textelts[i].toFront();
-	};
-
-	this.setText = function(text) {
-		if (this.label) this.label.attr({text:text});
-	};
-
-	this.dragStart = function(x, y, e) {
-		console.log('Drag start:', x, y, e);
-
-		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
-
-		if (event && event.shiftKey) {
-			var id = (this.group != undefined) ? this.group : this.id;
-			this.parent.showEditMenu(id, e);
-			return true;
-		}
-		this.drag = {x:this.x, y:this.y, xoff:x-this.x, yoff:y-this.y};
-		this.dragging = true;
-		//this.highlight();
-		this.attr({opacity:0.5});
-		this.toFront();
-	};
-
-	this.move = function() {
-		console.log('ERROR =move() must be implemented in the control');
-	};
-
-	this.dragMove = function(dx, dy, x, y, e) {
-		//console.log('dragMove:',dx,dy,x,y,e);
-		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
-
-		var grid = this.parent.grid;
-		if (grid && !e.shiftKey) {
-			this.x = this.drag.x + (grid * Math.floor(dx / grid));
-			this.y = this.drag.y + (grid * Math.floor(dy / grid));
-		}
-		else {
-			this.x = this.drag.x + dx;
-			this.y = this.drag.y + dy;
-		}
-		this.move(this.x, this.y);
-		return this.dragFinish(e);
-	};
-
-	this.dragEnd = function(e) {
-		//console.log('dragEnd');
-		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
-		this.attr({opacity:1.0});
-		this.dehighlight();
-		this.options.x = this.x;
-		this.options.y = this.y;
-		delete this.drag;
-		this.dragging = false;
-		if (this.group) {
-			console.log('dragEnd calling:', this.row, this.col);
-			this.parent.controls[this.group].dragNotify(this);
-		}
-		return this.dragFinish(e);
-	};
-	
-	this.dragFinish = function(e) {
-		if (e) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
-		return false;
-	};
-
-	this.handleClick = function(e) {
-		console.log('handleClick', e);
-		if (this.repeat) {
-			if (this.running) {
-				this.running = false;
-				clearInterval(this.intervalid);
-				delete this.intervalid;
-				this.runningindicator.remove();
-				delete this.runningindicator;
-			} else {
-				this.running = true;
-				var translation = ['t', this.x, ',', this.y, 's', .75].join('');
-				this.runningindicator = this.parent.paper.path('M19.275,3.849l1.695,8.56l1.875-1.642c2.311,3.59,1.72,8.415-1.584,11.317c-2.24,1.96-5.186,2.57-7.875,1.908l-0.84,3.396c3.75,0.931,7.891,0.066,11.02-2.672c4.768-4.173,5.521-11.219,1.94-16.279l2.028-1.775L19.275,3.849zM8.154,20.232c-2.312-3.589-1.721-8.416,1.582-11.317c2.239-1.959,5.186-2.572,7.875-1.909l0.842-3.398c-3.752-0.93-7.893-0.067-11.022,2.672c-4.765,4.174-5.519,11.223-1.939,16.283l-2.026,1.772l8.26,2.812l-1.693-8.559L8.154,20.232z')
-					.transform(translation)
-					.attr({fill:this.stroke, stroke:this.stroke});					
-				this.exec();
-			}
-		}
-		else this.exec();
-		return true;		//this.dragFinish();
-	};
-
-	this.exec = function() {
-
-		if (!this.script) {
-			//this.setValue(!this.value);		// unscripted buttons toggle and gossip
-			return;
-		}
-
-		if (typeof this.script == 'function') return this.script.call(this);
-		
-		var cmd = Mustache.render(this.script, this);
-		//console.log('button exec:', cmd);
-
-		if (cmd.match(/^javascript\:/)) {			// javascript command
-			cmd = cmd.replace('javascript:', '');
-			eval(cmd);
-		}
-		else {										// bitlash command
-			this.parent.sendCommand('exec', {cmd:cmd, id:this.id});
-		}
-		if (this.repeat && !this.intervalid) {
-			var self = this;
-			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
-		}
-	};
-
-	this.setValue = function(value) {
-		console.log('ERROR: setValue() must be defined in the control.');
-	};
-
-	this.on = function(eventname, listener) {
-		if (!this.listeners[eventname]) this.listeners[eventname] = [];
-		this.listeners[eventname].push(listener);
-		//console.log('On:', this.id, this.listeners.length, this.listeners);
-	};
-
-	this.fire = function(eventname, data) {
-		var listeners = this.listeners[eventname];
-		//console.log('listeners:', listeners);
-		if (!listeners) return;
-		for (var i=0; i<listeners.length; i++) {
-			var func = listeners[i];
-			//console.log('firing listener', i, data);
-			func(data);
-		}
-	};
-};
 
 
 //////////
@@ -354,15 +183,6 @@ ControlPanel.prototype = {
 
 		$('#editor').hide();
 
-/*
-		if (this.title) this.text = this.addText({
-			x:this.tx,
-			y:this.ty,
-			text:this.title,
-			group:'panel',
-			fill:this.stroke, stroke:this.stroke, fontsize: 36
-		});
-*/
 		if (this.title) {
 			this.text = this.paper.text(this.tx, this.ty, this.title)
 				.attr({stroke:this.stroke, fill:this.stroke, 'font-size':36});
@@ -370,7 +190,6 @@ ControlPanel.prototype = {
 
 		return this;
 	},
-
 
 	drawGrid: function() {
 		var grid = this.grid || 24;
@@ -407,46 +226,6 @@ ControlPanel.prototype = {
 		for (var id in this.controls) this.controls[id].attr(attrs);
 		return this;
 	},
-
-/*****
-	initSocketIO: function() {
-		this.socket = io.connect();
-		console.log('Socket connected', this.socket);
-
-		var self = this;
-		this.socket.on('update', function(data) {
-console.log('Update:', data);
-			if (typeof data[0] == 'undefined') data = [data];
-			for (var i=0; i < data.length; i++) {
-				var ctrl = self.controls[data[i].id];
-				if (ctrl) {
-					if ((data[i].xvalue != undefined) && (data[i].yvalue != undefined)) {
-console.log('Incoming Update XY:', data);
-						ctrl.setValue(data[i].xvalue, data[i].yvalue);
-					}
-					else if (data[i].value != undefined) ctrl.setValue(data[i].value);
-					else console.log('Malformed update:', i, data);
-				}
-			}
-		});
-		this.socket.on('add', function(data) {
-			self.add(data);
-		});
-		this.socket.on('pong', function(data) {
-			var rtt = new Date().getTime() - data.timestamp;
-			window.status = 'RTT: ' + rtt + 'ms';
-		});
-		this.socket.on('disconnect', function (data) {
-			console.log('Socket Disconnected:', data);
-			//connection_indicator.attr({stroke: 'darkgreen', fill: 'darkgreen'});		
-			window.setTimeout(self.initSocketIO, 200);
-		});
-
-		if (0) window.setInterval(function() {
-			self.socket.emit('ping', {'timestamp': new Date().getTime()});
-		}, 10000);
-	},
-*****/
 
 	initContextMenu: function() {
 		var self = this;
@@ -734,14 +513,6 @@ console.log('Add:', items[i]);
 		this.boss.socket.emit('save', this.panelToStorageFormat());
 	},
 
-/*****
-	load: function(panelid) {
-		if (panelid) this.id = panelid;
-		console.log('Load:', this.id);
-		this.boss.socket.emit('open', this.id);
-	},
-*****/
-
 	editAddField: function() {
 		var id = this.editingcontrol;
 		console.log('addfield:', id);
@@ -891,17 +662,187 @@ console.log('Add:', items[i]);
 }
 
 
+
+//////////
+//
+//	Control base class
+//
+Control = function() {
+	
+	this.attr = function(attrs) {
+		for (var i=0; i<this.elts.len; i++) this.elts[i].attr(attrs);
+		var textattrs = {};
+		for (var f in attrs) textattrs[f] = attrs[f];
+		if (textattrs.stroke) textattrs.fill=attrs.stroke;
+		for (var i=0; i<this.textelts.len; i++) this.textelts[i].attr(textattrs);
+	};
+
+	this.highlight = function(event) {
+		for (var i=0; i<this.elts.len; i++) this.elts[i].attr({fill:this.fill_highlight});
+		var highlight_attr = {fill:this.fill, stroke:this.fill};
+		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(highlight_attr);
+	};
+
+	this.dehighlight = function(event) {
+		for (var i=0; i<this.elts.len; i++) this.elts[i].attr({fill:this.fill});
+		var dehighlight_attr = {fill:this.stroke, stroke:this.stroke};
+		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(dehighlight_attr);
+	};
+
+	this.remove = function() {
+		for (var i=0; i<this.elts.len; i++) this.elts[i].remove();
+		for (var i=0; i<this.textelts.len; i++) this.textelts[i].remove();
+	};
+	
+	this.setText = function(text) {
+		if (this.label) this.label.attr({text:text});
+	};
+
+	this.toFront = function() {
+		for (var i=0; i<this.elts.len; i++) this.elts[i].toFront();
+		for (var i=0; i<this.textelts.len; i++) this.textelts[i].toFront();
+	};
+
+	this.dragStart = function(x, y, e) {
+		console.log('Drag start:', x, y, e);
+
+		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
+
+		if (event && event.shiftKey) {
+			var id = (this.group != undefined) ? this.group : this.id;
+			this.parent.showEditMenu(id, e);
+			return true;
+		}
+		this.drag = {x:this.x, y:this.y, xoff:x-this.x, yoff:y-this.y};
+		this.dragging = true;
+		this.attr({opacity:0.5});
+		this.toFront();
+	};
+
+	this.move = function() {
+		console.log('ERROR =move() must be implemented in the control');
+	};
+
+	this.dragMove = function(dx, dy, x, y, e) {
+		//console.log('dragMove:',dx,dy,x,y,e);
+		if (!this.parent.editingpanel) return true;
+
+		var grid = this.parent.grid;
+		if (grid && !e.shiftKey) {
+			this.x = this.drag.x + (grid * Math.floor(dx / grid));
+			this.y = this.drag.y + (grid * Math.floor(dy / grid));
+		}
+		else {
+			this.x = this.drag.x + dx;
+			this.y = this.drag.y + dy;
+		}
+		this.move(this.x, this.y);
+		return this.dragFinish(e);
+	};
+
+	this.dragEnd = function(e) {
+		//console.log('dragEnd');
+		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
+		this.attr({opacity:1.0});
+		this.dehighlight();
+		this.options.x = this.x;
+		this.options.y = this.y;
+		delete this.drag;
+		this.dragging = false;
+		if (this.group) {
+			console.log('dragEnd calling:', this.row, this.col);
+			this.parent.controls[this.group].dragNotify(this);
+		}
+		return this.dragFinish(e);
+	};
+	
+	this.dragFinish = function(e) {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		return false;
+	};
+
+	this.handleClick = function(e) {
+		console.log('handleClick', e);
+		if (this.repeat) {
+			if (this.running) {
+				this.running = false;
+				clearInterval(this.intervalid);
+				delete this.intervalid;
+				this.runningindicator.remove();
+				delete this.runningindicator;
+			} else {
+				this.running = true;
+				var translation = ['t', this.x, ',', this.y, 's', .75].join('');
+				this.runningindicator = this.parent.paper.path('M19.275,3.849l1.695,8.56l1.875-1.642c2.311,3.59,1.72,8.415-1.584,11.317c-2.24,1.96-5.186,2.57-7.875,1.908l-0.84,3.396c3.75,0.931,7.891,0.066,11.02-2.672c4.768-4.173,5.521-11.219,1.94-16.279l2.028-1.775L19.275,3.849zM8.154,20.232c-2.312-3.589-1.721-8.416,1.582-11.317c2.239-1.959,5.186-2.572,7.875-1.909l0.842-3.398c-3.752-0.93-7.893-0.067-11.022,2.672c-4.765,4.174-5.519,11.223-1.939,16.283l-2.026,1.772l8.26,2.812l-1.693-8.559L8.154,20.232z')
+					.transform(translation)
+					.attr({fill:this.stroke, stroke:this.stroke});					
+				this.exec();
+			}
+		}
+		else this.exec();
+		return true;		//this.dragFinish();
+	};
+
+	this.exec = function() {
+
+		if (!this.script) {
+			//this.setValue(!this.value);		// unscripted buttons toggle and gossip
+			return;
+		}
+
+		if (typeof this.script == 'function') return this.script.call(this);
+		
+		var cmd = Mustache.render(this.script, this);
+		//console.log('button exec:', cmd);
+
+		if (cmd.match(/^javascript\:/)) {			// javascript command
+			cmd = cmd.replace('javascript:', '');
+			eval(cmd);
+		}
+		else {										// bitlash command
+			this.parent.sendCommand('exec', {cmd:cmd, id:this.id});
+		}
+		if (this.repeat && !this.intervalid) {
+			var self = this;
+			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
+		}
+	};
+
+	this.setValue = function(value) {
+		console.log('ERROR: setValue() must be defined in the control.');
+	};
+
+	this.on = function(eventname, listener) {
+		if (!this.listeners[eventname]) this.listeners[eventname] = [];
+		this.listeners[eventname].push(listener);
+		//console.log('On:', this.id, this.listeners.length, this.listeners);
+	};
+
+	this.fire = function(eventname, data) {
+		var listeners = this.listeners[eventname];
+		//console.log('listeners:', listeners);
+		if (!listeners) return;
+		for (var i=0; i<listeners.length; i++) {
+			var func = listeners[i];
+			//console.log('firing listener', i, data);
+			func(data);
+		}
+	};
+};
+
+
+
 //////////
 //
 //	Button control
 //
 function Button(options) {
-	return this.init(options || {});
-}
+	this.__proto__ = new Control();
 
-Button.prototype = {
-
-	init: function(options) {
+	this.init = function(options) {
 		this.type = options.type = 'Button';
 		this.parent = options.parent;
 
@@ -941,6 +882,8 @@ Button.prototype = {
 		if (options.col != undefined) this.col = options.col;
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
+		this.elts = [];
+		this.textelts = [];
 
 		var self = this;
 
@@ -992,6 +935,7 @@ Button.prototype = {
 			//.touchcancel(function(e) { self.handleClick.call(self,e); return false;})
 
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+		this.elts.push(this.elt);
 
 		//console.log('Element:', this.elt);
 		$(this.elt.node).bind("contextmenu", function(event) {
@@ -1009,77 +953,20 @@ Button.prototype = {
 			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
 			.touchend(function(e) { self.handleClick.call(self,e); return false;})
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+		this.textelts.push(this.label);
 
-		if (this.readout) this.readout.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			//.dblclick(function(e) { self.parent.showEditMenu(self.id, event); })
-			.mousedown(function(e) { self.highlight.call(self, e); return false;})
-			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
-
-console.log('new button:', this, this.prototype, this.__proto__);
-
-		return this;
-	},
-	
-	highlight: function(event) {
-		this.elt.attr({fill:this.fill_highlight});
-		var highlight_attr = {fill:this.fill, stroke: this.fill};
-		if (this.label) this.label.attr(highlight_attr);
-		//if (this.readout) this.readout.attr(highlight_attr);
-	},
-
-	dehighlight: function(event) {
-		this.elt.attr({fill:this.fill});
-		var dehighlight_attr = {fill:this.stroke, stroke: this.stroke};
-		if (this.label) this.label.attr(dehighlight_attr);
-		//if (this.readout) this.readout.attr(dehighlight_attr);
-	},
-
-	remove: function() {
-		this.elt.remove();
-		this.label.remove();
-		if (this.readout) this.readout.remove();
-	},
-	
-	attr: function(attrs) {
-		this.elt.attr(attrs);
-
-		var textattrs = {};
-		for (var f in attrs) textattrs[f] = attrs[f];
-		if (textattrs.stroke) textattrs.fill=attrs.stroke;
-		this.label.attr(textattrs);
-		if (this.readout) this.readout.attr(textattrs);
-	},
-
-	setText: function(text) {
-		this.label.attr({text:text});
-	},
-
-	dragStart: function(x, y, e) {
-console.log('Drag start:', x, y, e);
-
-		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
-
-		if (event && event.shiftKey) {
-			var id = (this.group != undefined) ? this.group : this.id;
-			this.parent.showEditMenu(id, e);
-			return true;
+		if (this.readout) {
+			this.readout.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				//.dblclick(function(e) { self.parent.showEditMenu(self.id, event); })
+				.mousedown(function(e) { self.highlight.call(self, e); return false;})
+				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			this.textelts.push(this.readout);
 		}
-		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
-		this.dragging = true;
-		//this.highlight();
-		this.attr({opacity:0.5});
-		this.toFront();
-	},
+	};
 
-	toFront: function() {
-		this.elt.toFront();
-		if (this.readout) this.readout.toFront();
-		this.label.toFront();
-	},
-
-	move: function(x, y) {
+	this.move = function(x, y) {
 		//console.log('move:', x, y, this);
 		this.x = x;
 		this.y = y;
@@ -1100,108 +987,9 @@ console.log('Drag start:', x, y, e);
 			this.label.attr({x:x + this.w/2, y:y + this.h/2});
 			if (this.readout) this.readout.attr({x:x + this.w/2, y:y + this.h + this.fontsize});
 		}
-	},
+	};
 
-	dragMove: function(dx, dy, x, y, e) {
-		//console.log('dragMove:',dx,dy,x,y,e);
-		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
-
-		var grid = this.parent.grid;
-		if (grid && !e.shiftKey) {
-			this.x = this.drag.x + (grid * Math.floor(dx / grid));
-			this.y = this.drag.y + (grid * Math.floor(dy / grid));
-		}
-		else {
-			this.x = this.drag.x + dx;
-			this.y = this.drag.y + dy;
-		}
-		this.move(this.x, this.y);
-		return this.dragFinish(e);
-	},
-
-	dragEnd: function(e) {
-		//console.log('dragEnd');
-		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
-		//this.elt.attr({fill:this.fill});
-		this.attr({opacity:1.0});
-		this.dehighlight();
-		this.options.x = this.x;
-		this.options.y = this.y;
-		delete this.drag;
-		this.dragging = false;
-		if (this.group) {
-			console.log('dragEnd calling:', this.row, this.col);
-			this.parent.controls[this.group].dragNotify(this);
-		}
-		return this.dragFinish(e);
-	},
-	
-	dragFinish: function(e) {
-		if (e) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
-		return false;
-	},
-
-	handleClick: function(e) {
-console.log('handleClick', e);
-		if (this.repeat) {
-			if (this.running) {
-				this.running = false;
-				clearInterval(this.intervalid);
-				delete this.intervalid;
-				this.runningindicator.remove();
-				delete this.runningindicator;
-			} else {
-				this.running = true;
-				var translation = ['t', this.x, ',', this.y, 's', .75].join('');
-
-				this.runningindicator = this.parent.paper.path('M19.275,3.849l1.695,8.56l1.875-1.642c2.311,3.59,1.72,8.415-1.584,11.317c-2.24,1.96-5.186,2.57-7.875,1.908l-0.84,3.396c3.75,0.931,7.891,0.066,11.02-2.672c4.768-4.173,5.521-11.219,1.94-16.279l2.028-1.775L19.275,3.849zM8.154,20.232c-2.312-3.589-1.721-8.416,1.582-11.317c2.239-1.959,5.186-2.572,7.875-1.909l0.842-3.398c-3.752-0.93-7.893-0.067-11.022,2.672c-4.765,4.174-5.519,11.223-1.939,16.283l-2.026,1.772l8.26,2.812l-1.693-8.559L8.154,20.232z')
-					.transform(translation)
-					.attr({fill:this.stroke, stroke: this.stroke});
-					
-				this.exec();
-			}
-		}
-		else this.exec();
-
-		return true;		//this.dragFinish();
-	},
-
-	exec: function() {
-
-		// handle radio button side effects
-		if (this.group && this.parent.controls[this.group].radio) {
-			this.parent.controls[this.group].setValue(this.text);
-		}
-
-		if (!this.script) {
-			//this.setValue(!this.value);		// unscripted buttons toggle and gossip
-			return;
-		}
-
-		if (typeof this.script == 'function') {
-			return this.script.call(this);
-		}
-		
-		var cmd = Mustache.render(this.script, this);
-		//console.log('button exec:', cmd);
-
-		if (cmd.match(/^javascript\:/)) {			// javascript command
-			cmd = cmd.replace('javascript:', '');
-			eval(cmd);
-		}
-		else {										// bitlash command
-			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id});
-		}
-		if (this.repeat && !this.intervalid) {
-			var self = this;
-			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
-		}
-	},
-	
-	setValue: function(value) {
+	this.setValue = function(value) {
 		this.value = value;
 		//this.label.attr({text: this.text + ': ' + this.value});
 		if (this.readout) this.readout.attr({text: '' + this.value});
@@ -1211,25 +999,10 @@ console.log('handleClick', e);
 		}
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
-	},
+	};
 
-	on: function(eventname, listener) {
-		if (!this.listeners[eventname]) this.listeners[eventname] = [];
-		this.listeners[eventname].push(listener);
-		//console.log('On:', this.id, this.listeners.length, this.listeners);
-	},
-
-	fire: function(eventname, data) {
-		var listeners = this.listeners[eventname];
-		//console.log('listeners:', listeners);
-		if (!listeners) return;
-		for (var i=0; i<listeners.length; i++) {
-			var func = listeners[i];
-			//console.log('firing listener', i, data);
-			func(data);
-		}
-	}	
-}
+	return this.init(options || {});
+};
 
 
 //////////
@@ -1237,12 +1010,9 @@ console.log('handleClick', e);
 //	Slider control
 //
 function Slider(options) {
-	return this.init(options || {});
-}
+	this.__proto__ = new Control();
 
-Slider.prototype = {
-
-	init: function(options) {
+	this.init = function(options) {
 		this.type = options.type = 'Slider';
 		this.parent = options.parent;
 
@@ -1272,6 +1042,8 @@ Slider.prototype = {
 		if (options.col != undefined) this.col = options.col;
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
+		this.elts = [];
+		this.textelts = [];
 
 		this.min = options.min || 0;
 		this.max = options.max || 0;
@@ -1362,81 +1134,20 @@ Slider.prototype = {
 					.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 			}
 		}
+
+		this.elts.push(this.outerrect);
+		if (this.xbar) this.elts.push(this.xbar);
+		if (this.ybar) this.elts.push(this.ybar);
+		this.elts.push(this.slide);
+		this.textelts.push(this.label);
+		if (this.xreadout) this.textelts.push(this.xreadout);
+		if (this.yreadout) this.textelts.push(this.yreadout);
+
 		return this;
-	},
+	};
 
-	remove: function() {
-		this.outerrect.remove();
-		if (this.xbar) this.xbar.remove();
-		if (this.ybar) this.ybar.remove();
-		this.slide.remove();
-		this.label.remove();
-		if (this.xreadout) this.xreadout.remove();
-		if (this.yreadout) this.yreadout.remove();
-	},
 
-	attr: function(attrs) {
-		this.outerrect.attr(attrs);
-		if (this.xbar) this.xbar.attr(attrs);
-		if (this.ybar) this.ybar.attr(attrs);
-		this.slide.attr(attrs);
-
-		var textattrs = {};
-		for (var f in attrs) textattrs[f] = attrs[f];
-		if (textattrs.stroke) textattrs.fill=attrs.stroke;
-		this.label.attr(textattrs);
-		this.slide.attr(textattrs);
-		if (this.xreadout) this.xreadout.attr(textattrs);
-		if (this.yreadout) this.yreadout.attr(textattrs);
-	},
-
-	dragStart: function(x, y, event) {
-console.log('Drag start:', x, y, event);
-		if (!this.parent.editingpanel) return true;
-		if (event && event.shiftKey) {
-			this.parent.showEditMenu(this.id, event);
-			return true;
-		}
-		//this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
-		this.drag = {x:this.x, y:this.y};
-		this.dragging = true;
-		//this.outerrect.attr({fill:this.fill_highlight}).toFront();
-		this.attr({opacity:0.5});
-		this.outerrect.toFront();
-		if (this.xbar) this.xbar.toFront();
-		if (this.ybar) this.ybar.toFront();
-		this.slide.toFront();
-		this.label.toFront();
-		if (this.xreadout) this.xreadout.toFront();
-		if (this.yreadout) this.yreadout.toFront();
-	},
-
-	dragMove: function(dx, dy, x, y, e) {
-console.log('move:',dx,dy,x,y,e);
-		var grid = this.parent.grid;
-		if (grid && !e.shiftKey) {
-			this.x = this.drag.x + (grid * Math.floor(dx / grid));
-			this.y = this.drag.y + (grid * Math.floor(dy / grid));
-		}
-		else {
-			this.x = this.drag.x + dx;
-			this.y = this.drag.y + dy;
-		}
-		this.move(this.x, this.y);
-		return this.dragFinish(e);
-	},
-
-	toFront: function() {
-		this.outerrect.toFront();
-		if (this.xbar) this.xbar.toFront();
-		if (this.ybar) this.ybar.toFront();
-		this.slide.toFront();
-		this.label.toFront();
-		if (this.xreadout) this.xreadout.toFront();
-		if (this.yreadout) this.yreadout.toFront();
-	},
-
-	move: function(x, y) {
+	this.move = function(x, y) {
 		this.x = x;
 		this.y = y;
 		this.outerrect.attr({x:this.x, y:this.y});
@@ -1447,32 +1158,16 @@ console.log('move:',dx,dy,x,y,e);
 		this.label.attr({x:this.x + this.w/2, y:this.y + this.outerh + this.fontsize*2});
 		if (this.xreadout) this.xreadout.attr({x:this.x + this.outerw + this.fontsize, y:this.y + this.h/2});
 		if (this.yreadout) this.yreadout.attr({x:this.x + this.w/2, y:this.y + this.outerh + this.fontsize});
-	},
+	};
 
-	dragEnd: function(e) {
-		//this.outerrect.attr({fill:this.fill});
-		this.attr({opacity:1});
-		this.options.x = this.x;
-		this.options.y = this.y;
-		delete this.drag;
-		this.dragging = false;
-		return this.dragFinish(e);
-	},
-	
-	dragFinish: function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		return false;
-	},
-
-	slideStart: function(x, y, event) {
+	this.slideStart = function(x, y, event) {
 		//console.log('Slide start:', x, y, event);
 		this.dragslide = {x:this.x, y:this.y};
 		this.sliding = true;
 		this.slide.attr({fill:this.fill});
-	},
+	};
 
-	slideMove: function(dx, dy, x, y, e) {
+	this.slideMove = function(dx, dy, x, y, e) {
 		//console.log('Slide move:', dx, dy, x, y, e);
 		x = x - this.parent.x;
 		y = y - this.parent.y;
@@ -1491,15 +1186,15 @@ console.log('move:',dx,dy,x,y,e);
 		else if (this.subtype == 'x') this.setValue(xvalue);
 		else this.setValue(yvalue);
 		return this.slideFinish(e);
-	},
+	};
 
-	slideEnd: function(e) {
+	this.slideEnd = function(e) {
 		//console.log('Slide end:', e);
 		this.slide.attr({fill:this.stroke});
 		return this.slideFinish(e);
-	},
+	};
 	
-	slideFinish: function(e) {
+	this.slideFinish = function(e) {
 		e.preventDefault();
 		e.stopPropagation();
 		delete this.dragslide;
@@ -1513,72 +1208,34 @@ console.log('move:',dx,dy,x,y,e);
 			}, 10);
 		}
 		return false;
-	},
+	};
 
-	slideToCenter: function() {
+	this.slideToCenter = function() {
 		if (this.subtype == 'xy') 
 			this.setValue(Math.floor((this.xmax + this.xmin)/2), 
 				Math.floor((this.ymax + this.ymin)/2));
 		else if (this.subtype == 'x') this.setValue(Math.floor((this.xmax + this.xmin)/2));
 		else this.setValue(Math.floor((this.ymax + this.ymin)/2));
 		this.exec();
-	},
+	};
 
-	handleClick: function(e) {
-		if (this.repeat) {
-			if (this.running) {
-				this.running = false;
-				clearInterval(this.intervalid);
-				delete this.intervalid;
-			} else {
-				this.running = true;
-				this.exec();
-			}
-		}
-		else this.exec();
-
-		if (e) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
-		return false;
-	},
-
-	exec: function() {
-		if (!this.script) return;
-
-		if (typeof this.script == 'function') {
-			return this.script.call(this);
-		}
-
-		var cmd = Mustache.render(this.script, this);
-
-		if (cmd.match(/^javascript\:/)) {			// javascript command
-			cmd = cmd.replace('javascript:', '');
-			eval(cmd);
-		}
-		else {										// bitlash command
-			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id});
-		}
-	},
-
-	slideXPos: function() {
+	this.slideXPos = function() {
 		if (this.subtype == 'y') return this.x + (this.w - this.slidew)/2;
 		if (this.xvalue < this.xmin) this.xvalue = this.xmin;
 		if (this.xvalue > this.xmax) this.xvalue = this.xmax;
 		var fraction = (this.xvalue - this.xmin) / (this.xmax - this.xmin);
 		return Math.floor(this.x + this.w * fraction);
-	},
+	};
 
-	slideYPos: function() {
+	this.slideYPos = function() {
 		if (this.subtype == 'x') return this.y + (this.h - this.slideh)/2;
 		if (this.yvalue < this.ymin) this.yvalue = this.ymin;
 		if (this.yvalue > this.ymax) this.yvalue = this.ymax;
 		var fraction = (this.yvalue - this.ymin) / (this.ymax - this.ymin);
 		return Math.floor(this.y + this.h * (1.0 - fraction));
-	},
+	};
 
-	setValue: function(value1, value2) {
+	this.setValue = function(value1, value2) {
 
 		//console.log('slider set:', value1, value2, typeof value1, typeof value2);
 
@@ -1612,21 +1269,9 @@ console.log('move:',dx,dy,x,y,e);
 			var update = {id: this.id, value: this.value};
 			this.fire('update', update);
 		}
-	},
+	};
 
-	on: function(eventname, listener) {
-		if (!this.listeners[eventname]) this.listeners[eventname] = [];
-		this.listeners[eventname].push(listener);
-	},
-
-	fire: function(eventname, data) {
-		var listeners = this.listeners[eventname];
-		if (!listeners) return;
-		for (var i=0; i<listeners.length; i++) {
-			var func = listeners[i];
-			func(data);
-		}
-	}	
+	return this.init(options || {});
 }
 
 
@@ -1635,12 +1280,9 @@ console.log('move:',dx,dy,x,y,e);
 //	Chart control
 //
 function Chart(options) {
-	return this.init(options || {});
-}
+	this.__proto__ = new Control();
 
-Chart.prototype = {
-
-	init: function(options) {
+	this.init = function(options) {
 		this.type = options.type = 'Chart';
 		this.parent = options.parent;
 
@@ -1714,20 +1356,14 @@ console.log('merged:', this);
 		var self = this;
 		if (this.refresh) setInterval(function() { self.redraw.call(self); }, this.refresh);
 		return this;
-	},
+	};
 
-	attr: function(attrs) {
-		this.outerrect.attr(attrs);
-
-		var textattrs = {};
-		for (var f in attrs) textattrs[f] = attrs[f];
-		if (textattrs.stroke) textattrs.fill=attrs.stroke;
-		this.label.attr(textattrs);
-
+	this.attr = function(attrs) {
+		this.__proto__.attr.call(this);
 		this.svg.attr(attrs);
-	},
+	};
 	
-	render: function() {
+	this.render = function() {
 
 		var margin = {top: 0, right: 0, bottom: 0, left: 0};
 		var width = this.w - margin.left - margin.right;
@@ -1826,54 +1462,23 @@ console.log('merged:', this);
 					.attr('fill', self.stroke)
 					.text(function(d) { return d.name; });
 		});
-	},
+	};
 
-	redraw: function() {
+	this.redraw = function() {
 		if (this.svg) {
 			var doomed_svg = this.svg;
 			delete this.svg;
 			this.render();
 			doomed_svg.remove();
 		}
-	},
+	};
 
-	remove: function() {
-		this.outerrect.remove();
-		this.label.remove();
+	this.remove = function() {
+		this.__proto__.remove.call(this);
 		this.svg.remove();
-	},
-
-	dragStart: function(x, y, event) {
-		//console.log('Drag start:', x, y, event);
-		if (!this.parent.editingpanel) return true;
-		if (event && event.shiftKey) {
-			this.parent.showEditMenu(this.id, event);
-			return true;
-		}
-		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
-		this.dragging = true;
-		this.attr({opacity:0.5});
-		this.outerrect.toFront();
-		this.label.toFront();
-		//this.svg.toFront();		
-	},
-
-	dragMove: function(dx, dy, x, y, e) {
-		//console.log('move:',dx,dy,x,y,e);
-		var grid = this.parent.grid;
-		if (grid && !e.shiftKey) {
-			this.x = this.drag.x + (grid * Math.floor(dx / grid));
-			this.y = this.drag.y + (grid * Math.floor(dy / grid));
-		}
-		else {
-			this.x = this.drag.x + dx;
-			this.y = this.drag.y + dy;
-		}
-		this.move(this.x, this.y);
-		return this.dragFinish(e);
-	},
+	};
 	
-	move: function(x, y) {
+	this.move = function(x, y) {
 		this.x = x;
 		this.y = y;
 		this.outerrect.attr({x:this.x, y:this.y});
@@ -1882,93 +1487,16 @@ console.log('merged:', this);
 		var translation = ['translate(', this.x, ',', this.y,')'].join('');
 		//console.log('translation:', translation)
 		this.svg.attr('transform', translation);
-	},
+	};
 
-	dragEnd: function(e) {
-		//this.outerrect.attr({fill:this.fill});
-		this.attr({opacity:1.0});
-		this.options.x = this.x;
-		this.options.y = this.y;
-		delete this.drag;
-		this.dragging = false;
-		return this.dragFinish(e);
-	},
-	
-	dragFinish: function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		return false;
-	},
-
-	handleClick: function(e) {
-		if (this.repeat) {
-			if (this.running) {
-				this.running = false;
-				clearInterval(this.intervalid);
-				delete this.intervalid;
-			} else {
-				this.running = true;
-				this.exec();
-			}
-		}
-		else this.redraw();
-
-		if (e) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
-		return false;
-	},
-
-	exec: function() {
-		if (!this.script) {
-			return;
-		}
-
-		if (typeof this.script == 'function') {
-			return this.script.call(this);
-		}
-
-		var cmd = Mustache.render(this.script, this);
-		console.log('Chart exec:', cmd);
-
-		if (cmd.match(/^javascript\:/)) {			// javascript command
-			cmd = cmd.replace('javascript:', '');
-			eval(cmd);
-		}
-		else {										// bitlash command
-			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id});
-		}
-
-		if (this.repeat && !this.intervalid) {
-			var self = this;
-			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
-		}
-	},
-	
-	setValue: function(value) {
+	this.setValue = function(value) {
 		this.value = value;
 		//this.label.attr({text: this.text + ': ' + this.value});
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
-	},
+	};
 
-	on: function(eventname, listener) {
-		if (!this.listeners[eventname]) this.listeners[eventname] = [];
-		this.listeners[eventname].push(listener);
-		//console.log('On:', this.id, this.listeners.length, this.listeners);
-	},
-
-	fire: function(eventname, data) {
-		var listeners = this.listeners[eventname];
-		//console.log('listeners:', listeners);
-		if (!listeners) return;
-		for (var i=0; i<listeners.length; i++) {
-			var func = listeners[i];
-			//console.log('firing listener', i, data);
-			func(data);
-		}
-	}	
+	return this.init(options || {});
 }
 
 
@@ -1977,12 +1505,9 @@ console.log('merged:', this);
 //	Text control
 //
 function Text(options) {
-	return this.init(options || {});
-}
+	this.__proto__ = new Control();
 
-Text.prototype = {
-
-	init: function(options) {
+	this.init = function(options) {
 		this.type = options.type = 'Text';
 		this.parent = options.parent;
 
@@ -2004,6 +1529,8 @@ Text.prototype = {
 		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
 		this.fontsize = options.fontsize || this.parent.fontsize;
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
+		this.elts = [];
+		this.textelts = [];
 
 		var self = this;
 
@@ -2018,114 +1545,34 @@ Text.prototype = {
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 //			.mouseover(function(e) { self.label.attr({cursor:'pointer'}); });
 
+		this.textelts.push(this.label);
 		return this;
-	},
+	};
 
-	remove: function() {
-		this.label.remove();
-	},
-	
-	attr: function(attrs) {
-		var textattrs = {};
-		for (var f in attrs) textattrs[f] = attrs[f];
-		if (textattrs.stroke) textattrs.fill=attrs.stroke;
-		this.label.attr(textattrs);
-	},
-
-	setText: function(text) {
-		this.label.attr({text:text});
-	},
-
-	dragStart: function(x, y, event) {
-		//console.log('Drag start:', x, y, event);
-		if (!this.parent.editingpanel) return true;
-		if (event && event.shiftKey) {
-			this.parent.showEditMenu(this.id, event);
-			return true;
-		}
-		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
-		this.dragging = true;
-		this.label.toFront();
-	},
-
-	move: function(newx, newy) {
+	this.move = function(newx, newy) {
 		this.label.attr({x:this.x, y:this.y});
-	},
+	};
 
-
-	dragMove: function(dx, dy, x, y, e) {
-		//console.log('move:',dx,dy,x,y,e);
-		var grid = this.parent.grid;
-		if (grid && !e.shiftKey) {
-			this.x = this.drag.x + (grid * Math.floor(dx / grid));
-			this.y = this.drag.y + (grid * Math.floor(dy / grid));
-		}
-		else {
-			this.x = this.drag.x + dx;
-			this.y = this.drag.y + dy;
-		}
-		this.move(this.x, this.y);
-		return this.dragFinish(e);
-	},
-
-	dragEnd: function(e) {
-		this.options.x = this.x;
-		this.options.y = this.y;
-		delete this.drag;
-		this.dragging = false;
-		return this.dragFinish(e);
-	},
-	
-	dragFinish: function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		return false;
-	},
-
-	handleClick: function(e) {
-		if (e) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
-		return false;
-	},
-
-	setValue: function(value) {
+	this.setValue = function(value) {
 		this.value = value;
 		this.label.attr({text: this.value});
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
-	},
+	};
 
-	on: function(eventname, listener) {
-		if (!this.listeners[eventname]) this.listeners[eventname] = [];
-		this.listeners[eventname].push(listener);
-		//console.log('On:', this.id, this.listeners.length, this.listeners);
-	},
-
-	fire: function(eventname, data) {
-		var listeners = this.listeners[eventname];
-		//console.log('listeners:', listeners);
-		if (!listeners) return;
-		for (var i=0; i<listeners.length; i++) {
-			var func = listeners[i];
-			//console.log('firing listener', i, data);
-			func(data);
-		}
-	}	
+	return this.init(options || {});
 }
+
+
 
 //////////
 //
 //	Group control
 //
 function Group(options) {
-	return this.init(options || {});
-}
+	this.__proto__ = new Control();
 
-Group.prototype = {
-
-	init: function(options) {
+	this.init = function(options) {
 		this.type = options.type = 'Group';
 		this.parent = options.parent;
 
@@ -2178,6 +1625,8 @@ console.log('Group init:', options, this.options, this.childopts);
 		if (options.reversebits != undefined) this.reversebits = options.reversebits;
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
+		this.elts = [];
+		this.textelts = [];
 
 		this.numx = options.numx || 1;
 		this.numy = options.numy || 3;
@@ -2226,6 +1675,7 @@ console.log('Group init:', options, this.options, this.childopts);
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 //				.mouseover(function(e) { self.label.attr({cursor:'pointer'}); });
 
+		this.elts.push(this.elt);
 
 		var x;
 		var y = this.y;
@@ -2259,43 +1709,40 @@ console.log('Group add:', opts.type, opts);
 			}
 			y += (this.h + this.guttery);
 		}
-	},
+	};
 
-	itemid: function(row, col) {
+	this.itemid = function(row, col) {
 		return  '' + this.id + '-' + row + '-' + col;
-	},
+	};
 
-	each: function(callback) {
+	this.each = function(callback) {
 		for (var row = 0; row < this.numy; row++) {
 			for (var col = 0; col < this.numx; col++) {
 				callback(this.parent.controls[this.itemid(row, col)]);
 			}
 		}
-	},
+	};
 
-	remove: function() {
+	this.remove = function() {
 		this.each(function(control) { control.parent.deletecontrol(control.id); });
-		this.elt.remove();
-	},
-	
-	attr: function(attrs) {
-		this.elt.attr(attrs);
-		this.each(function(control) { control.attr(attrs); });
-	},
+		this.__proto__.remove.call(this);
+	};
 
-	setText: function(text) {
-	},
+	this.attr = function(attrs) {
+		this.each(function(control) { control.attr(attrs); });
+		this.__proto__.attr.call(this);
+	};
 
 	// when a button in our group moves, it calls here to notify
-	dragNotify: function(moved) {
+	this.dragNotify = function(moved) {
 		// calculate x,y of group from row, col of button[id]
 		//var moved = this.parent.controls[id];
 		var newx = moved.x - moved.col * (this.w + this.gutterx);
 		var newy = moved.y - moved.row * (this.h + this.guttery);
 		this.move(newx, newy);
-	},
+	};
 
-	move: function(newx, newy) {
+	this.move = function(newx, newy) {
 		this.options.x = this.x = newx;
 		this.options.y = this.y = newy;
 		this.elt.attr({x:this.x - this.gutterx, y:this.y - this.guttery});
@@ -2312,73 +1759,16 @@ console.log('Group add:', opts.type, opts);
 			}
 			y += (this.h + this.guttery);
 		}
-	},
-	
-	dragStart: function(x, y, event) {
-		//console.log('Drag start:', x, y, event);
-		if (!this.parent.editingpanel) return this.dragFinish();
-		if (event && event.shiftKey) {
-			this.parent.showEditMenu(this.id, event);
-			return true;
-		}
-		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
-		this.dragging = true;
-		//this.elt.attr({fill:this.fill_highlight}).toFront();
-		this.attr({opacity:0.5})
-		this.elt.toFront();
-		return true;
-	},
+	};
 
-	dragMove: function(dx, dy, x, y, e) {
-		//console.log('move:',dx,dy,x,y,e);
-		if (!this.parent.editingpanel) return this.dragFinish();
-
-		var grid = this.parent.grid;
-		if (grid && !e.shiftKey) {
-			this.x = this.drag.x + (grid * Math.floor(dx / grid));
-			this.y = this.drag.y + (grid * Math.floor(dy / grid));
-		}
-		else {
-			this.x = this.drag.x + dx;
-			this.y = this.drag.y + dy;
-		}
-		this.move(this.x, this.y);
-		return this.dragFinish(e);
-	},
-
-	dragEnd: function(e) {
-		if (!this.parent.editingpanel) return this.dragFinish();
-		//this.elt.attr({fill:this.fill});
-		this.attr({opacity:1.0});
-		this.options.x = this.x;
-		this.options.y = this.y;
-		delete this.drag;
-		this.dragging = false;
-/*
-		if (this.group) {
-			console.log('dragEnd calling:', this.row, this.col);
-			this.parent.controls[this.group].dragNotify(this);
-		}
-*/
-		return this.dragFinish(e);
-	},
-	
-	dragFinish: function(e) {
-		if (e) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
+	this.handleClick = function(e) {
 		return false;
-	},
+	};
 
-	handleClick: function(e) {
-		return false;
-	},
+	this.exec = function() {
+	};
 
-	exec: function() {
-	},
-
-	setValue: function(value) {
+	this.setValue = function(value) {
 		var bit = 0;
 		this.value = value;
 		if (typeof value == 'string') {
@@ -2392,7 +1782,7 @@ console.log('Group add:', opts.type, opts);
 		}
 		else if (typeof value == 'number') {
 			if (this.reversebits) {
-console.log('reversing bits');
+				//console.log('reversing bits');
 				for (var row = this.numy-1; row >= 0; row--) {
 					for (var col = this.numx-1; col >= 0; col--) {
 						var control = this.parent.controls[this.itemid(row, col)];
@@ -2415,24 +1805,9 @@ console.log('reversing bits');
 		}
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
-	},
+	};
 
-	on: function(eventname, listener) {
-		if (!this.listeners[eventname]) this.listeners[eventname] = [];
-		this.listeners[eventname].push(listener);
-		//console.log('On:', this.id, this.listeners.length, this.listeners);
-	},
-
-	fire: function(eventname, data) {
-		var listeners = this.listeners[eventname];
-		//console.log('listeners:', listeners);
-		if (!listeners) return;
-		for (var i=0; i<listeners.length; i++) {
-			var func = listeners[i];
-			//console.log('firing listener', i, data);
-			func(data);
-		}
-	}	
+	return this.init(options || {});
 }
 
 
@@ -2586,58 +1961,6 @@ function Meter(options) {
 		this.nl = .6 * this.h;
 	};
 
-/*	
-	highlight: function(event) {
-		this.elt.attr({fill:this.fill_highlight});
-		var highlight_attr = {fill:this.fill, stroke: this.fill};
-		if (this.label) this.label.attr(highlight_attr);
-		//if (this.readout) this.readout.attr(highlight_attr);
-	},
-
-	dehighlight: function(event) {
-		this.elt.attr({fill:this.fill});
-		var dehighlight_attr = {fill:this.stroke, stroke: this.stroke};
-		if (this.label) this.label.attr(dehighlight_attr);
-		//if (this.readout) this.readout.attr(dehighlight_attr);
-	},
-
-	remove: function() {
-		this.elt.remove();
-		this.label.remove();
-		if (this.readout) this.readout.remove();
-	},
-	
-	attr: function(attrs) {
-		this.elt.attr(attrs);
-
-		var textattrs = {};
-		for (var f in attrs) textattrs[f] = attrs[f];
-		if (textattrs.stroke) textattrs.fill=attrs.stroke;
-		this.label.attr(textattrs);
-		if (this.readout) this.readout.attr(textattrs);
-	},
-
-	setText: function(text) {
-		this.label.attr({text:text});
-	},
-
-	dragStart: function(x, y, e) {
-console.log('Drag start:', x, y, e);
-
-		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
-
-		if (event && event.shiftKey) {
-			var id = (this.group != undefined) ? this.group : this.id;
-			this.parent.showEditMenu(id, e);
-			return true;
-		}
-		this.drag = {x:this.x, y:this.y, xoff: x-this.x, yoff: y-this.y};
-		this.dragging = true;
-		//this.highlight();
-		this.attr({opacity:0.5});
-		this.toFront();
-	},
-*****/
 
 	this.toFront = function() {
 		this.__proto__.toFront.call(this);
@@ -2658,102 +1981,6 @@ console.log('Drag start:', x, y, e);
 		this.needle.attr({x:this.nx, y:this.ny});
 	};
 
-/*****
-	dragMove: function(dx, dy, x, y, e) {
-		//console.log('dragMove:',dx,dy,x,y,e);
-		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
-
-		var grid = this.parent.grid;
-		if (grid && !e.shiftKey) {
-			this.x = this.drag.x + (grid * Math.floor(dx / grid));
-			this.y = this.drag.y + (grid * Math.floor(dy / grid));
-		}
-		else {
-			this.x = this.drag.x + dx;
-			this.y = this.drag.y + dy;
-		}
-		this.move(this.x, this.y);
-		return this.dragFinish(e);
-	},
-
-	dragEnd: function(e) {
-		//console.log('dragEnd');
-		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
-		//this.elt.attr({fill:this.fill});
-		this.attr({opacity:1.0});
-		this.dehighlight();
-		this.options.x = this.x;
-		this.options.y = this.y;
-		delete this.drag;
-		this.dragging = false;
-		if (this.group) {
-			console.log('dragEnd calling:', this.row, this.col);
-			this.parent.controls[this.group].dragNotify(this);
-		}
-		return this.dragFinish(e);
-	},
-	
-	dragFinish: function(e) {
-		if (e) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
-		return false;
-	},
-
-	handleClick: function(e) {
-console.log('handleClick', e);
-		if (this.repeat) {
-			if (this.running) {
-				this.running = false;
-				clearInterval(this.intervalid);
-				delete this.intervalid;
-				this.runningindicator.remove();
-				delete this.runningindicator;
-			} else {
-				this.running = true;
-				var translation = ['t', this.x, ',', this.y, 's', .75].join('');
-
-				this.runningindicator = this.parent.paper.path('M19.275,3.849l1.695,8.56l1.875-1.642c2.311,3.59,1.72,8.415-1.584,11.317c-2.24,1.96-5.186,2.57-7.875,1.908l-0.84,3.396c3.75,0.931,7.891,0.066,11.02-2.672c4.768-4.173,5.521-11.219,1.94-16.279l2.028-1.775L19.275,3.849zM8.154,20.232c-2.312-3.589-1.721-8.416,1.582-11.317c2.239-1.959,5.186-2.572,7.875-1.909l0.842-3.398c-3.752-0.93-7.893-0.067-11.022,2.672c-4.765,4.174-5.519,11.223-1.939,16.283l-2.026,1.772l8.26,2.812l-1.693-8.559L8.154,20.232z')
-					.transform(translation)
-					.attr({fill:this.stroke, stroke: this.stroke});
-					
-				this.exec();
-			}
-		}
-		else this.exec();
-
-		return true;		//this.dragFinish();
-	},
-
-	exec: function() {
-
-		if (!this.script) {
-			//this.setValue(!this.value);		// unscripted buttons toggle and gossip
-			return;
-		}
-
-		if (typeof this.script == 'function') {
-			return this.script.call(this);
-		}
-		
-		var cmd = Mustache.render(this.script, this);
-		//console.log('button exec:', cmd);
-
-		if (cmd.match(/^javascript\:/)) {			// javascript command
-			cmd = cmd.replace('javascript:', '');
-			eval(cmd);
-		}
-		else {										// bitlash command
-			this.parent.sendCommand('exec', {'cmd': cmd, 'id':this.id});
-		}
-		if (this.repeat && !this.intervalid) {
-			var self = this;
-			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
-		}
-	},
-*****/
-
 	this.needleAngle = function(value) {
 		var fraction = (value - this.min) / (this.max - this.min);
 		var raw_angle = this.min_angle + fraction * (this.max_angle - this.min_angle);
@@ -2773,25 +2000,6 @@ console.log('handleClick', e);
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
 	};
-
-/*****
-	on: function(eventname, listener) {
-		if (!this.listeners[eventname]) this.listeners[eventname] = [];
-		this.listeners[eventname].push(listener);
-		//console.log('On:', this.id, this.listeners.length, this.listeners);
-	},
-
-	fire: function(eventname, data) {
-		var listeners = this.listeners[eventname];
-		//console.log('listeners:', listeners);
-		if (!listeners) return;
-		for (var i=0; i<listeners.length; i++) {
-			var func = listeners[i];
-			//console.log('firing listener', i, data);
-			func(data);
-		}
-	}	
-*****/
 
 	return this.init(options || {});
 }

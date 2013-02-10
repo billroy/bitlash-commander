@@ -195,10 +195,22 @@ The push example in the file public/push.html shows event listeners in use:
 			- could save 'menupanel' as well as owner
 
 - meter control
+	- BUG: drag move batons[] and labels[]
+	- BUG: attr() for batons[] and labels[]
 	- damping factor for animation
-	- drag move batons[] and labels[]
-	- attr() for batons[] and labels[]
 	- draw the arc
+
+- common base class
+	- BUG: "on" is broken
+
+	- 175 lines extracted from Meter
+	- 2597 lines in original state
+	- 2635 lines after first implementation in Meter
+	- 2554 after Text
+	- 2482 after Group
+	- 2252 after Button
+	- 2124 after Slider
+	- 2007 after Chart	
 
 - doc:
 	- radio attribute in groups
