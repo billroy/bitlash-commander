@@ -201,7 +201,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- draw the arc
 
 - common base class
-	- BUG: "on" is broken
+	- BUG: clicking radio button doesn't keep the clicked button highlighted
 
 	- 175 lines extracted from Meter
 	- 2597 lines in original state

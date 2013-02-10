@@ -670,28 +670,29 @@ console.log('Add:', items[i]);
 Control = function() {
 	
 	this.attr = function(attrs) {
-		for (var i=0; i<this.elts.len; i++) this.elts[i].attr(attrs);
+		for (var i=0; i<this.elts.length; i++) this.elts[i].attr(attrs);
 		var textattrs = {};
 		for (var f in attrs) textattrs[f] = attrs[f];
 		if (textattrs.stroke) textattrs.fill=attrs.stroke;
-		for (var i=0; i<this.textelts.len; i++) this.textelts[i].attr(textattrs);
+		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(textattrs);
 	};
 
 	this.highlight = function(event) {
-		for (var i=0; i<this.elts.len; i++) this.elts[i].attr({fill:this.fill_highlight});
+		for (var i=0; i<this.elts.length; i++) this.elts[i].attr({fill:this.fill_highlight});
 		var highlight_attr = {fill:this.fill, stroke:this.fill};
 		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(highlight_attr);
 	};
 
 	this.dehighlight = function(event) {
-		for (var i=0; i<this.elts.len; i++) this.elts[i].attr({fill:this.fill});
+//console.log('dehighlight', this.id, this.stroke, this.fill, this.fill_highlight);
+		for (var i=0; i<this.elts.length; i++) this.elts[i].attr({fill:this.fill});
 		var dehighlight_attr = {fill:this.stroke, stroke:this.stroke};
 		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(dehighlight_attr);
 	};
 
 	this.remove = function() {
-		for (var i=0; i<this.elts.len; i++) this.elts[i].remove();
-		for (var i=0; i<this.textelts.len; i++) this.textelts[i].remove();
+		for (var i=0; i<this.elts.length; i++) this.elts[i].remove();
+		for (var i=0; i<this.textelts.length; i++) this.textelts[i].remove();
 	};
 	
 	this.setText = function(text) {
@@ -699,8 +700,8 @@ Control = function() {
 	};
 
 	this.toFront = function() {
-		for (var i=0; i<this.elts.len; i++) this.elts[i].toFront();
-		for (var i=0; i<this.textelts.len; i++) this.textelts[i].toFront();
+		for (var i=0; i<this.elts.length; i++) this.elts[i].toFront();
+		for (var i=0; i<this.textelts.length; i++) this.textelts[i].toFront();
 	};
 
 	this.dragStart = function(x, y, e) {
@@ -816,14 +817,15 @@ Control = function() {
 	};
 
 	this.on = function(eventname, listener) {
+		//if (!this.listeners) console.log('NO LISTENER ARRAY', this);
+		//console.log('On:', this.id, this.listeners.length, this.listeners, this);
 		if (!this.listeners[eventname]) this.listeners[eventname] = [];
 		this.listeners[eventname].push(listener);
-		//console.log('On:', this.id, this.listeners.length, this.listeners);
 	};
 
 	this.fire = function(eventname, data) {
 		var listeners = this.listeners[eventname];
-		//console.log('listeners:', listeners);
+		//console.log('firing listeners:', listeners);
 		if (!listeners) return;
 		for (var i=0; i<listeners.length; i++) {
 			var func = listeners[i];
@@ -935,6 +937,7 @@ function Button(options) {
 			//.touchcancel(function(e) { self.handleClick.call(self,e); return false;})
 
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
 		this.elts.push(this.elt);
 
 		//console.log('Element:', this.elt);
@@ -953,6 +956,7 @@ function Button(options) {
 			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
 			.touchend(function(e) { self.handleClick.call(self,e); return false;})
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
 		this.textelts.push(this.label);
 
 		if (this.readout) {
@@ -964,6 +968,7 @@ function Button(options) {
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 			this.textelts.push(this.readout);
 		}
+		return this;
 	};
 
 	this.move = function(x, y) {
@@ -1588,7 +1593,7 @@ function Group(options) {
 		}
 		if (this.childopts.type == 'Group') this.childopts.type == 'Button';
 
-console.log('Group init:', options, this.options, this.childopts);
+		//console.log('Group init:', options, this.options, this.childopts);
 
 		if (options.id) this.id = options.id;
 		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
@@ -1702,7 +1707,8 @@ console.log('Group init:', options, this.options, this.childopts);
 
 				opts.script = this.scripts[nextscript];
 				if (++nextscript >= this.scripts.length) nextscript = 0;
-console.log('Group add:', opts.type, opts);
+
+				//console.log('Group add:', opts.type, opts);
 				if (opts.type) this.parent.add([opts]);
 				else this.parent.addButton(opts);
 				x += (this.w + this.gutterx);
