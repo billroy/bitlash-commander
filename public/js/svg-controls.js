@@ -34,7 +34,7 @@ var ControlPanelBoss = {
 		//if (data.length == 0) return;
 		if (typeof data[0] == 'undefined') data = [data];
 
-		// dispatch to commands in all panels whose id field matches the update
+		// dispatch to commands in all panels whose id field matches the update's id
 		for (var i=0; i < data.length; i++) {
 			for (var p=0; p < this.panels.length; p++) {
 				var ctrl = this.panels[p].controls[data[i].id];
@@ -49,7 +49,7 @@ var ControlPanelBoss = {
 			}
 		}
 
-		// dispatch to commands in all panels whose source field matches the update
+		// dispatch to commands in all panels whose source field matches the update's id
 		for (var i=0; i < data.length; i++) {
 			for (var p=0; p < this.panels.length; p++) {
 				for (var c in this.panels[p].controls) {
@@ -97,6 +97,179 @@ function LoadControlPanel(id) {
 }
 
 ControlPanelBoss.init();
+
+
+//////////
+//
+//	Control base class
+//
+Control = function() {
+	
+	this.highlight = function(event) {
+		for (var i=0; i<this.elts.len; i++) this.elts[i].attr({fill:this.fill_highlight});
+		var highlight_attr = {fill:this.fill, stroke:this.fill};
+		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(highlight_attr);
+	};
+
+	this.dehighlight = function(event) {
+		for (var i=0; i<this.elts.len; i++) this.elts[i].attr({fill:this.fill});
+		var dehighlight_attr = {fill:this.stroke, stroke:this.stroke};
+		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(dehighlight_attr);
+	};
+
+	this.remove = function() {
+		for (var i=0; i<this.elts.len; i++) this.elts[i].remove();
+		this.label.remove();
+		if (this.readout) this.readout.remove();
+	};
+	
+	this.attr = function(attrs) {
+		for (var i=0; i<this.elts.len; i++) this.elts[i].attr(attrs);
+		var textattrs = {};
+		for (var f in attrs) textattrs[f] = attrs[f];
+		if (textattrs.stroke) textattrs.fill=attrs.stroke;
+		for (var i=0; i<this.textelts.len; i++) this.textelts[i].attr(textattrs);
+	};
+
+	this.toFront = function() {
+		for (var i=0; i<this.elts.len; i++) this.elts[i].toFront();
+		for (var i=0; i<this.textelts.len; i++) this.textelts[i].toFront();
+	};
+
+	this.setText = function(text) {
+		if (this.label) this.label.attr({text:text});
+	};
+
+	this.dragStart = function(x, y, e) {
+		console.log('Drag start:', x, y, e);
+
+		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
+
+		if (event && event.shiftKey) {
+			var id = (this.group != undefined) ? this.group : this.id;
+			this.parent.showEditMenu(id, e);
+			return true;
+		}
+		this.drag = {x:this.x, y:this.y, xoff:x-this.x, yoff:y-this.y};
+		this.dragging = true;
+		//this.highlight();
+		this.attr({opacity:0.5});
+		this.toFront();
+	};
+
+	this.move = function() {
+		console.log('ERROR =move() must be implemented in the control');
+	};
+
+	this.dragMove = function(dx, dy, x, y, e) {
+		//console.log('dragMove:',dx,dy,x,y,e);
+		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
+
+		var grid = this.parent.grid;
+		if (grid && !e.shiftKey) {
+			this.x = this.drag.x + (grid * Math.floor(dx / grid));
+			this.y = this.drag.y + (grid * Math.floor(dy / grid));
+		}
+		else {
+			this.x = this.drag.x + dx;
+			this.y = this.drag.y + dy;
+		}
+		this.move(this.x, this.y);
+		return this.dragFinish(e);
+	};
+
+	this.dragEnd = function(e) {
+		//console.log('dragEnd');
+		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
+		this.attr({opacity:1.0});
+		this.dehighlight();
+		this.options.x = this.x;
+		this.options.y = this.y;
+		delete this.drag;
+		this.dragging = false;
+		if (this.group) {
+			console.log('dragEnd calling:', this.row, this.col);
+			this.parent.controls[this.group].dragNotify(this);
+		}
+		return this.dragFinish(e);
+	};
+	
+	this.dragFinish = function(e) {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		return false;
+	};
+
+	this.handleClick = function(e) {
+		console.log('handleClick', e);
+		if (this.repeat) {
+			if (this.running) {
+				this.running = false;
+				clearInterval(this.intervalid);
+				delete this.intervalid;
+				this.runningindicator.remove();
+				delete this.runningindicator;
+			} else {
+				this.running = true;
+				var translation = ['t', this.x, ',', this.y, 's', .75].join('');
+				this.runningindicator = this.parent.paper.path('M19.275,3.849l1.695,8.56l1.875-1.642c2.311,3.59,1.72,8.415-1.584,11.317c-2.24,1.96-5.186,2.57-7.875,1.908l-0.84,3.396c3.75,0.931,7.891,0.066,11.02-2.672c4.768-4.173,5.521-11.219,1.94-16.279l2.028-1.775L19.275,3.849zM8.154,20.232c-2.312-3.589-1.721-8.416,1.582-11.317c2.239-1.959,5.186-2.572,7.875-1.909l0.842-3.398c-3.752-0.93-7.893-0.067-11.022,2.672c-4.765,4.174-5.519,11.223-1.939,16.283l-2.026,1.772l8.26,2.812l-1.693-8.559L8.154,20.232z')
+					.transform(translation)
+					.attr({fill:this.stroke, stroke:this.stroke});					
+				this.exec();
+			}
+		}
+		else this.exec();
+		return true;		//this.dragFinish();
+	};
+
+	this.exec = function() {
+
+		if (!this.script) {
+			//this.setValue(!this.value);		// unscripted buttons toggle and gossip
+			return;
+		}
+
+		if (typeof this.script == 'function') return this.script.call(this);
+		
+		var cmd = Mustache.render(this.script, this);
+		//console.log('button exec:', cmd);
+
+		if (cmd.match(/^javascript\:/)) {			// javascript command
+			cmd = cmd.replace('javascript:', '');
+			eval(cmd);
+		}
+		else {										// bitlash command
+			this.parent.sendCommand('exec', {cmd:cmd, id:this.id});
+		}
+		if (this.repeat && !this.intervalid) {
+			var self = this;
+			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
+		}
+	};
+
+	this.setValue = function(value) {
+		console.log('ERROR: setValue() must be defined in the control.');
+	};
+
+	this.on = function(eventname, listener) {
+		if (!this.listeners[eventname]) this.listeners[eventname] = [];
+		this.listeners[eventname].push(listener);
+		//console.log('On:', this.id, this.listeners.length, this.listeners);
+	};
+
+	this.fire = function(eventname, data) {
+		var listeners = this.listeners[eventname];
+		//console.log('listeners:', listeners);
+		if (!listeners) return;
+		for (var i=0; i<listeners.length; i++) {
+			var func = listeners[i];
+			//console.log('firing listener', i, data);
+			func(data);
+		}
+	};
+};
 
 
 //////////
@@ -449,6 +622,7 @@ console.log('Add:', items[i]);
 			else if (items[i].type == 'Chart') this.addChart(items[i]);
 			else if (items[i].type == 'Text') this.addText(items[i]);
 			else if (items[i].type == 'Group') this.addGroup(items[i]);
+			else if (items[i].type == 'Meter') this.addMeter(items[i]);
 			else if (items[i].type == 'Panel') {
 				for (var f in items[i]) {
 					this.options[f] = this[f] = items[i][f];
@@ -842,6 +1016,8 @@ Button.prototype = {
 			.mousedown(function(e) { self.highlight.call(self, e); return false;})
 			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+console.log('new button:', this, this.prototype, this.__proto__);
 
 		return this;
 	},
@@ -2266,12 +2442,9 @@ console.log('reversing bits');
 //	Meter control
 //
 function Meter(options) {
-	return this.init(options || {});
-}
+	this.__proto__ = new Control();
 
-Meter.prototype = {
-
-	init: function(options) {
+	this.init = function(options) {
 		this.type = options.type = 'Meter';
 		this.parent = options.parent;
 
@@ -2315,12 +2488,18 @@ Meter.prototype = {
 		if (options.source) this.source = options.source;
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
-
+		this.elts = [];
+		this.textelts = [];
 		var self = this;
 
 		this.elt = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.corner);
+		this.elts.push(this.elt);
 		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h - 1.5 * this.fontsize, this.text);
-		if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + (this.h/2) + this.fontsize, '420');
+		this.textelts.push(this.label);
+		if (!this.noreadout) {
+			this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + (this.h/2) + this.fontsize, '420');
+			this.textelts.push(this.readout);
+		}
 
 		// needle
 		this.resetBearing();
@@ -2331,9 +2510,11 @@ Meter.prototype = {
 
 		this.bearing = this.parent.paper.circle(this.nx, this.ny, 3)
 			.attr({fill:this.nfill, stroke:this.nstroke});
-
+		this.elts.push(this.bearing);
+		
 		this.needle = this.parent.paper.rect(this.nx, this.ny - this.nl, 1, this.nl)
 			.attr({fill:this.nfill, stroke:this.nstroke});
+		this.elts.push(this.needle);
 
 		this.ticks = options.ticks || 5;
 		this.batons = [];
@@ -2351,24 +2532,15 @@ Meter.prototype = {
 				.attr({fill:this.stroke, stroke:this.stroke})
 				//.transform("r" + this.needleAngle(value) + " " + this.nx + " " + this.ny-this.nl);
 				.rotate(this.needleAngle(value), this.nx, this.ny);
-			this.batons.push(baton);
+			//this.batons.push(baton);
+			this.elts.push(baton);
 
 			var label = this.parent.paper.text(this.nx, this.ly, ''+value)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size':font_factor * this.fontsize})
 				.rotate(this.needleAngle(value), this.nx, this.ny);
-			this.labels.push(label);
+			//this.labels.push(label);
+			this.textelts.push(label);
 		}
-/*
-		var font_factor = .7;
-		this.ly = this.by + (font_factor * this.fontsize);
-		var minlabel = this.parent.paper.text(this.nx, this.ly, ''+this.min)
-				.attr({fill:this.stroke, stroke:this.stroke, 'font-size':font_factor * this.fontsize})
-				.rotate(this.needleAngle(this.min), this.nx, this.ny);
-
-		var maxlabel = this.parent.paper.text(this.nx, this.ly, ''+this.max)
-				.attr({fill:this.stroke, stroke:this.stroke, 'font-size':font_factor * this.fontsize})
-				.rotate(this.needleAngle(this.max), this.nx, this.ny);
-*/
 
 		this.elt
 			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
@@ -2406,14 +2578,15 @@ Meter.prototype = {
 		this.setValue(this.value);
 
 		return this;
-	},
+	};
 	
-	resetBearing: function() {
+	this.resetBearing = function() {
 		this.nx = this.x + .5 * this.w;
 		this.ny = this.y + .8 * this.h;
 		this.nl = .6 * this.h;
-	},
-	
+	};
+
+/*	
 	highlight: function(event) {
 		this.elt.attr({fill:this.fill_highlight});
 		var highlight_attr = {fill:this.fill, stroke: this.fill};
@@ -2464,17 +2637,15 @@ console.log('Drag start:', x, y, e);
 		this.attr({opacity:0.5});
 		this.toFront();
 	},
+*****/
 
-	toFront: function() {
-		this.elt.toFront();
-		if (this.readout) this.readout.toFront();
-		this.label.toFront();
-
-		this.needle.toFront();
+	this.toFront = function() {
+		this.__proto__.toFront.call(this);
 		this.bearing.toFront();
-	},
+		this.needle.toFront();
+	};
 
-	move: function(x, y) {
+	this.move = function(x, y) {
 		//console.log('move:', x, y, this);
 		this.x = x;
 		this.y = y;
@@ -2485,8 +2656,9 @@ console.log('Drag start:', x, y, e);
 		this.resetBearing();
 		this.bearing.attr({x:this.nx, y:this.ny});
 		this.needle.attr({x:this.nx, y:this.ny});
-	},
+	};
 
+/*****
 	dragMove: function(dx, dy, x, y, e) {
 		//console.log('dragMove:',dx,dy,x,y,e);
 		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
@@ -2580,14 +2752,15 @@ console.log('handleClick', e);
 			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
 		}
 	},
+*****/
 
-	needleAngle: function(value) {
+	this.needleAngle = function(value) {
 		var fraction = (value - this.min) / (this.max - this.min);
 		var raw_angle = this.min_angle + fraction * (this.max_angle - this.min_angle);
 		return raw_angle % 360;
-	},
+	};
 
-	setValue: function(value) {
+	this.setValue = function(value) {
 		this.value = value;
 		//this.label.attr({text: this.text + ': ' + this.value});
 		if (this.readout) this.readout.attr({text: '' + this.value});
@@ -2599,8 +2772,9 @@ console.log('handleClick', e);
 
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
-	},
+	};
 
+/*****
 	on: function(eventname, listener) {
 		if (!this.listeners[eventname]) this.listeners[eventname] = [];
 		this.listeners[eventname].push(listener);
@@ -2617,5 +2791,8 @@ console.log('handleClick', e);
 			func(data);
 		}
 	}	
+*****/
+
+	return this.init(options || {});
 }
 

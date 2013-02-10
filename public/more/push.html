@@ -77,7 +77,8 @@ console.log('page update:', data);
 	var testslide = Panel.addSlider({
 		x:800, y:120,
 		id:'testslide', text:'test',
-		min:0, max:1024
+		min:0, max:1024,
+		script:'javascript:this.parent.boss.handleUpdate({id:"testslide", value:{{value}}});'
 	});
 
 	var random_value = Math.floor((meter.max + meter.min)/2);

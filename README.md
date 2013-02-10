@@ -182,8 +182,6 @@ The push example in the file public/push.html shows event listeners in use:
 
 - right-click menus
 
-- BUG: .delete methods should be .remove
-
 - multi panel
 
 	- BUG: All menu commands end up targeted at Panel0
@@ -197,10 +195,10 @@ The push example in the file public/push.html shows event listeners in use:
 			- could save 'menupanel' as well as owner
 
 - meter control
+	- damping factor for animation
 	- drag move batons[] and labels[]
 	- attr() for batons[] and labels[]
 	- draw the arc
-	- animate the motion for damping?
 
 - doc:
 	- radio attribute in groups
