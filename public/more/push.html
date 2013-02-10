@@ -65,7 +65,10 @@ console.log('page update:', data);
 
 	var minimmeter = Panel.addMeter({
 		x:500, y:440,
-		w:48, h:48,
+		w:96, h:96,
+		ticks:3,
+		noreadout:true,
+		stroke:'blue', fill:'white',
 		id:'minivU', text:'vU',
 	});
 

@@ -2313,10 +2313,14 @@ Meter.prototype = {
 		this.needle = this.parent.paper.rect(this.nx, this.ny - this.nl, 1, this.nl)
 			.attr({fill:this.nfill, stroke:this.nstroke});
 
-		this.ticks = 7;
+		this.ticks = options.ticks || 5;
 		this.batons = [];
+		this.labels = [];
 		this.baton_height = 5;
 		this.by = this.ny - this.nl - this.baton_height - 1;
+
+		var font_factor = .7;
+		this.ly = this.by + (font_factor * this.fontsize);
 
 		var step = (this.max - this.min) / (this.ticks-1);
 		for (var t=0; t<this.ticks; t++) {
@@ -2325,12 +2329,16 @@ Meter.prototype = {
 				.attr({fill:this.stroke, stroke:this.stroke})
 				//.transform("r" + this.needleAngle(value) + " " + this.nx + " " + this.ny-this.nl);
 				.rotate(this.needleAngle(value), this.nx, this.ny);
-
 			this.batons.push(baton);
-		}
 
+			var label = this.parent.paper.text(this.nx, this.ly, ''+value)
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size':font_factor * this.fontsize})
+				.rotate(this.needleAngle(value), this.nx, this.ny);
+			this.labels.push(label);
+		}
+/*
 		var font_factor = .7;
-		this.ly = this.by - 1.5 * (font_factor * this.fontsize);
+		this.ly = this.by + (font_factor * this.fontsize);
 		var minlabel = this.parent.paper.text(this.nx, this.ly, ''+this.min)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size':font_factor * this.fontsize})
 				.rotate(this.needleAngle(this.min), this.nx, this.ny);
@@ -2338,7 +2346,7 @@ Meter.prototype = {
 		var maxlabel = this.parent.paper.text(this.nx, this.ly, ''+this.max)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size':font_factor * this.fontsize})
 				.rotate(this.needleAngle(this.max), this.nx, this.ny);
-
+*/
 
 		this.elt
 			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
@@ -2380,8 +2388,8 @@ Meter.prototype = {
 	
 	resetBearing: function() {
 		this.nx = this.x + .5 * this.w;
-		this.ny = this.y + .75 * this.h;
-		this.nl = .5 * this.h;
+		this.ny = this.y + .8 * this.h;
+		this.nl = .6 * this.h;
 	},
 	
 	highlight: function(event) {
