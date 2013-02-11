@@ -1005,6 +1005,14 @@ function Button(options) {
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
 	};
+	
+	this.exec = function() {
+		// handle radio button side effects
+		if (this.group && this.parent.controls[this.group].radio) {
+			this.parent.controls[this.group].setValue(this.text);
+		}
+		this.__proto__.exec.call(this);
+	};
 
 	return this.init(options || {});
 };
@@ -1873,17 +1881,20 @@ function Meter(options) {
 		this.textelts = [];
 		var self = this;
 
+		this.layout();
+
 		this.elt = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.corner);
 		this.elts.push(this.elt);
-		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h - 1.5 * this.fontsize, this.text);
+
+		this.label = this.parent.paper.text(this.lx, this.ly, this.text);
 		this.textelts.push(this.label);
+
 		if (!this.noreadout) {
-			this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + (this.h/2) + this.fontsize, '420');
+			this.readout = this.parent.paper.text(this.rx, this.ry, '');
 			this.textelts.push(this.readout);
 		}
 
 		// needle
-		this.resetBearing();
 		this.nfill = 'red';
 		this.nstroke = 'red';
 		this.min_angle = -45;
@@ -1961,10 +1972,14 @@ function Meter(options) {
 		return this;
 	};
 	
-	this.resetBearing = function() {
+	this.layout = function() {
 		this.nx = this.x + .5 * this.w;
 		this.ny = this.y + .8 * this.h;
 		this.nl = .6 * this.h;
+		this.lx = this.x + (this.w/2);
+		this.ly = this.y + this.h - 1.5 * this.fontsize;
+		this.rx = this.x + (this.w/2);
+		this.ry = this.y + (this.h/2) + this.fontsize;
 	};
 
 
@@ -1979,12 +1994,12 @@ function Meter(options) {
 		this.x = x;
 		this.y = y;
 		this.elt.attr({x:x, y:y});
-		this.label.attr({x:x + this.w/2, y:y + this.h/2});
-		if (this.readout) this.readout.attr({x:x + this.w/2, y:y + this.h/2 + this.fontsize});
 
-		this.resetBearing();
+		this.layout();
+		this.label.attr({x:this.lx, y:this.ly});
+		if (this.readout) this.readout.attr({x:this.rx, y:this.ry});
 		this.bearing.attr({x:this.nx, y:this.ny});
-		this.needle.attr({x:this.nx, y:this.ny});
+		this.needle.attr({x:this.nx, y:this.ny - this.nl});
 	};
 
 	this.needleAngle = function(value) {

@@ -195,12 +195,13 @@ The push example in the file public/push.html shows event listeners in use:
 			- could save 'menupanel' as well as owner
 
 - meter control
+	- BUG: needle flies away on drag move
 	- BUG: drag move batons[] and labels[]
-	- BUG: attr() for batons[] and labels[]
 	- damping factor for animation
 	- draw the arc
 
 - common base class
+
 	- BUG: clicking radio button doesn't keep the clicked button highlighted
 
 	- 175 lines extracted from Meter
@@ -213,6 +214,8 @@ The push example in the file public/push.html shows event listeners in use:
 	- 2007 after Chart	
 
 - doc:
+	- source id dispatch
+	- Meter
 	- radio attribute in groups
 	- new frontpage 
 	- new install

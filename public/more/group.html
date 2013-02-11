@@ -25,7 +25,8 @@
 $(document).ready(function() {
 
 	//document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
-	
+	var effects = 1;	
+
 	var Panel = new ControlPanel({stroke:'blue', id:'grouptest', title:'Button Group Test'});
 	Panel.addGroup({
 			id: 'btns',
@@ -133,7 +134,7 @@ $(document).ready(function() {
 			script: 'javascript:alert(this.id);'
 		});
 		
-	window.setInterval(function() { 
+	if (effects) window.setInterval(function() { 
 		var newvalue = ~(-1<<Math.floor(32*Math.random()));
 		led32.setValue(newvalue);
 	}, 900);
@@ -157,7 +158,7 @@ $(document).ready(function() {
 		});
 
 	var redcount=0;
-	window.setInterval(function() { 
+	if (effects) window.setInterval(function() { 
 		//var newvalue = Math.floor(Math.random() * 256);
 		var newvalue = redcount++;
 		v8.setValue(newvalue); 
@@ -179,7 +180,8 @@ $(document).ready(function() {
 				script: 'javascript:alert(this.id);'
 			}
 		});
-	window.setInterval(function() {
+
+	if (effects) window.setInterval(function() {
 		var newvalue;
 		if (!trafficlight.value) newvalue = 1;
 		else {
