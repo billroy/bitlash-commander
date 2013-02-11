@@ -88,6 +88,7 @@ var ControlPanelBoss = {
 			else if (items[i].type == 'Text') panel.addText(items[i]);
 			else if (items[i].type == 'Group') panel.addGroup(items[i]);
 			else if (items[i].type == 'Meter') panel.addMeter(items[i]);
+			else if (items[i].type == 'Scope') panel.addScope(items[i]);
 			else console.log('Unknown type in Add:', items[i]);
 		}
 	}
@@ -247,6 +248,7 @@ ControlPanel.prototype = {
 				else if (key == 'addhslider') self.addSlider({x:self.menux, y:self.menuy, subtype:'x', w:192, h:72});
 				else if (key == 'addchart') self.addChart({x:self.menux, y:self.menuy, });
 				else if (key == 'addmeter') self.addMeter({x:self.menux, y:self.menuy, });
+				else if (key == 'addscope') self.addScope({x:self.menux, y:self.menuy, });
 				else if (key == 'save') self.saveControls();
 				else if (key == 'editpanel') self.edit.call(self, self);
 				else if (key == 'addtext') self.addText({x:self.menux, y:self.menuy, text:'Text'});
@@ -282,6 +284,7 @@ ControlPanel.prototype = {
 				'sep4': 	 	'---------',
 				'addchart':  	{name: 'New Chart', 	icon: 'addchart'},
 				'addmeter':  	{name: 'New Meter', 	icon: 'addchart'},
+				'addscope':  	{name: 'New Scope', 	icon: 'addscope'},
 				'sep5': 	 	'---------',
 				//'openpanel': 	{name: 'Open Panel', 	icon: 'openpanel'},
 				//'scale': 	 	{name: 'Scale...', 	icon: 'save'},
@@ -377,6 +380,14 @@ console.log('Menu owner:', id);
 		return meter;
 	},
 
+	addScope: function(options) {
+		options.parent = this;
+		options.type = 'Scope';
+		var scope = new Scope(options);
+		this.controls[scope.id] = scope;
+		return scope;
+	},
+
 	addText: function(options) {
 		options.parent = this;
 		options.type = 'Text';
@@ -402,6 +413,7 @@ console.log('Add:', items[i]);
 			else if (items[i].type == 'Text') this.addText(items[i]);
 			else if (items[i].type == 'Group') this.addGroup(items[i]);
 			else if (items[i].type == 'Meter') this.addMeter(items[i]);
+			else if (items[i].type == 'Scope') this.addScope(items[i]);
 			else if (items[i].type == 'Panel') {
 				for (var f in items[i]) {
 					this.options[f] = this[f] = items[i][f];
@@ -2045,3 +2057,155 @@ function Meter(options) {
 	return this.init(options || {});
 }
 
+
+//////////
+//
+//	Scope control
+//
+function Scope(options) {
+	this.__proto__ = new Control();
+
+	this.init = function(options) {
+		this.type = options.type = 'Scope';
+		this.parent = options.parent;
+
+		this.options = {};
+		for (var o in options) this.options[o] = options[o];
+
+		if (options.id) this.id = options.id;
+		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
+		else this.id = this.parent.uniqueid(this.type);
+		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
+
+		this.defaults = {
+			x:48, y:48, w:288, h:144,
+			text: undefined,
+			script: undefined,
+			fill: this.parent.fill,
+			fill_highlight: this.parent.lighter(this.parent.stroke),
+			stroke: this.parent.stroke,
+			'stroke-width': this.parent.control_stroke,
+			fontsize: this.parent.fontsize,
+			repeat: 0,
+			running: 0,
+			corner: this.parent.button_corner,
+			subtype: undefined,
+			autorun: undefined,
+			ticks: 5,
+			source: undefined,
+			refresh: 0,
+			min: 0,
+			max: 1024
+		}
+		console.log('Scope defaults:', this.defaults);
+
+		for (var prop in this.defaults) {
+			if (options.hasOwnProperty(prop)) this[prop] = options[prop];
+			else if (this.defaults[prop] != undefined) this[prop] = this.defaults[prop];
+		}
+
+		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
+		this.elts = [];
+		this.textelts = [];
+
+		this.render();
+
+		var self = this;
+		if (this.autorun) {
+			this.intervalid = window.setInterval(function() {
+console.log('plotting:', self.value);
+				self.plot(self.value);
+			}, this.autorun);
+		}
+
+		return this;
+	};
+
+	this.layout = function() {
+		this.lx = this.x + (this.w/2);
+		this.ly = this.y + this.h + this.fontsize*2;
+		this.maxlx = this.minlx = this.x + this.w + this.fontsize;
+		this.minly = this.mapy(this.min);
+		this.maxly = this.mapy(this.max);
+	};
+	
+	this.render = function() {
+		this.layout();
+		var self = this;
+		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.parent.button_corner)
+			.attr({fill: this.fill, stroke: this.stroke, 'stroke-width':this.parent.control_stroke})
+			.click(function(e) { return self.handleClick.call(self, e); })
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this)
+			.mouseover(function(e) { self.outerrect.attr({cursor:'pointer'}); });
+		this.elts.push(this.outerrect);
+
+		this.label = this.parent.paper.text(this.lx, this.ly, this.text)
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+			.click(function(e) { return self.handleClick.call(self, e); })
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+		this.textelts.push(this.label);
+
+		this.minlabel = this.parent.paper.text(this.minlx, this.minly, ''+this.min)
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+			.click(function(e) { return self.handleClick.call(self, e); })
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+		this.textelts.push(this.minlabel);
+
+		this.maxlabel = this.parent.paper.text(this.maxlx, this.maxly, ''+this.max)
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+			.click(function(e) { return self.handleClick.call(self, e); })
+			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+		this.textelts.push(this.maxlabel);
+	};
+
+	this.move = function(x, y) {
+		this.x = x;
+		this.y = y;
+		this.layout();
+		this.outerrect.attr({x:this.x, y:this.y});
+		this.label.attr({x:this.lx, y:this.ly});
+	};
+
+	this.mapy = function(value) {
+		var fraction = (value - this.min) / (this.max-this.min);
+		fraction = 1 - fraction;	// y axis is inverted
+		var y = Math.floor(this.y + (fraction * (this.h-2)));
+		return y;
+	};
+
+	this.points = [];
+
+	this.setValue = function(value) {
+		this.value = value;
+		this.plot(value);
+		var update = {id: this.id, value: this.value};
+		this.fire('update', update);
+	};
+
+	this.plot = function(value) {
+		this.scroll();
+		var y = this.mapy(value);
+		var point = this.parent.paper.rect(this.x + this.w - 1, y, 1, 1)
+			.attr({fill:'red', stroke:'red'});
+		this.points.push(point);
+	};
+
+	this.scroll = function() {
+		var p=0;
+		while (p < this.points.length) {
+			var point = this.points[p];
+			var pointx = point.attr('x');
+			if (pointx > this.x+1) {
+				point.attr({x:pointx - 1});
+				p++;
+			}
+			else {
+				point.remove();
+				this.points.splice(p, 1);
+			}
+		}
+	};
+
+
+	return this.init(options || {});
+}

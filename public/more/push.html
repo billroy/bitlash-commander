@@ -99,6 +99,15 @@ console.log('page update:', data);
 	}, 1000);
 */
 
+	var scope = Panel.addScope({
+		id:'scope', text:'Scope',
+		x:624, y:432,
+//		autorun:50,
+		source:'testslide'
+	});
+
+	for (var i=0; i<100; i++) scope.setValue(i);
+
 }); 	// document.ready
 </script>
 <div id='editor'>
