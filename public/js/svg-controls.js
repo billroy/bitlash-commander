@@ -1502,6 +1502,26 @@ console.log('merged:', this);
 		this.svg.attr('transform', translation);
 	};
 
+	this.handleClick = function(e) {
+		if (this.repeat) {
+			if (this.running) {
+				this.running = false;
+				clearInterval(this.intervalid);
+				delete this.intervalid;
+			} else {
+				this.running = true;
+				this.exec();
+			}
+		}
+		else this.redraw();
+
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		return false;
+	};
+
 	this.setValue = function(value) {
 		this.value = value;
 		//this.label.attr({text: this.text + ': ' + this.value});

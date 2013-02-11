@@ -202,7 +202,7 @@ The push example in the file public/push.html shows event listeners in use:
 
 - common base class
 
-	- BUG: clicking radio button doesn't keep the clicked button highlighted
+	- BUG: click in chart does not refresh
 
 	- 175 lines extracted from Meter
 	- 2597 lines in original state
