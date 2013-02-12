@@ -1732,48 +1732,50 @@ function Group(options) {
 		else if (options.gutter != undefined) this.guttery = options.gutter;
 		else this.guttery = 20;
 
-		var nextstroke = 0;
+		this.nextstroke = 0;
 		this.strokes = this.childopts.stroke || this.stroke;
 		if (!(this.strokes instanceof Array)) this.strokes = [this.strokes];
 
-		var nextfill = 0;
+		this.nextfill = 0;
 		this.fills = this.childopts.fill || this.fill;
 		if (!(this.fills instanceof Array)) this.fills = [this.fills];
 
-		var nexttext = 0;
+		this.nexttext = 0;
 		this.texts = this.childopts.text || this.text;
 		if (!(this.texts instanceof Array)) this.texts = [this.texts];
 
-		var nextscript = 0;
+		this.nextscript = 0;
 		this.scripts = this.childopts.script || this.script;
 		if (!(this.scripts instanceof Array)) this.scripts = [this.scripts];
 
-		var nextsource = 0;
+		this.nextsource = 0;
 		this.sources = this.childopts.source || this.source;
 		if (!(this.sources instanceof Array)) this.sources = [this.sources];
 
-		var self = this;
-
+		this.render();
+		return this;
+	}
+	
+	this.layout = function() {
 		this.outerh = this.numy * (this.h + this.guttery) + this.guttery;
 		if (this.childopts.type == 'Slider') {
 			this.outerh += 3 * this.fontsize;
 		}
+	};
+
+	this.render = function() {
+		this.layout();
 
 		// bug: we don't have accurate this.w and this.h for path buttons here
 		this.elt = this.parent.paper.rect(
 			this.x - this.gutterx,
 			this.y - this.guttery, 
 			this.numx * (this.w + this.gutterx) + this.gutterx,
-			//this.numy * (this.h + this.guttery) + this.guttery, this.corner)
 			this.outerh, this.corner)
-				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
-				.click(function(e) { return self.handleClick.call(self, e); })
-				//.mousedown(function(e) { self.elt.attr({fill:self.fill_highlight}); })
-				//.mouseup(function(e) { self.elt.attr({fill:self.fill});})
-				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
-//				.mouseover(function(e) { self.label.attr({cursor:'pointer'}); });
+				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']});
 
 		this.elts.push(this.elt);
+		this.sethandlers();
 
 		var x;
 		var y = this.y;
@@ -1789,20 +1791,20 @@ function Group(options) {
 				opts.row = row;
 				opts.col = col;
 
-				opts.stroke = this.strokes[nextstroke];
-				if (++nextstroke >= this.strokes.length) nextstroke = 0;
+				opts.stroke = this.strokes[this.nextstroke];
+				if (++this.nextstroke >= this.strokes.length) this.nextstroke = 0;
 
-				opts.fill = this.fills[nextfill];
-				if (++nextfill >= this.fills.length) nextfill = 0;
+				opts.fill = this.fills[this.nextfill];
+				if (++this.nextfill >= this.fills.length) this.nextfill = 0;
 
-				opts.text = this.texts[nexttext];
-				if (++nexttext >= this.texts.length) nexttext = 0;
+				opts.text = this.texts[this.nexttext];
+				if (++this.nexttext >= this.texts.length) this.nexttext = 0;
 
-				opts.script = this.scripts[nextscript];
-				if (++nextscript >= this.scripts.length) nextscript = 0;
+				opts.script = this.scripts[this.nextscript];
+				if (++this.nextscript >= this.scripts.length) this.nextscript = 0;
 
-				opts.source = this.sources[nextsource];
-				if (++nextsource >= this.sources.length) nextsource = 0;
+				opts.source = this.sources[this.nextsource];
+				if (++this.nextsource >= this.sources.length) this.nextsource = 0;
 
 				//console.log('Group add:', opts.type, opts);
 				if (opts.type) this.parent.add([opts]);
@@ -1863,11 +1865,9 @@ function Group(options) {
 		}
 	};
 
-	this.handleClick = function(e) {
-		return false;
-	};
-
-	this.exec = function() {
+	this.dragEnd = function(e) {
+		this.remove();
+		this.render();
 	};
 
 	this.setValue = function(value) {
@@ -1960,6 +1960,16 @@ function Meter(options) {
 		if (options.row != undefined) this.row = options.row;
 		if (options.col != undefined) this.col = options.col;
 
+		this.min_angle = options.min_angle || -45;
+		this.max_angle = options.max_angle || 45;
+
+		// needle attributes
+		this.nfill = options.nfill || 'red';
+		this.nstroke = options.nstroke || 'red';
+
+		this.ticks = options.ticks || 5;
+		this.baton_height = options.baton_height || 5;
+
 		this.min = options.min || 0;
 		this.max = options.max || 1024;
 		if (options.source) this.source = options.source;
@@ -1981,6 +1991,10 @@ function Meter(options) {
 		this.ly = this.y + this.h - 1.5 * this.fontsize;
 		this.rx = this.x + (this.w/2);
 		this.ry = this.y + (this.h/2) + this.fontsize;
+
+		this.by = this.ny - this.nl - this.baton_height - 1;
+		var font_factor = .7;
+		this.ly = this.by + (font_factor * this.fontsize);
 	};
 
 	this.render = function() {
@@ -2001,12 +2015,6 @@ function Meter(options) {
 			this.textelts.push(this.readout);
 		}
 
-		// needle
-		this.nfill = 'red';
-		this.nstroke = 'red';
-		this.min_angle = -45;
-		this.max_angle = 45;
-
 		this.bearing = this.parent.paper.circle(this.nx, this.ny, 3)
 			.attr({fill:this.nfill, stroke:this.nstroke});
 		this.elts.push(this.bearing);
@@ -2014,13 +2022,6 @@ function Meter(options) {
 		this.needle = this.parent.paper.rect(this.nx, this.ny - this.nl, 1, this.nl)
 			.attr({fill:this.nfill, stroke:this.nstroke});
 		this.elts.push(this.needle);
-
-		this.ticks = options.ticks || 5;
-		this.baton_height = 5;
-		this.by = this.ny - this.nl - this.baton_height - 1;
-
-		var font_factor = .7;
-		this.ly = this.by + (font_factor * this.fontsize);
 
 		var step = (this.max - this.min) / (this.ticks-1);
 		for (var t=0; t<this.ticks; t++) {
@@ -2134,9 +2135,9 @@ function Scope(options) {
 
 		this.render();
 
-		var self = this;
 		if (this.autorun) {
-		this.intervalid = window.setInterval(function() {
+			var self = this;
+			this.intervalid = window.setInterval(function() {
 				//console.log('plotting:', self.value);
 				self.scroll();
 				self.plot(self.value);
