@@ -680,7 +680,54 @@ console.log('Add:', items[i]);
 //	Control base class
 //
 Control = function() {
-	
+
+	this.sethandlers = function() {
+		var self = this;
+		for (var i=0; i<this.elts.length; i++) {
+			this.elts[i]
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.mousedown(function(e) { self.highlight.call(self, e); return false;})
+				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
+				.mouseover(function(e) { self.attr.call(self, {cursor:'pointer'}); return false;})
+				.touchend(function(e) { self.handleClick.call(self,e); return false;})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+			$(this.elts[i].node).bind("contextmenu", function(event) {
+				var id = (self.group != undefined) ? self.group : self.id;
+				self.parent.showEditMenu(id, event);
+				event.preventDefault();
+				event.stopPropagation();
+				return false;
+			});
+		}
+
+		for (var i=0; i<this.textelts.length; i++) {
+			this.textelts[i]
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.mousedown(function(e) { self.highlight.call(self, e); return false;})
+				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
+				.mouseover(function(e) { self.attr.call(self, {cursor:'pointer'}); return false;})
+				.touchend(function(e) { self.handleClick.call(self,e); return false;})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+/*
+			$(this.elts[i].node).bind("contextmenu", function(event) {
+				var id = (self.group != undefined) ? self.group : self.id;
+				self.parent.showEditMenu(id, event);
+				event.preventDefault();
+				event.stopPropagation();
+				return false;
+			});
+*/
+		}
+	};
+
+	this.setoptions = function(options) {
+		for (var prop in this.defaults) {
+			if (options.hasOwnProperty(prop)) this[prop] = options[prop];
+			else if (this.defaults[prop] != undefined) this[prop] = this.defaults[prop];
+		}
+	};
+
 	this.attr = function(attrs) {
 		for (var i=0; i<this.elts.length; i++) this.elts[i].attr(attrs);
 		var textattrs = {};
@@ -1343,40 +1390,12 @@ function Chart(options) {
 			ymin: undefined
 		}
 		console.log('Chart defaults:', this.defaults);
+		this.setoptions(options);
 
-		for (var prop in this.defaults) {
-console.log('merging:', prop);
-			if (options.hasOwnProperty(prop)) this[prop] = options[prop];
-			else if (this.defaults[prop] != undefined) this[prop] = this.defaults[prop];
-		}
-console.log('merged:', this); 
-
-/*
-		this.x = options.x || 48;
-		this.y = options.y || 48;
-		this.w = options.w || 288;
-		this.h = options.h || 144;
-		this.text = options.text || '';
-		this.script = options.script || '';
-		this.fill = options.fill || this.parent.fill;
-		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
-		this.stroke = options.stroke || this.parent.stroke;
-		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
-		this.fontsize = options.fontsize || this.parent.fontsize;
-		this.repeat = options.repeat || 0;
-		this.running = 0;
-		this.corner = options.corner || this.parent.button_corner;
-		this.subtype = options.subtype || '';
-		this.r = options.r || this.w/2;
-		this.autorun = options.autorun || false;
-		this.interpolate = options.interpolate || 'step-after';		// 'basis'
-		this.ticks = options.ticks || 5;
-		this.target = options.target || this.id;
-		this.refresh = options.refresh || 0;
-		if (options.ymax) this.ymax = options.ymax;
-		if (options.ymin) this.ymin = options.ymin;
-*/
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
+		this.elts = [];
+		this.textelts = [];
+
 		this.render();		// render D3 chart
 		
 		var self = this;
@@ -1407,15 +1426,14 @@ console.log('merged:', this);
 
 		var self = this;
 		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.parent.button_corner)
-			.attr({fill: this.fill, stroke: this.stroke, 'stroke-width':this.parent.control_stroke})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this)
-			.mouseover(function(e) { self.outerrect.attr({cursor:'pointer'}); });
+			.attr({fill: this.fill, stroke: this.stroke, 'stroke-width':this.parent.control_stroke});
+		this.elts.push(this.outerrect);
 
 		this.label = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize*2, this.text)
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize});
+		this.textelts.push(this.label);
+
+		this.sethandlers();
 
 		this.svg = d3.select(this.parent.paper.canvas).append('g')
 				.attr('width', width + margin.left + margin.right)
@@ -1515,6 +1533,11 @@ console.log('merged:', this);
 		this.svg.attr('transform', translation);
 	};
 
+	this.dragEnd = function() {
+		this.remove();
+		this.redraw();
+	};
+
 	this.handleClick = function(e) {
 		if (this.repeat) {
 			if (this.running) {
@@ -1577,26 +1600,26 @@ function Text(options) {
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 		this.elts = [];
 		this.textelts = [];
-
-		var self = this;
-
-		this.label = this.parent.paper.text(this.x, this.y, this.text)
-			.attr({fill:this.stroke, stroke:this.stroke, 
-				'font-size': this.fontsize,
-				'text-anchor': 'start'})	// http://stackoverflow.com/questions/2124763/raphael-js-and-text-positioning
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.mousedown(function(e) { self.attr({opacity:0.5}); })
-			.mouseup(function(e) { self.attr({opacity:1.0});})
-			.mouseout(function(e) { self.attr({opacity:1.0});})
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
-//			.mouseover(function(e) { self.label.attr({cursor:'pointer'}); });
-
-		this.textelts.push(this.label);
+		
+		this.render();
 		return this;
+	};
+	
+	this.render = function() {
+		this.label = this.parent.paper.text(this.x, this.y, this.text)
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize,
+				'text-anchor': 'start'});	// http://stackoverflow.com/questions/2124763/raphael-js-and-text-positioning
+		this.textelts.push(this.label);
+		this.sethandlers();
 	};
 
 	this.move = function(newx, newy) {
 		this.label.attr({x:this.x, y:this.y});
+	};
+
+	this.dragEnd = function(e) {
+		this.remove();
+		this.render();
 	};
 
 	this.setValue = function(value) {
@@ -1700,6 +1723,10 @@ function Group(options) {
 		this.scripts = this.childopts.script || this.script;
 		if (!(this.scripts instanceof Array)) this.scripts = [this.scripts];
 
+		var nextsource = 0;
+		this.sources = this.childopts.source || this.source;
+		if (!(this.sources instanceof Array)) this.sources = [this.sources];
+
 		var self = this;
 
 		this.outerh = this.numy * (this.h + this.guttery) + this.guttery;
@@ -1748,6 +1775,9 @@ function Group(options) {
 
 				opts.script = this.scripts[nextscript];
 				if (++nextscript >= this.scripts.length) nextscript = 0;
+
+				opts.source = this.sources[nextsource];
+				if (++nextsource >= this.sources.length) nextsource = 0;
 
 				//console.log('Group add:', opts.type, opts);
 				if (opts.type) this.parent.add([opts]);
@@ -1932,14 +1962,17 @@ function Meter(options) {
 
 		this.layout();
 
-		this.elt = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.corner);
+		this.elt = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.corner)
+			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']});
 		this.elts.push(this.elt);
 
-		this.label = this.parent.paper.text(this.lx, this.ly, this.text);
+		this.label = this.parent.paper.text(this.lx, this.ly, this.text)
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize});
 		this.textelts.push(this.label);
 
 		if (!this.noreadout) {
-			this.readout = this.parent.paper.text(this.rx, this.ry, '');
+			this.readout = this.parent.paper.text(this.rx, this.ry, '')
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2});
 			this.textelts.push(this.readout);
 		}
 
@@ -1958,8 +1991,6 @@ function Meter(options) {
 		this.elts.push(this.needle);
 
 		this.ticks = options.ticks || 5;
-		this.batons = [];
-		this.labels = [];
 		this.baton_height = 5;
 		this.by = this.ny - this.nl - this.baton_height - 1;
 
@@ -1971,53 +2002,17 @@ function Meter(options) {
 			var value = Math.floor(this.min + (t * step));
 			var baton = this.parent.paper.rect(this.nx, this.by, 1, this.baton_height)
 				.attr({fill:this.stroke, stroke:this.stroke})
-				//.transform("r" + this.needleAngle(value) + " " + this.nx + " " + this.ny-this.nl);
 				.rotate(this.needleAngle(value), this.nx, this.ny);
-			//this.batons.push(baton);
 			this.elts.push(baton);
 
 			var label = this.parent.paper.text(this.nx, this.ly, ''+value)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size':font_factor * this.fontsize})
 				.rotate(this.needleAngle(value), this.nx, this.ny);
-			//this.labels.push(label);
 			this.textelts.push(label);
 		}
 
-		var self = this;
-		this.elt
-			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.mousedown(function(e) { self.highlight.call(self, e); return false;})
-			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
-			.mouseover(function(e) { self.attr.call(self, {cursor:'pointer'}); return false;})
-			.touchend(function(e) { self.handleClick.call(self,e); return false;})
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
-
-		//console.log('Element:', this.elt);
-		$(this.elt.node).bind("contextmenu", function(event) {
-			var id = (self.group != undefined) ? self.group : self.id;
-			self.parent.showEditMenu(id, event);
-			event.preventDefault();
-			event.stopPropagation();
-			return false;
-		});
-
-		if (this.label) this.label.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			//.dblclick(function(e) { self.parent.showEditMenu(self.id, event); })
-			.mousedown(function(e) { self.highlight.call(self, e); return false;})
-			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
-			.touchend(function(e) { self.handleClick.call(self,e); return false;})
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
-
-		if (this.readout) this.readout.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			//.dblclick(function(e) { self.parent.showEditMenu(self.id, event); })
-			.mousedown(function(e) { self.highlight.call(self, e); return false;})
-			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
-
 		this.setValue(this.value);
+		this.sethandlers();
 	};
 
 	this.move = function(x, y) {
@@ -2029,12 +2024,11 @@ function Meter(options) {
 		this.layout();
 		this.label.attr({x:this.lx, y:this.ly});
 		if (this.readout) this.readout.attr({x:this.rx, y:this.ry});
-		this.bearing.attr({x:this.nx, y:this.ny});
-		this.needle.attr({x:this.nx, y:this.ny - this.nl});
+		//this.bearing.attr({x:this.nx, y:this.ny});
+		//this.needle.attr({x:this.nx, y:this.ny - this.nl});
 	};
 
 	this.dragEnd = function(e) {
-		//this.__proto__.dragEnd.call(this);
 		this.remove();
 		this.render();
 	};
@@ -2102,7 +2096,7 @@ function Scope(options) {
 			min: 0,
 			max: 1024
 		}
-		console.log('Scope defaults:', this.defaults);
+		//console.log('Scope defaults:', this.defaults);
 
 		for (var prop in this.defaults) {
 			if (options.hasOwnProperty(prop)) this[prop] = options[prop];
@@ -2117,8 +2111,8 @@ function Scope(options) {
 
 		var self = this;
 		if (this.autorun) {
-			this.intervalid = window.setInterval(function() {
-console.log('plotting:', self.value);
+		this.intervalid = window.setInterval(function() {
+				//console.log('plotting:', self.value);
 				self.scroll();
 				self.plot(self.value);
 			}, this.autorun);
@@ -2136,16 +2130,11 @@ console.log('plotting:', self.value);
 		this.layout();
 		var self = this;
 		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.parent.button_corner)
-			.attr({fill: this.fill, stroke: this.stroke, 'stroke-width':this['stroke-width']})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this)
-			.mouseover(function(e) { self.outerrect.attr({cursor:'pointer'}); });
+			.attr({fill: this.fill, stroke: this.stroke, 'stroke-width':this['stroke-width']});
 		this.elts.push(this.outerrect);
 
 		this.label = this.parent.paper.text(this.lx, this.ly, this.text)
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize});
 		this.textelts.push(this.label);
 
 		var tickwidth = 3;
@@ -2156,16 +2145,13 @@ console.log('plotting:', self.value);
 			var y = this.mapy(value);
 
 			var tick = this.parent.paper.rect(this.x + this.w, y, tickwidth, 1)
-				.attr({fill:this.fill, stroke:this.stroke})
-				.click(function(e) { return self.handleClick.call(self, e); })
-				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+				.attr({fill:this.fill, stroke:this.stroke});
 			this.elts.push(tick);
 
 			var label = this.parent.paper.text(axisx, y, ''+value)
-				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': .7 * this.fontsize})
-				.click(function(e) { return self.handleClick.call(self, e); })
-				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': .7 * this.fontsize});
 			this.textelts.push(label);
+			this.sethandlers();
 		}
 	};
 
@@ -2178,7 +2164,6 @@ console.log('plotting:', self.value);
 	};
 
 	this.dragEnd = function(e) {
-		//this.__proto__.dragEnd.call(this);
 		this.remove();
 		this.render();
 	};
