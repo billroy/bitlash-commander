@@ -215,6 +215,7 @@ The push example in the file public/push.html shows event listeners in use:
 - common base class
 	- dragEnd remove()/render()
 		- implement render() in Button, Slider, Chart, Text, Group
+	- contextmenu decoration can take place in one fell swoop
 
 	- implement drag/resize
 	- requires:

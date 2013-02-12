@@ -1912,7 +1912,23 @@ function Meter(options) {
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 		this.elts = [];
 		this.textelts = [];
-		var self = this;
+
+		this.render();
+		return this;
+
+	};
+
+	this.layout = function() {
+		this.nx = this.x + .5 * this.w;
+		this.ny = this.y + .8 * this.h;
+		this.nl = .6 * this.h;
+		this.lx = this.x + (this.w/2);
+		this.ly = this.y + this.h - 1.5 * this.fontsize;
+		this.rx = this.x + (this.w/2);
+		this.ry = this.y + (this.h/2) + this.fontsize;
+	};
+
+	this.render = function() {
 
 		this.layout();
 
@@ -1967,6 +1983,7 @@ function Meter(options) {
 			this.textelts.push(label);
 		}
 
+		var self = this;
 		this.elt
 			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
 			.click(function(e) { return self.handleClick.call(self, e); })
@@ -2001,25 +2018,6 @@ function Meter(options) {
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 		this.setValue(this.value);
-
-		return this;
-	};
-	
-	this.layout = function() {
-		this.nx = this.x + .5 * this.w;
-		this.ny = this.y + .8 * this.h;
-		this.nl = .6 * this.h;
-		this.lx = this.x + (this.w/2);
-		this.ly = this.y + this.h - 1.5 * this.fontsize;
-		this.rx = this.x + (this.w/2);
-		this.ry = this.y + (this.h/2) + this.fontsize;
-	};
-
-
-	this.toFront = function() {
-		this.__proto__.toFront.call(this);
-		this.bearing.toFront();
-		this.needle.toFront();
 	};
 
 	this.move = function(x, y) {
@@ -2033,6 +2031,12 @@ function Meter(options) {
 		if (this.readout) this.readout.attr({x:this.rx, y:this.ry});
 		this.bearing.attr({x:this.nx, y:this.ny});
 		this.needle.attr({x:this.nx, y:this.ny - this.nl});
+	};
+
+	this.dragEnd = function(e) {
+		//this.__proto__.dragEnd.call(this);
+		this.remove();
+		this.render();
 	};
 
 	this.needleAngle = function(value) {
