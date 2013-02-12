@@ -696,7 +696,6 @@ Control = function() {
 	};
 
 	this.dehighlight = function(event) {
-//console.log('dehighlight', this.id, this.stroke, this.fill, this.fill_highlight);
 		for (var i=0; i<this.elts.length; i++) this.elts[i].attr({fill:this.fill});
 		var dehighlight_attr = {fill:this.stroke, stroke:this.stroke};
 		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(dehighlight_attr);
@@ -704,7 +703,9 @@ Control = function() {
 
 	this.remove = function() {
 		for (var i=0; i<this.elts.length; i++) this.elts[i].remove();
+		this.elts = [];
 		for (var i=0; i<this.textelts.length; i++) this.textelts[i].remove();
+		this.textelts = [];
 	};
 	
 	this.setText = function(text) {
@@ -2114,6 +2115,7 @@ function Scope(options) {
 		if (this.autorun) {
 			this.intervalid = window.setInterval(function() {
 console.log('plotting:', self.value);
+				self.scroll();
 				self.plot(self.value);
 			}, this.autorun);
 		}
@@ -2124,16 +2126,14 @@ console.log('plotting:', self.value);
 	this.layout = function() {
 		this.lx = this.x + (this.w/2);
 		this.ly = this.y + this.h + this.fontsize*2;
-		this.maxlx = this.minlx = this.x + this.w + this.fontsize;
-		this.minly = this.mapy(this.min);
-		this.maxly = this.mapy(this.max);
+		this.axisx = this.x + this.w + this.fontsize;
 	};
 	
 	this.render = function() {
 		this.layout();
 		var self = this;
 		this.outerrect = this.parent.paper.rect(this.x, this.y, this.w, this.h, this.parent.button_corner)
-			.attr({fill: this.fill, stroke: this.stroke, 'stroke-width':this.parent.control_stroke})
+			.attr({fill: this.fill, stroke: this.stroke, 'stroke-width':this['stroke-width']})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this)
 			.mouseover(function(e) { self.outerrect.attr({cursor:'pointer'}); });
@@ -2145,17 +2145,41 @@ console.log('plotting:', self.value);
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 		this.textelts.push(this.label);
 
+/*
 		this.minlabel = this.parent.paper.text(this.minlx, this.minly, ''+this.min)
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize/2})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 		this.textelts.push(this.minlabel);
 
 		this.maxlabel = this.parent.paper.text(this.maxlx, this.maxly, ''+this.max)
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize/2})
 			.click(function(e) { return self.handleClick.call(self, e); })
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 		this.textelts.push(this.maxlabel);
+*/
+
+		var tickwidth = 3;
+		var step = (this.max - this.min) / (this.ticks-1);
+		for (var t=0; t<this.ticks; t++) {
+			var value = Math.floor(this.min + (t * step));
+			var y = this.mapy(value);
+
+			var tick = this.parent.paper.rect(this.x + this.w, y, tickwidth, 1)
+				.attr({fill:this.fill, stroke:this.stroke})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			this.elts.push(tick);
+
+			var label = this.parent.paper.text(this.axisx, y, ''+value)
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': .7 * this.fontsize})
+				.click(function(e) { return self.handleClick.call(self, e); })
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			this.textelts.push(label);
+		}
+
+
+
 	};
 
 	this.move = function(x, y) {
@@ -2166,14 +2190,26 @@ console.log('plotting:', self.value);
 		this.label.attr({x:this.lx, y:this.ly});
 	};
 
+	this.dragEnd = function(e) {
+		//this.__proto__.dragEnd.call(this);
+		this.remove();
+		this.render();
+	};
+
 	this.mapy = function(value) {
 		var fraction = (value - this.min) / (this.max-this.min);
 		fraction = 1 - fraction;	// y axis is inverted
-		var y = Math.floor(this.y + (fraction * (this.h-2)));
+		var y = Math.floor(this.y + (fraction * (this.h-this['stroke-width']))) + this['stroke-width']/2;
 		return y;
 	};
 
 	this.points = [];
+
+	this.remove = function() {
+		for (var i=0; i<this.points.length; i++) this.points[i].remove();
+		this.points = [];
+		this.__proto__.remove.call(this);
+	};
 
 	this.setValue = function(value) {
 		this.value = value;
@@ -2183,9 +2219,9 @@ console.log('plotting:', self.value);
 	};
 
 	this.plot = function(value) {
-		this.scroll();
+		if (!this.autorun) this.scroll();
 		var y = this.mapy(value);
-		var point = this.parent.paper.rect(this.x + this.w - 1, y, 1, 1)
+		var point = this.parent.paper.rect(this.x + this.w - this['stroke-width']/2, y, 1, 1)
 			.attr({fill:'red', stroke:'red'});
 		this.points.push(point);
 	};
@@ -2195,7 +2231,7 @@ console.log('plotting:', self.value);
 		while (p < this.points.length) {
 			var point = this.points[p];
 			var pointx = point.attr('x');
-			if (pointx > this.x+1) {
+			if (pointx > this.x+this['stroke-width']/2) {
 				point.attr({x:pointx - 1});
 				p++;
 			}
@@ -2205,7 +2241,6 @@ console.log('plotting:', self.value);
 			}
 		}
 	};
-
 
 	return this.init(options || {});
 }

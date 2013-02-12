@@ -102,11 +102,12 @@ console.log('page update:', data);
 	var scope = Panel.addScope({
 		id:'scope', text:'Scope',
 		x:624, y:432,
-//		autorun:50,
+		autorun:500,
+//		'stroke-width':50,
 		source:'testslide'
 	});
 
-	for (var i=0; i<100; i++) scope.setValue(i);
+	//for (var i=0; i<scope.w; i++) scope.setValue(i);
 
 }); 	// document.ready
 </script>

@@ -200,22 +200,22 @@ The push example in the file public/push.html shows event listeners in use:
 	- damping factor for animation
 	- draw the arc
 
+- scope control
+	- y axis ticks
+	- time axis marks
+	- better color control for plot points
+		- same with Meter.needle
+	- time axis controls (zoom in/out, start/stop, faster/slower)
+		- requires point history
+
 - common base class
-
-	- BUG: click in chart does not refresh
-
-	- 175 lines extracted from Meter
-	- 2597 lines in original state
-	- 2635 lines after first implementation in Meter
-	- 2554 after Text
-	- 2482 after Group
-	- 2252 after Button
-	- 2124 after Slider
-	- 2007 after Chart	
+	- implement drag/resize
+	- requires:
+		- implement layout/render in all controls
 
 - doc:
 	- source id dispatch
-	- Meter
+	- Meter, Scope
 	- radio attribute in groups
 	- new frontpage 
 	- new install
