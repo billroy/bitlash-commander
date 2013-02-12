@@ -2126,7 +2126,6 @@ console.log('plotting:', self.value);
 	this.layout = function() {
 		this.lx = this.x + (this.w/2);
 		this.ly = this.y + this.h + this.fontsize*2;
-		this.axisx = this.x + this.w + this.fontsize;
 	};
 	
 	this.render = function() {
@@ -2145,21 +2144,8 @@ console.log('plotting:', self.value);
 			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 		this.textelts.push(this.label);
 
-/*
-		this.minlabel = this.parent.paper.text(this.minlx, this.minly, ''+this.min)
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize/2})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
-		this.textelts.push(this.minlabel);
-
-		this.maxlabel = this.parent.paper.text(this.maxlx, this.maxly, ''+this.max)
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize/2})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
-		this.textelts.push(this.maxlabel);
-*/
-
 		var tickwidth = 3;
+		var axisx = this.x + this.w + this.fontsize;
 		var step = (this.max - this.min) / (this.ticks-1);
 		for (var t=0; t<this.ticks; t++) {
 			var value = Math.floor(this.min + (t * step));
@@ -2171,15 +2157,12 @@ console.log('plotting:', self.value);
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 			this.elts.push(tick);
 
-			var label = this.parent.paper.text(this.axisx, y, ''+value)
+			var label = this.parent.paper.text(axisx, y, ''+value)
 				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': .7 * this.fontsize})
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 			this.textelts.push(label);
 		}
-
-
-
 	};
 
 	this.move = function(x, y) {

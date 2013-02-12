@@ -200,15 +200,22 @@ The push example in the file public/push.html shows event listeners in use:
 	- damping factor for animation
 	- draw the arc
 
+- options handling rewrite
+
 - scope control
-	- y axis ticks
 	- time axis marks
-	- better color control for plot points
+	- "scope this"
+	- draw vertical connectors for logic signals
+	- multiple sources (source array) (color array)
+	- attribute to set color for plot points
 		- same with Meter.needle
 	- time axis controls (zoom in/out, start/stop, faster/slower)
 		- requires point history
 
 - common base class
+	- dragEnd remove()/render()
+		- implement render() in Button, Slider, Chart, Text, Group
+
 	- implement drag/resize
 	- requires:
 		- implement layout/render in all controls
