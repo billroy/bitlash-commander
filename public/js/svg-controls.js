@@ -1993,8 +1993,8 @@ function Meter(options) {
 		this.ry = this.y + (this.h/2) + this.fontsize;
 
 		this.by = this.ny - this.nl - this.baton_height - 1;
-		var font_factor = .7;
-		this.ly = this.by + (font_factor * this.fontsize);
+		this.font_factor = .7;
+		this.ty = this.by + (this.font_factor * this.fontsize);
 	};
 
 	this.render = function() {
@@ -2031,8 +2031,8 @@ function Meter(options) {
 				.rotate(this.needleAngle(value), this.nx, this.ny);
 			this.elts.push(baton);
 
-			var label = this.parent.paper.text(this.nx, this.ly, ''+value)
-				.attr({fill:this.stroke, stroke:this.stroke, 'font-size':font_factor * this.fontsize})
+			var label = this.parent.paper.text(this.nx, this.ty, ''+value)
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size':this.font_factor * this.fontsize})
 				.rotate(this.needleAngle(value), this.nx, this.ny);
 			this.textelts.push(label);
 		}
@@ -2124,10 +2124,7 @@ function Scope(options) {
 		}
 		//console.log('Scope defaults:', this.defaults);
 
-		for (var prop in this.defaults) {
-			if (options.hasOwnProperty(prop)) this[prop] = options[prop];
-			else if (this.defaults[prop] != undefined) this[prop] = this.defaults[prop];
-		}
+		this.setoptions(options);
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 		this.elts = [];
