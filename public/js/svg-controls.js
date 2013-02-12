@@ -1135,6 +1135,13 @@ function Slider(options) {
 		this.barh = this.barw;
 
 		this.subtype = this.options.subtype = options.subtype || 'y';
+
+		this.render();
+		return this;
+	};
+
+	this.layout = function() {
+
 		if (this.subtype == 'xy') {
 			this.slidew = options.slidew || 1+Math.floor(this.w / 12);
 			//this.w += this.slidew;
@@ -1152,8 +1159,6 @@ function Slider(options) {
 			this.slideh = options.slideh || 1+Math.floor(this.h / 10);
 		}
 
-		var self = this;
-
 		this.outerw = this.w; if (this.subtype != 'y') this.outerw += this.slidew;
 		this.outerh = this.h; if (this.subtype != 'x') this.outerh += this.slideh;
 
@@ -1162,63 +1167,60 @@ function Slider(options) {
 
 		this.outerymid = this.y + this.h/2; 
 		if (this.subtype !='x') this.outerymid += (this.slideh/2);
-
+	};
+	
+	this.render = function() {
+		this.layout();
 		this.outerrect = this.parent.paper.rect(this.x, this.y, this.outerw, this.outerh, 10)
-			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width':this.parent.control_stroke})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width':this.parent.control_stroke});
+		this.elts.push(this.outerrect);
 
-		if (this.subtype != 'y') this.xbar = this.parent.paper.rect(this.x, this.outerymid, this.outerw, this.barh)
-			.attr({fill:this.stroke, stroke:this.stroke})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+		if (this.subtype != 'y') {
+			this.xbar = this.parent.paper.rect(this.x, this.outerymid, this.outerw, this.barh)
+				.attr({fill:this.stroke, stroke:this.stroke});
+			this.elts.push(this.xbar);
+		}
+		if (this.subtype != 'x') {
+			this.ybar = this.parent.paper.rect(this.outerxmid, this.y, this.barw, this.outerh)
+				.attr({fill:this.stroke, stroke:this.stroke});
+			this.elts.push(this.ybar);
+		}
 
-		if (this.subtype != 'x') this.ybar = this.parent.paper.rect(this.outerxmid, this.y, this.barw, this.outerh)
-			.attr({fill:this.stroke, stroke:this.stroke})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
-
+		var self = this;
 		this.slide = this.parent.paper.rect(this.slideXPos(), this.slideYPos(), this.slidew, this.slideh, 5)
 			.attr({fill:this.stroke, stroke:this.stroke, 'stroke-width': this['stroke-width']})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(self.slideMove, self.slideStart, self.slideEnd, self, self, self)
-			.mouseover(function(e) { self.slide.attr({cursor:'pointer'});});
+			.drag(self.slideMove, self.slideStart, self.slideEnd, self, self, self);
+
+		// OOPS don't want the slide decorated in sethandler(). see dedicated remove method
+		//this.elts.push(this.slide);
 
 		if (this.recenter) this.slideToCenter();
 
 		this.label = this.parent.paper.text(this.outerxmid, this.y + this.outerh + this.fontsize*2, this.text)
-			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize});
+		this.textelts.push(this.label);
 
 		if (!this.noreadout) {
 			if ((this.subtype == 'y') || (this.subtype == 'xy')) {
 				this.yreadout = this.parent.paper
 					.text(this.outerxmid, this.y + this.outerh + this.fontsize, ''+(this.value || this.xvalue || ''))
-					.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
-					.click(function(e) { return self.handleClick.call(self, e); })
-					.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+					.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2});
+				this.textelts.push(this.yreadout);
 			}
 
 			if ((this.subtype == 'x') || (this.subtype == 'xy')) {
 				 this.xreadout = this.parent.paper.text(this.x + this.outerw + this.fontsize, this.y + this.h/2, ''+(this.yvalue || ''))
-					.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
-					.click(function(e) { return self.handleClick.call(self, e); })
-					.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+					.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2});
+				this.textelts.push(this.xreadout);
 			}
 		}
-
-		this.elts.push(this.outerrect);
-		if (this.xbar) this.elts.push(this.xbar);
-		if (this.ybar) this.elts.push(this.ybar);
-		this.elts.push(this.slide);
-		this.textelts.push(this.label);
-		if (this.xreadout) this.textelts.push(this.xreadout);
-		if (this.yreadout) this.textelts.push(this.yreadout);
-
-		return this;
+		this.sethandlers();
 	};
 
+	this.remove = function() {
+		this.slide.remove();
+		this.__proto__.remove.call(this);
+	};
 
 	this.move = function(x, y) {
 		this.x = x;
@@ -1231,6 +1233,13 @@ function Slider(options) {
 		this.label.attr({x:this.x + this.w/2, y:this.y + this.outerh + this.fontsize*2});
 		if (this.xreadout) this.xreadout.attr({x:this.x + this.outerw + this.fontsize, y:this.y + this.h/2});
 		if (this.yreadout) this.yreadout.attr({x:this.x + this.w/2, y:this.y + this.outerh + this.fontsize});
+	};
+
+	this.dragEnd = function(e) {
+		delete this.drag;
+		this.dragging = false;
+		this.remove();
+		this.render();
 	};
 
 	this.slideStart = function(x, y, event) {
