@@ -30,7 +30,7 @@ var ControlPanelBoss = {
 	},
 
 	handleUpdate: function(data) {
-		console.log('Update:', data, data.length);
+		//console.log('Update:', data, data.length);
 		//if (data.length == 0) return;
 		if (typeof data[0] == 'undefined') data = [data];
 
@@ -162,18 +162,18 @@ ControlPanel.prototype = {
 			.mouseover(function(e) { self.editbutton.attr({cursor:'pointer'}); })
 			.click(function(e) { 
 				self.editingpanel = !self.editingpanel;
-				if (self.editingpanel) self.face.attr({fill:"url('/images/grid24-greenblack.png')", stroke:self.stroke});
-				else self.face.attr({fill:self.fill, stroke: self.stroke});
-/*
 				if (self.editingpanel) {
-					self.face.attr({fill:'black'});
-					self.drawGrid();
+					self.face.attr({fill:"url('/images/grid24-greenblack.png')", stroke:self.stroke});
+					//self.face.attr({fill:'black'});
+					//self.drawGrid();
+					self.enabledrag();
 				}
 				else {
-					self.eraseGrid();
 					self.face.attr({fill:self.fill, stroke: self.stroke});
+					//self.eraseGrid();
+					//self.face.attr({fill:self.fill, stroke: self.stroke});
+					self.disabledrag();
 				}
-*/
 			});
 
 		// one-time initialization for editor buttons
@@ -190,6 +190,20 @@ ControlPanel.prototype = {
 		}
 
 		return this;
+	},
+
+	each: function(callback) {
+		for (var control in this.controls) {
+			callback(this.controls[control]);
+		}
+	},
+
+	enabledrag: function() {
+		this.each(function(control) { control.enabledrag(); });
+	},
+	
+	disabledrag: function() {
+		this.each(function(control) { control.disabledrag(); });
 	},
 
 	drawGrid: function() {
@@ -566,6 +580,8 @@ console.log('Add:', items[i]);
 		for (var f in this.controls[id].options) {
 			newopts[f] = this.controls[id].options[f];
 		}
+		if (newopts.hasOwnProperty('x')) newopts.x = newopts.x + this.grid;
+		if (newopts.hasOwnProperty('y')) newopts.y = newopts.y + this.grid;
 		newopts.id = this.uniqueid(id);
 		this.add([newopts]);
 	},
@@ -689,8 +705,10 @@ Control = function() {
 				.mousedown(function(e) { self.highlight.call(self, e); return false;})
 				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
 				.mouseover(function(e) { self.attr.call(self, {cursor:'pointer'}); return false;})
-				.touchend(function(e) { self.handleClick.call(self,e); return false;})
-				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+				.touchend(function(e) { self.handleClick.call(self,e); return false;});
+
+			if (this.parent.editingpanel)
+				this.elts[i].drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
 			$(this.elts[i].node).bind("contextmenu", function(event) {
 				var id = (self.group != undefined) ? self.group : self.id;
@@ -699,6 +717,7 @@ Control = function() {
 				event.stopPropagation();
 				return false;
 			});
+
 		}
 
 		for (var i=0; i<this.textelts.length; i++) {
@@ -707,8 +726,10 @@ Control = function() {
 				.mousedown(function(e) { self.highlight.call(self, e); return false;})
 				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
 				.mouseover(function(e) { self.attr.call(self, {cursor:'pointer'}); return false;})
-				.touchend(function(e) { self.handleClick.call(self,e); return false;})
-				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+				.touchend(function(e) { self.handleClick.call(self,e); return false;});
+
+			if (this.parent.editingpanel)
+				this.textelts[i].drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 /*
 			$(this.elts[i].node).bind("contextmenu", function(event) {
 				var id = (self.group != undefined) ? self.group : self.id;
@@ -718,6 +739,28 @@ Control = function() {
 				return false;
 			});
 */
+		}
+	};
+	
+	this.enabledrag = function() {
+console.log('enable drag:', this.id);
+		var self = this;
+		for (var i=0; i<this.elts.length; i++) {
+			this.elts[i].drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+		}
+		for (var i=0; i<this.textelts.length; i++) {
+			this.textelts[i].drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+		}
+	};
+	
+	this.disabledrag = function() {
+console.log('disable drag:', this.id);
+		var self = this;
+		for (var i=0; i<this.elts.length; i++) {
+			this.elts[i].undrag();
+		}
+		for (var i=0; i<this.textelts.length; i++) {
+			this.textelts[i].undrag();
 		}
 	};
 
@@ -765,7 +808,7 @@ Control = function() {
 	};
 
 	this.dragStart = function(x, y, e) {
-		console.log('Drag start:', x, y, e);
+		console.log('Control dragStart:', x, y, e);
 
 		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
 
@@ -785,7 +828,7 @@ Control = function() {
 	};
 
 	this.dragMove = function(dx, dy, x, y, e) {
-		//console.log('dragMove:',dx,dy,x,y,e);
+		//console.log('Control dragMove:',dx,dy,x,y,e);
 		if (!this.parent.editingpanel) return true;
 
 		var grid = this.parent.grid;
@@ -802,7 +845,7 @@ Control = function() {
 	};
 
 	this.dragEnd = function(e) {
-		//console.log('dragEnd');
+		console.log('Control dragEnd');
 		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
 		this.attr({opacity:1.0});
 		this.dehighlight();
@@ -826,7 +869,7 @@ Control = function() {
 	};
 
 	this.handleClick = function(e) {
-		console.log('handleClick', e);
+		console.log('Control handleClick', e);
 		if (this.repeat) {
 			if (this.running) {
 				this.running = false;
@@ -947,7 +990,12 @@ function Button(options) {
 		this.elts = [];
 		this.textelts = [];
 
-		var self = this;
+		this.render();
+		return this;
+	};
+
+
+	this.render = function() {
 
 		if (this.subtype == 'circle') {
 			this.elt = this.parent.paper.circle(this.x+this.r, this.y+this.r, this.r);
@@ -956,22 +1004,16 @@ function Button(options) {
 		}
 		else if (this.subtype == 'path') {	// path button
 			var translation = ['t', this.x, ',', this.y, 's', this.scale].join('');
-			//console.log('Path:', translation, this.x, this.y, this.scale);
 			this.elt = this.parent.paper.path(this.path)
 				.transform(translation);
 
 			var bbox = this.elt.getBBox();
-			//var brect = this.parent.paper.rect(bbox.x, bbox.y, bbox.width, bbox.height)
-			//	.attr({fill:this.fill, stroke:this.stroke});
-			//console.log('bbox:', this.x, this.y, bbox);
 			this.elt.toFront();
 
 			this.w = bbox.width;
 			this.h = bbox.height;
 			var labelx = this.x;
 			var labely = bbox.y + this.h + this.fontsize;
-			//var labelx = bbox.x + bbox.width/2;
-			//var labely = bbox.y + bbox.height/2;
 
 			this.label = this.parent.paper.text(labelx, labely, this.text);
 			if (!this.noreadout) this.readout = this.parent.paper.text(this.x, this.y, '');
@@ -982,53 +1024,17 @@ function Button(options) {
 			if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize, '');
 		}
 
-		this.elt.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			//.dblclick(function(e) { self.parent.showEditMenu(self.id, event); })
-			.mousedown(function(e) { self.highlight.call(self, e); return false;})
-			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
-			.mouseover(function(e) { self.attr.call(self, {cursor:'pointer'}); return false;})
-			.touchend(function(e) { self.handleClick.call(self,e); return false;})
-
-			//.touchstart(function(e) { self.dragStart.call(self,e); return false;})
-			//.touchmove(function(e) { self.dragMove.call(self,e); return false;})
-			//.touchend(function(e) { self.dragEnd.call(self,e); return false;})
-
-			//.touchcancel(function(e) { self.handleClick.call(self,e); return false;})
-
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
-
+		this.elt.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']});
 		this.elts.push(this.elt);
 
-		//console.log('Element:', this.elt);
-		$(this.elt.node).bind("contextmenu", function(event) {
-			var id = (self.group != undefined) ? self.group : self.id;
-			self.parent.showEditMenu(id, event);
-			event.preventDefault();
-			event.stopPropagation();
-			return false;
-		});
-
-		if (this.label) this.label.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize})
-			.click(function(e) { return self.handleClick.call(self, e); })
-			//.dblclick(function(e) { self.parent.showEditMenu(self.id, event); })
-			.mousedown(function(e) { self.highlight.call(self, e); return false;})
-			.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
-			.touchend(function(e) { self.handleClick.call(self,e); return false;})
-			.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
-
+		if (this.label) this.label.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize});
 		this.textelts.push(this.label);
 
 		if (this.readout) {
-			this.readout.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2})
-				.click(function(e) { return self.handleClick.call(self, e); })
-				//.dblclick(function(e) { self.parent.showEditMenu(self.id, event); })
-				.mousedown(function(e) { self.highlight.call(self, e); return false;})
-				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
-				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+			this.readout.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2});
 			this.textelts.push(this.readout);
 		}
-		return this;
+		this.sethandlers();
 	};
 
 	this.move = function(x, y) {
@@ -1053,6 +1059,11 @@ function Button(options) {
 			if (this.readout) this.readout.attr({x:x + this.w/2, y:y + this.h + this.fontsize});
 		}
 	};
+	
+	this.dragEnd = function() {
+		this.remove();
+		this.render();
+	};
 
 	this.setValue = function(value) {
 		this.value = value;
@@ -1067,6 +1078,7 @@ function Button(options) {
 	};
 	
 	this.exec = function() {
+console.log('Button exec!');
 		// handle radio button side effects
 		if (this.group && this.parent.controls[this.group].radio) {
 			this.parent.controls[this.group].setValue(this.text);
@@ -1315,6 +1327,10 @@ function Slider(options) {
 		if (this.yvalue > this.ymax) this.yvalue = this.ymax;
 		var fraction = (this.yvalue - this.ymin) / (this.ymax - this.ymin);
 		return Math.floor(this.y + this.h * (1.0 - fraction));
+	};
+
+	this.handleClick = function() {
+		// do nothing; this override prevents the flash that Button wants
 	};
 
 	this.setValue = function(value1, value2) {
