@@ -180,10 +180,12 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+- BUG: New Round Button fails
+
 - right-click menus
+	- add "save panel" on item edit menu
 
 - multi panel
-
 	- BUG: All menu commands end up targeted at Panel0
 		- Delete a control in any panel but the first fails
 		- Same with Duplicate
@@ -199,26 +201,18 @@ The push example in the file public/push.html shows event listeners in use:
 	- damping factor for animation
 	- draw the arc
 
-- options handling rewrite
-
 - scope control
 	- time axis marks
 	- "scope this"
 	- draw vertical connectors for logic signals
 	- multiple sources (source array) (color array)
-	- attribute to set color for plot points
-		- same with Meter.needle
 	- time axis controls (zoom in/out, start/stop, faster/slower)
 		- requires point history
 
-- contextmenu
-
 - common base class
-	- dragEnd remove()/render()
-
 	- implement drag/resize
-	- requires:
-		- implement layout/render in all controls
+
+- lockdown mode: no menu access
 
 - doc:
 	- source id dispatch
@@ -252,7 +246,9 @@ The push example in the file public/push.html shows event listeners in use:
 
 - bug: chart svg doesn't update color on a panel stroke change
 
-- bug: dragging button doesn't drag repeat indicator
+- BUG: dragging button doesn't drag repeat indicator
+	- repeat indicator should be in elts[]
+	- or separate remove
 
 - panel label handling
 	label should be called text; get rid of label
@@ -297,7 +293,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- for viewer nodes: fetch remote data for a chart on demand
 
 - doc:
-	- -a http client option and security impact
+	- -i ipclient option and security impact
 	- commander front page
 	- getting started
 	- server options

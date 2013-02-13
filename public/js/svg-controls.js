@@ -30,11 +30,9 @@ var ControlPanelBoss = {
 	},
 
 	handleUpdate: function(data) {
-		//console.log('Update:', data, data.length);
-		//if (data.length == 0) return;
 		if (typeof data[0] == 'undefined') data = [data];
 
-		// dispatch to commands in all panels whose id field matches the update's id
+		// dispatch to controls in all panels whose id field matches the update's id
 		for (var i=0; i < data.length; i++) {
 			for (var p=0; p < this.panels.length; p++) {
 				var ctrl = this.panels[p].controls[data[i].id];
@@ -49,7 +47,7 @@ var ControlPanelBoss = {
 			}
 		}
 
-		// dispatch to commands in all panels whose source field matches the update's id
+		// dispatch to controls in all panels whose source field matches the update's id
 		for (var i=0; i < data.length; i++) {
 			for (var p=0; p < this.panels.length; p++) {
 				for (var c in this.panels[p].controls) {
@@ -115,27 +113,35 @@ ControlPanel.prototype = {
 	init: function(options) {
 		this.options = {};
 		for (var o in options) this.options[o] = options[o];
-		this.id = options.id || options.title || 'Panel';
-		this.w = options.w || $(window).width();
-		this.h = options.h || $(window).height();
-		this.x = options.x || ($(window).width() - this.w)/2;
-		this.y = options.y || ($(window).height() - this.h)/2;
-		this.tx = options.tx || (this.w/2);
-		this.ty = options.ty || 48;
-		this.stroke = options.stroke || 'greenyellow';
-		this.fontsize = options.fontsize || 20;
-		this.fill = options.fill || 'black';
-		this.fill_highlight = options.fill_highlight || 'white';
-		this.face_corner = options.face_corner || 20;
-		this.button_corner = options.button_corner || 10;
-		this.control_stroke = options.control_stroke || 3;
-		this.title = options.title || 'Bitlash Commander';
-		this.channel = options.channel || '';
-		this.grid = options.grid || 24;
+	
+		this.defaults = {
+			id: options.title || 'Panel',
+			x: 0,		//($(window).width() - this.w)/2,
+			y: 0,		//($(window).height() - this.h)/2,
+			w: $(window).width(),
+			h: $(window).height(),
+			tx: $(window).width()/2,
+			ty: 48,
+			stroke:'greenyellow',
+			fontsize: 20,
+			fill: 'black',
+			fill_highlight: 'white',
+			face_corner: 20,
+			button_corner: 10,
+			control_stroke: 3,
+			title: 'Bitlash Commander',
+			channel: '',
+			grid: 24,
+			noedit: undefined
+		};
+
+		for (var prop in this.defaults) {
+			if (options.hasOwnProperty(prop)) this[prop] = options[prop];
+			else if (this.defaults[prop] != undefined) this[prop] = this.defaults[prop];
+		}
 
 		this.paper = Raphael(this.x, this.y, this.w, this.h);
 
-		//this.face = this.paper.rect(this.x, this.y, this.w, this.h, this.face_corner)
 		this.face = this.paper.rect(0, 0, this.w, this.h, this.face_corner)
 			.attr({stroke: this.stroke, fill: this.fill, 'stroke-width': 2 * this.control_stroke});
 
@@ -145,13 +151,11 @@ ControlPanel.prototype = {
 		this.next_x = 96;
 		this.next_y = 96;
 		this.next_inc = 48;
-		if (options.noedit) this.noedit = options.noedit;
 
 		this.boss = ControlPanelBoss;
 		this.boss.panels.push(this);
 		this.boss.currentpanel = this.id;
 
-		//this.initSocketIO();
 		this.initContextMenu();
 		this.sync();
 
@@ -344,10 +348,10 @@ ControlPanel.prototype = {
 
 	showEditMenu: function(id, event) {
 		this.menuowner = id;
-console.log('Menu owner:', id);
+		//console.log('Menu owner:', id);
 		$('#editmenu').contextMenu({x: event.clientX, y:event.clientY});
 	},
-	
+
 	sync: function() {
 		this.boss.socket.emit('sync', {});
 	},
@@ -390,7 +394,6 @@ console.log('Menu owner:', id);
 		options.type = 'Meter';
 		var meter = new Meter(options);
 		this.controls[meter.id] = meter;
-		//if (meter.autorun) meter.handleClick();
 		return meter;
 	},
 
@@ -420,7 +423,7 @@ console.log('Menu owner:', id);
 	
 	add: function(items) {		// add an array of items to the panel
 		for (var i=0; i < items.length; i++) {
-console.log('Add:', items[i]);
+			//console.log('Add:', items[i]);
 			if (items[i].type == 'Button') this.addButton(items[i]);
 			else if (items[i].type == 'Slider') this.addSlider(items[i]);
 			else if (items[i].type == 'Chart') this.addChart(items[i]);
@@ -504,19 +507,8 @@ console.log('Add:', items[i]);
 				if ((typeof value == 'string') && value.match(/^-?\d+$/)) value = parseInt(value);
 				opts[field] = value;
 			}
-/*
-			if (opts.x) opts.x = parseInt(opts.x);
-			if (opts.y) opts.y = parseInt(opts.y);
-			if (opts.w) opts.w = parseInt(opts.w);
-			if (opts.h) opts.h = parseInt(opts.h);
-			if (opts.r) opts.r = parseInt(opts.r);
-
-			if (opts.gutter)  opts.gutter = parseInt(opts.gutter);
-			if (opts.gutterx) opts.gutterx = parseInt(opts.gutterx);
-			if (opts.guttery) opts.guttery = parseInt(opts.guttery);
-*/
-
 			console.log('Saving:', opts);
+
 			if (this.editingcontrol == this) {
 				for (var f in opts) {
 					this.options[f] = this[f] = opts[f];
@@ -536,7 +528,7 @@ console.log('Add:', items[i]);
 	},
 	
 	saveControls: function() {
-		this.boss.socket.emit('save', this.panelToStorageFormat());
+		this.sendCommand('save', this.panelToStorageFormat());
 	},
 
 	editAddField: function() {
@@ -604,9 +596,6 @@ console.log('Add:', items[i]);
 		this.inheritOption(id, 'id');
 		this.inheritOption(id, 'x');
 		this.inheritOption(id, 'y');
-		
-		//if (!this.controls[id].options.hasOwnProperty('id'))
-		//	this.controls[id].options['id'] = id;
 
 		for (var f in this.controls[id].options) {				// for properties in original options
 			if (this.controls[id].options.hasOwnProperty(f)
@@ -744,9 +733,9 @@ Control = function() {
 */
 		}
 	};
-	
+
 	this.enabledrag = function() {
-console.log('enable drag:', this.id);
+		//console.log('enable drag:', this.id);
 		var self = this;
 		for (var i=0; i<this.elts.length; i++) {
 			this.elts[i].drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
@@ -755,9 +744,9 @@ console.log('enable drag:', this.id);
 			this.textelts[i].drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 		}
 	};
-	
+
 	this.disabledrag = function() {
-console.log('disable drag:', this.id);
+		//console.log('disable drag:', this.id);
 		var self = this;
 		for (var i=0; i<this.elts.length; i++) {
 			this.elts[i].undrag();
@@ -768,6 +757,16 @@ console.log('disable drag:', this.id);
 	};
 
 	this.setoptions = function(options) {
+		this.parent = options.parent;
+		this.options = {};
+		for (var o in options) this.options[o] = options[o];
+
+		if (options.id) this.id = options.id;
+		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
+		else this.id = this.parent.uniqueid(this.type);
+
+		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
+
 		for (var prop in this.defaults) {
 			if (options.hasOwnProperty(prop)) {
 				//console.log('set option:', prop, options[prop]);
@@ -778,6 +777,10 @@ console.log('disable drag:', this.id);
 				this[prop] = this.defaults[prop];
 			}
 		}
+
+		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
+		this.elts = [];
+		this.textelts = [];
 	};
 
 	this.attr = function(attrs) {
@@ -805,6 +808,12 @@ console.log('disable drag:', this.id);
 		this.elts = [];
 		for (var i=0; i<this.textelts.length; i++) this.textelts[i].remove();
 		this.textelts = [];
+/*
+		if (this.runningindicator) {
+			this.runningindicator.remove();
+			delete this.runningindicator;
+		}
+*/
 	};
 	
 	this.setText = function(text) {
@@ -928,6 +937,10 @@ console.log('disable drag:', this.id);
 		console.log('ERROR: setValue() must be defined in the control.');
 	};
 
+	this.updateValue = function(value) {
+		this.parent.boss.handleUpdate({id:this.id, value:value});
+	};
+
 	this.on = function(eventname, listener) {
 		//console.log('On:', this.id, this.listeners.length, this.listeners, this);
 		if (!this.listeners[eventname]) this.listeners[eventname] = [];
@@ -953,30 +966,20 @@ console.log('disable drag:', this.id);
 //	Button control
 //
 function Button(options) {
+
 	this.__proto__ = new Control();
 
 	this.init = function(options) {
 		this.type = options.type = 'Button';
 		this.parent = options.parent;
-
-		this.options = {};
-		for (var o in options) this.options[o] = options[o];
-
-		if (options.id) this.id = options.id;
-		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
-		else this.id = this.parent.uniqueid(this.type);
-
-		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-
 		this.defaults = {
 			x:48, y:48,
 			w:120, h:48,
 
 			value: 0,
-			text: undefined,
+			text: '',
 			script: undefined,
 			fill:this.parent.fill,
-			fill_highlight: this.parent.lighter(this.parent.stroke),
 			stroke: this.parent.stroke,
 			'stroke-width': this.parent.control_stroke,
 			fontsize: this.parent.fontsize,
@@ -998,14 +1001,11 @@ function Button(options) {
 			scale: 1
 		};
 		this.setoptions(options);
+		this.fill_highlight = this.parent.lighter(this.stroke);
 
-		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
-		this.elts = [];
-		this.textelts = [];
 		this.render();
 		return this;
 	};
-
 
 	this.render = function() {
 
@@ -1107,27 +1107,18 @@ function Button(options) {
 //	Slider control
 //
 function Slider(options) {
+
 	this.__proto__ = new Control();
 
 	this.init = function(options) {
 		this.type = options.type = 'Slider';
 		this.parent = options.parent;
-
-		this.options = {};
-		for (var o in options) this.options[o] = options[o];
-
-		if (options.id) this.id = options.id;
-		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
-		else this.id = this.parent.uniqueid(this.type);
-
-		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-
 		this.defaults = {
 			x:48, y:48,
 			w:72, h:192,
 
 			value: 0,
-			text: undefined,
+			text: '',
 			script: undefined,
 			fill:this.parent.fill,
 			fill_highlight: this.parent.lighter(this.parent.stroke),
@@ -1158,12 +1149,7 @@ function Slider(options) {
 			barh: this.barw
 		}
 		this.setoptions(options);
-		console.log('Slider:', this);
-
-		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
-		this.elts = [];
-		this.textelts = [];
-
+		//console.log('Slider:', this);
 		this.render();
 		return this;
 	};
@@ -1351,7 +1337,6 @@ function Slider(options) {
 	this.setValue = function(value1, value2) {
 
 		//console.log('slider set:', value1, value2, typeof value1, typeof value2);
-
 		if (this.dragging) return;	// be the boss: ignore updates while dragging
 
 		if (this.subtype == 'xy') {
@@ -1393,23 +1378,15 @@ function Slider(options) {
 //	Chart control
 //
 function Chart(options) {
+
 	this.__proto__ = new Control();
 
 	this.init = function(options) {
 		this.type = options.type = 'Chart';
 		this.parent = options.parent;
-
-		this.options = {};
-		for (var o in options) this.options[o] = options[o];
-
-		if (options.id) this.id = options.id;
-		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
-		else this.id = this.parent.uniqueid(this.type);
-		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-
 		this.defaults = {
 			x:48, y:48, w:288, h:144,
-			text: undefined,
+			text: '',
 			script: undefined,
 			fill: this.parent.fill,
 			fill_highlight: this.parent.lighter(this.parent.stroke), 	// ??
@@ -1429,15 +1406,9 @@ function Chart(options) {
 			ymax: undefined,
 			ymin: undefined
 		}
-		console.log('Chart defaults:', this.defaults);
+		//console.log('Chart defaults:', this.defaults);
 		this.setoptions(options);
-
-		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
-		this.elts = [];
-		this.textelts = [];
-
 		this.render();		// render D3 chart
-		
 		var self = this;
 		if (this.refresh) setInterval(function() { self.redraw.call(self); }, this.refresh);
 		return this;
@@ -1614,24 +1585,15 @@ function Chart(options) {
 //	Text control
 //
 function Text(options) {
+
 	this.__proto__ = new Control();
 
 	this.init = function(options) {
 		this.type = options.type = 'Text';
 		this.parent = options.parent;
-
-		this.options = {};
-		for (var o in options) this.options[o] = options[o];
-
-		if (options.id) this.id = options.id;
-		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
-		else this.id = this.parent.uniqueid(this.type);
-
-		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-
 		this.defaults = {
 			x:48, y:48,
-			text: undefined,
+			text: '',
 			fill:this.parent.fill,
 			fill_highlight: this.parent.lighter(this.parent.stroke),
 			stroke: this.parent.stroke,
@@ -1639,15 +1601,10 @@ function Text(options) {
 			fontsize: this.parent.fontsize,
 		}
 		this.setoptions(options);
-
-		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
-		this.elts = [];
-		this.textelts = [];
-		
 		this.render();
 		return this;
 	};
-	
+
 	this.render = function() {
 		this.label = this.parent.paper.text(this.x, this.y, this.text)
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize,
@@ -1682,14 +1639,12 @@ function Text(options) {
 //	Group control
 //
 function Group(options) {
+
 	this.__proto__ = new Control();
 
 	this.init = function(options) {
 		this.type = options.type = 'Group';
 		this.parent = options.parent;
-
-		this.options = {};
-		for (var o in options) this.options[o] = options[o];
 	
 		this.childopts = {};
 		for (var o in options) {
@@ -1700,25 +1655,17 @@ function Group(options) {
 		}
 		if (this.childopts.type == 'Group') this.childopts.type == 'Button';
 
-		//console.log('Group init:', options, this.options, this.childopts);
-
-		if (options.id) this.id = options.id;
-		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
-		else this.id = this.parent.uniqueid(this.type);
-
-		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-
 		this.defaults = {
 			x:48, y:48,
 			w: this.childopts.w || 120, 
 			h: this.childopts.h || 48,
 
 			value: 0,
-			text: undefined,
+			text: '',
 			script: undefined,
 			fill:this.parent.fill,
-			fill_highlight: this.parent.lighter(this.parent.stroke),
 			stroke: this.parent.stroke,
+			//fill_highlight: this.parent.lighter(this.parent.stroke),
 			'stroke-width': this.parent.control_stroke,
 			fontsize: this.parent.fontsize,
 			repeat: 0,
@@ -1736,16 +1683,12 @@ function Group(options) {
 			noreadout: undefined,
 			radio: undefined,
 			r: options.r || this.w/2,
-			reversebits: undefined
+			reversebits: undefined,
+			numx: 1,
+			numy: 3,
 		};
+		this.fill_highlight = this.parent.lighter(this.stroke);
 		this.setoptions(options);
-
-		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
-		this.elts = [];
-		this.textelts = [];
-
-		this.numx = options.numx || 1;
-		this.numy = options.numy || 3;
 
 		if (options.gutterx != undefined) this.gutterx = options.gutterx;
 		else if (options.gutter != undefined) this.gutterx = options.gutter;
@@ -1862,7 +1805,6 @@ function Group(options) {
 	// when a button in our group moves, it calls here to notify
 	this.dragNotify = function(moved) {
 		// calculate x,y of group from row, col of button[id]
-		//var moved = this.parent.controls[id];
 		var newx = moved.x - moved.col * (this.w + this.gutterx);
 		var newy = moved.y - moved.row * (this.h + this.guttery);
 		this.move(newx, newy);
@@ -1941,27 +1883,18 @@ function Group(options) {
 //	Meter control
 //
 function Meter(options) {
+
 	this.__proto__ = new Control();
 
 	this.init = function(options) {
 		this.type = options.type = 'Meter';
 		this.parent = options.parent;
-
-		this.options = {};
-		for (var o in options) this.options[o] = options[o];
-
-		if (options.id) this.id = options.id;
-		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
-		else this.id = this.parent.uniqueid(this.type);
-
-		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-
 		this.defaults = {
 			x:48, y:48,
 			w:240, h:240,
 
 			value: 0,
-			text: undefined,
+			text: '',
 			script: undefined,
 			fill:this.parent.fill,
 			fill_highlight: this.parent.lighter(this.parent.stroke),
@@ -1991,11 +1924,6 @@ function Meter(options) {
 			nstroke: 'red'
 		}
 		this.setoptions(options);
-
-		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
-		this.elts = [];
-		this.textelts = [];
-
 		this.render();
 		return this;
 	};
@@ -2084,7 +2012,6 @@ function Meter(options) {
 
 	this.setValue = function(value) {
 		this.value = value;
-		//this.label.attr({text: this.text + ': ' + this.value});
 		if (this.readout) this.readout.attr({text: '' + this.value});
 
 		this.angle = this.needleAngle(value);
@@ -2105,24 +2032,16 @@ function Meter(options) {
 //	Scope control
 //
 function Scope(options) {
+
 	this.__proto__ = new Control();
 
 	this.init = function(options) {
 		this.type = options.type = 'Scope';
 		this.parent = options.parent;
-
-		this.options = {};
-		for (var o in options) this.options[o] = options[o];
-
-		if (options.id) this.id = options.id;
-		else if (options.text && !this.parent.controls[options.text]) this.id = options.text;
-		else this.id = this.parent.uniqueid(this.type);
-		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-
 		this.defaults = {
 			x:48, y:48, w:288, h:144,
 			value: 0,
-			text: undefined,
+			text: '',
 			script: undefined,
 			fill: this.parent.fill,
 			fill_highlight: this.parent.lighter(this.parent.stroke),
@@ -2144,11 +2063,6 @@ function Scope(options) {
 		//console.log('Scope defaults:', this.defaults);
 
 		this.setoptions(options);
-
-		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
-		this.elts = [];
-		this.textelts = [];
-
 		this.render();
 
 		if (this.autorun) {
