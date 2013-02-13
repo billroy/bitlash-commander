@@ -195,6 +195,9 @@ app.get('/d3/:id', function(req, res) {		// serve D3 chart series for given cont
 server.listen(port);
 console.log('Listening on port:', port);
 
+var mem = process.memoryUsage();
+var totalmem = mem.rss + mem.heapTotal;
+console.log("Memory:", totalmem, mem);
 
 //////////
 //

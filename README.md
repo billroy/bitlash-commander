@@ -193,10 +193,9 @@ The push example in the file public/push.html shows event listeners in use:
 			- menuowner is set in the correct panel Panel7
 			- 'this' is Panel0
 			- could save 'menupanel' as well as owner
+		- could be raphael dispatching to the first paper in the div
 
 - meter control
-	- BUG: needle flies away on drag move
-	- BUG: drag move batons[] and labels[]
 	- damping factor for animation
 	- draw the arc
 
@@ -212,10 +211,10 @@ The push example in the file public/push.html shows event listeners in use:
 	- time axis controls (zoom in/out, start/stop, faster/slower)
 		- requires point history
 
+- contextmenu
+
 - common base class
 	- dragEnd remove()/render()
-		- implement render() in Button, Slider, Chart, Text, Group
-	- contextmenu decoration can take place in one fell swoop
 
 	- implement drag/resize
 	- requires:
@@ -223,6 +222,7 @@ The push example in the file public/push.html shows event listeners in use:
 
 - doc:
 	- source id dispatch
+		- source array for groups
 	- Meter, Scope
 	- radio attribute in groups
 	- new frontpage 
@@ -237,6 +237,7 @@ The push example in the file public/push.html shows event listeners in use:
 - BUG: path buttons get their w and h set: bug?
 
 - mustache-expand the label text?
+	- setText...
 
 - grid fill with small image is costly and does not adapt to grid size
 	- try drawing the grid explicitly, at the grid size

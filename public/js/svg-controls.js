@@ -695,6 +695,9 @@ console.log('Add:', items[i]);
 //
 //	Control base class
 //
+//	Other controls inherit this behavior using __proto__ chaining,
+//	or override it, or both.
+//
 Control = function() {
 
 	this.sethandlers = function() {
@@ -766,8 +769,14 @@ console.log('disable drag:', this.id);
 
 	this.setoptions = function(options) {
 		for (var prop in this.defaults) {
-			if (options.hasOwnProperty(prop)) this[prop] = options[prop];
-			else if (this.defaults[prop] != undefined) this[prop] = this.defaults[prop];
+			if (options.hasOwnProperty(prop)) {
+				//console.log('set option:', prop, options[prop]);
+				this[prop] = options[prop];
+			}
+			else if (this.defaults[prop] != undefined) {
+				//console.log('set default:', prop, this.defaults[prop]);
+				this[prop] = this.defaults[prop];
+			}
 		}
 	};
 
@@ -920,7 +929,6 @@ console.log('disable drag:', this.id);
 	};
 
 	this.on = function(eventname, listener) {
-		//if (!this.listeners) console.log('NO LISTENER ARRAY', this);
 		//console.log('On:', this.id, this.listeners.length, this.listeners, this);
 		if (!this.listeners[eventname]) this.listeners[eventname] = [];
 		this.listeners[eventname].push(listener);
@@ -959,37 +967,41 @@ function Button(options) {
 		else this.id = this.parent.uniqueid(this.type);
 
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-		this.x = options.x || 48;
-		this.y = options.y || 48;
-		this.w = options.w || 120;
-		this.h = options.h || 48;
-		this.text = options.text || '';
-		this.noreadout = options.noreadout || false;
-		this.script = options.script || '';
-		this.stroke = options.stroke || this.parent.stroke;
-		this.fill = options.fill || this.parent.fill;
-		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
-		if (options.highlighttrue) this.highlighttrue = options.highlighttrue;
-		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
-		this.fontsize = options.fontsize || this.parent.fontsize;
-		this.repeat = options.repeat || 0;
-		this.running = 0;
-		if (options.corner != undefined) this.corner = options.corner;
-		else this.corner = this.parent.button_corner;
-		this.subtype = options.subtype || '';	// default to rectangle
-		this.r = options.r || this.w/2;
-		this.autorun = options.autorun || false;
-		this.value = options.value || 0;
-		this.path = options.path || undefined;
-		this.scale = options.scale || 1;
-		if (options.group) this.group = options.group;
-		if (options.row != undefined) this.row = options.row;
-		if (options.col != undefined) this.col = options.col;
+
+		this.defaults = {
+			x:48, y:48,
+			w:120, h:48,
+
+			value: 0,
+			text: undefined,
+			script: undefined,
+			fill:this.parent.fill,
+			fill_highlight: this.parent.lighter(this.parent.stroke),
+			stroke: this.parent.stroke,
+			'stroke-width': this.parent.control_stroke,
+			fontsize: this.parent.fontsize,
+			repeat: 0,
+			running: 0,
+			corner: this.parent.button_corner,
+			subtype: undefined,
+			group: undefined,
+			row: undefined,
+			col: undefined,
+			autorun: undefined,
+			highlighttrue: undefined,
+			source: undefined,
+			refresh: 0,
+
+			r: this.w/2,
+			noreadout: undefined,
+			path: undefined,
+			scale: 1
+		};
+		this.setoptions(options);
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 		this.elts = [];
 		this.textelts = [];
-
 		this.render();
 		return this;
 	};
@@ -1078,7 +1090,7 @@ function Button(options) {
 	};
 	
 	this.exec = function() {
-console.log('Button exec!');
+		//console.log('Button exec!');
 		// handle radio button side effects
 		if (this.group && this.parent.controls[this.group].radio) {
 			this.parent.controls[this.group].setValue(this.text);
@@ -1109,51 +1121,54 @@ function Slider(options) {
 		else this.id = this.parent.uniqueid(this.type);
 
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-		this.x = options.x || 48;
-		this.y = options.y || 48;
-		this.w = options.w || 72;
-		this.h = options.h || 192;
-		this.text = options.text || '';
-		this.noreadout = options.noreadout || false;
-		this.script = options.script || '';
-		this.stroke = options.stroke || this.parent.stroke;
-		this.fill = options.fill || this.parent.fill;
-		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
-		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
-		this.fontsize = options.fontsize || this.parent.fontsize;
 
-		if (options.group) this.group = options.group;
-		if (options.row != undefined) this.row = options.row;
-		if (options.col != undefined) this.col = options.col;
+		this.defaults = {
+			x:48, y:48,
+			w:72, h:192,
+
+			value: 0,
+			text: undefined,
+			script: undefined,
+			fill:this.parent.fill,
+			fill_highlight: this.parent.lighter(this.parent.stroke),
+			stroke: this.parent.stroke,
+			'stroke-width': this.parent.control_stroke,
+			fontsize: this.parent.fontsize,
+			repeat: 0,
+			running: 0,
+			corner: this.parent.button_corner,
+			subtype: 'y',		// ***
+			group: undefined,
+			row: undefined,
+			col: undefined,
+			autorun: undefined,
+			highlighttrue: undefined,
+			source: undefined,
+			refresh: 0,
+
+			noreadout: undefined,
+			min: 0, max: 255,
+			xmin: 0, xmax: 255,
+			ymin: 0, ymax: 255,
+			recenter: undefined,
+			value: 0,
+			xvalue: 0,
+			yvalue: 0,
+			barw: 1,
+			barh: this.barw
+		}
+		this.setoptions(options);
+		console.log('Slider:', this);
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 		this.elts = [];
 		this.textelts = [];
-
-		this.min = options.min || 0;
-		this.max = options.max || 0;
-		this.xmin = options.xmin || 0;
-		this.xmax = options.xmax || 255;
-		this.ymin = options.ymin || 0;
-		this.ymax = options.ymax || 255;
-
-		this.recenter = options.recenter || false;
-
-		this.value = options.value || this.min;
-		this.xvalue = options.xvalue || this.xmin;
-		this.yvalue = options.yvalue || this.ymin;
-
-		this.barw = options.barw || 1;	//1+Math.floor(this.w / 16);
-		this.barh = this.barw;
-
-		this.subtype = this.options.subtype = options.subtype || 'y';
 
 		this.render();
 		return this;
 	};
 
 	this.layout = function() {
-
 		if (this.subtype == 'xy') {
 			this.slidew = options.slidew || 1+Math.floor(this.w / 12);
 			//this.w += this.slidew;
@@ -1613,15 +1628,18 @@ function Text(options) {
 		else this.id = this.parent.uniqueid(this.type);
 
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-		this.x = options.x || 96;
-		this.y = options.y || 96;
-		this.text = options.text || '';
 
-		this.stroke = options.stroke || this.parent.stroke;
-		this.fill = options.fill || this.parent.fill;
-		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
-		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
-		this.fontsize = options.fontsize || this.parent.fontsize;
+		this.defaults = {
+			x:48, y:48,
+			text: undefined,
+			fill:this.parent.fill,
+			fill_highlight: this.parent.lighter(this.parent.stroke),
+			stroke: this.parent.stroke,
+			'stroke-width': this.parent.control_stroke,
+			fontsize: this.parent.fontsize,
+		}
+		this.setoptions(options);
+
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 		this.elts = [];
 		this.textelts = [];
@@ -1689,34 +1707,38 @@ function Group(options) {
 		else this.id = this.parent.uniqueid(this.type);
 
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-		this.x = options.x || 48;
-		this.y = options.y || 48;
-		this.w = options.w || this.childopts.w || 120;
-		this.h = options.h || this.childopts.h || 48;
-		this.text = options.text || '';
-		this.noreadout = options.noreadout || false;
-		this.script = options.script || '';
-		this.stroke = options.stroke || this.parent.stroke;
-		this.fill = options.fill || this.parent.fill;
-		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
-		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
-		this.fontsize = options.fontsize || this.parent.fontsize;
-		this.repeat = options.repeat || 0;
-		this.running = 0;
 
-		if (options.corner != undefined) this.corner = options.corner;
-		else this.corner = this.parent.button_corner;
-		
-		if (options.radio != undefined) this.radio = options.radio;
+		this.defaults = {
+			x:48, y:48,
+			w: this.childopts.w || 120, 
+			h: this.childopts.h || 48,
 
-		this.subtype = options.subtype || '';	// default to rectangle
-		if (this.subtype == 'circle') this.r = options.r || this.w/2;
-		this.autorun = options.autorun || false;
-		this.value = options.value || 0;
-		this.path = options.path || undefined;
-		this.scale = options.scale || 1;
+			value: 0,
+			text: undefined,
+			script: undefined,
+			fill:this.parent.fill,
+			fill_highlight: this.parent.lighter(this.parent.stroke),
+			stroke: this.parent.stroke,
+			'stroke-width': this.parent.control_stroke,
+			fontsize: this.parent.fontsize,
+			repeat: 0,
+			running: 0,
+			corner: this.parent.button_corner,
+			subtype: undefined,
+			group: undefined,
+			row: undefined,
+			col: undefined,
+			autorun: undefined,
+			highlighttrue: undefined,
+			source: undefined,
+			refresh: 0,
 
-		if (options.reversebits != undefined) this.reversebits = options.reversebits;
+			noreadout: undefined,
+			radio: undefined,
+			r: options.r || this.w/2,
+			reversebits: undefined
+		};
+		this.setoptions(options);
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 		this.elts = [];
@@ -1933,46 +1955,42 @@ function Meter(options) {
 		else this.id = this.parent.uniqueid(this.type);
 
 		if (this.parent.channel.length) this.id = '' + this.parent.channel + '.' + this.id;
-		this.x = options.x || 48;
-		this.y = options.y || 48;
-		this.w = options.w || 240;
-		this.h = options.h || 240;
-		this.text = options.text || '';
-		this.noreadout = options.noreadout || false;
-		this.script = options.script || '';
-		this.stroke = options.stroke || this.parent.stroke;
-		this.fill = options.fill || this.parent.fill;
-		this.fill_highlight = options.fill_highlight || this.parent.lighter(this.stroke);
-		if (options.highlighttrue) this.highlighttrue = options.highlighttrue;
-		this['stroke-width'] = options['stroke-width'] || this.parent.control_stroke;
-		this.fontsize = options.fontsize || this.parent.fontsize;
-		this.repeat = options.repeat || 0;
-		this.running = 0;
-		if (options.corner != undefined) this.corner = options.corner;
-		else this.corner = this.parent.button_corner;
-		this.subtype = options.subtype || '';	// default to rectangle
-		this.r = options.r || this.w/2;
-		this.autorun = options.autorun || false;
-		this.value = options.value || 0;
-		this.path = options.path || undefined;
-		this.scale = options.scale || 1;
-		if (options.group) this.group = options.group;
-		if (options.row != undefined) this.row = options.row;
-		if (options.col != undefined) this.col = options.col;
 
-		this.min_angle = options.min_angle || -45;
-		this.max_angle = options.max_angle || 45;
+		this.defaults = {
+			x:48, y:48,
+			w:240, h:240,
 
-		// needle attributes
-		this.nfill = options.nfill || 'red';
-		this.nstroke = options.nstroke || 'red';
+			value: 0,
+			text: undefined,
+			script: undefined,
+			fill:this.parent.fill,
+			fill_highlight: this.parent.lighter(this.parent.stroke),
+			stroke: this.parent.stroke,
+			'stroke-width': this.parent.control_stroke,
+			fontsize: this.parent.fontsize,
+			repeat: 0,
+			running: 0,
+			corner: this.parent.button_corner,
+			subtype: undefined,
+			group: undefined,
+			row: undefined,
+			col: undefined,
+			autorun: undefined,
+			highlighttrue: undefined,
+			source: undefined,
+			refresh: 0,
 
-		this.ticks = options.ticks || 5;
-		this.baton_height = options.baton_height || 5;
-
-		this.min = options.min || 0;
-		this.max = options.max || 1024;
-		if (options.source) this.source = options.source;
+			ticks: 5,
+			tickwidth: 3,
+			min: 0,
+			max: 1024,
+			baton_height: 5,
+			min_angle: -45,
+			max_angle: 45,
+			nfill: 'red',			// needle attributes
+			nstroke: 'red'
+		}
+		this.setoptions(options);
 
 		this.listeners = {};	// hash of arrays of listeners, keyed by eventname
 		this.elts = [];
@@ -1980,7 +1998,6 @@ function Meter(options) {
 
 		this.render();
 		return this;
-
 	};
 
 	this.layout = function() {
@@ -2104,6 +2121,7 @@ function Scope(options) {
 
 		this.defaults = {
 			x:48, y:48, w:288, h:144,
+			value: 0,
 			text: undefined,
 			script: undefined,
 			fill: this.parent.fill,
@@ -2120,7 +2138,8 @@ function Scope(options) {
 			source: undefined,
 			refresh: 0,
 			min: 0,
-			max: 1024
+			max: 1024,
+			tickwidth: 3
 		}
 		//console.log('Scope defaults:', this.defaults);
 
@@ -2160,14 +2179,13 @@ function Scope(options) {
 			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize});
 		this.textelts.push(this.label);
 
-		var tickwidth = 3;
 		var axisx = this.x + this.w + this.fontsize;
 		var step = (this.max - this.min) / (this.ticks-1);
 		for (var t=0; t<this.ticks; t++) {
 			var value = Math.floor(this.min + (t * step));
 			var y = this.mapy(value);
 
-			var tick = this.parent.paper.rect(this.x + this.w, y, tickwidth, 1)
+			var tick = this.parent.paper.rect(this.x + this.w, y, this.tickwidth, 1)
 				.attr({fill:this.fill, stroke:this.stroke});
 			this.elts.push(tick);
 
