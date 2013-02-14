@@ -864,6 +864,9 @@ Control = function() {
 
 	this.dragEnd = function(e) {
 		console.log('Control dragEnd');
+		this.remove();
+		this.render();
+/*
 		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
 		this.attr({opacity:1.0});
 		this.dehighlight();
@@ -875,6 +878,7 @@ Control = function() {
 			console.log('dragEnd calling:', this.row, this.col);
 			this.parent.controls[this.group].dragNotify(this);
 		}
+*/
 		return this.dragFinish(e);
 	};
 	
@@ -995,7 +999,7 @@ function Button(options) {
 			source: undefined,
 			refresh: 0,
 
-			r: this.w/2,
+			r: 60,
 			noreadout: undefined,
 			path: undefined,
 			scale: 1
@@ -1070,11 +1074,6 @@ function Button(options) {
 			this.label.attr({x:x + this.w/2, y:y + this.h/2});
 			if (this.readout) this.readout.attr({x:x + this.w/2, y:y + this.h + this.fontsize});
 		}
-	};
-	
-	this.dragEnd = function() {
-		this.remove();
-		this.render();
 	};
 
 	this.setValue = function(value) {
@@ -1246,13 +1245,6 @@ function Slider(options) {
 		this.label.attr({x:this.x + this.w/2, y:this.y + this.outerh + this.fontsize*2});
 		if (this.xreadout) this.xreadout.attr({x:this.x + this.outerw + this.fontsize, y:this.y + this.h/2});
 		if (this.yreadout) this.yreadout.attr({x:this.x + this.w/2, y:this.y + this.outerh + this.fontsize});
-	};
-
-	this.dragEnd = function(e) {
-		delete this.drag;
-		this.dragging = false;
-		this.remove();
-		this.render();
 	};
 
 	this.slideStart = function(x, y, event) {
@@ -1544,11 +1536,6 @@ function Chart(options) {
 		this.svg.attr('transform', translation);
 	};
 
-	this.dragEnd = function() {
-		this.remove();
-		this.redraw();
-	};
-
 	this.handleClick = function(e) {
 		if (this.repeat) {
 			if (this.running) {
@@ -1617,11 +1604,6 @@ function Text(options) {
 		this.label.attr({x:this.x, y:this.y});
 	};
 
-	this.dragEnd = function(e) {
-		this.remove();
-		this.render();
-	};
-
 	this.setValue = function(value) {
 		this.value = value;
 		this.label.attr({text: this.value});
@@ -1682,7 +1664,7 @@ function Group(options) {
 
 			noreadout: undefined,
 			radio: undefined,
-			r: options.r || this.w/2,
+			//r: options.r || this.w/2,
 			reversebits: undefined,
 			numx: 1,
 			numy: 3,
@@ -1827,11 +1809,6 @@ function Group(options) {
 			}
 			y += (this.h + this.guttery);
 		}
-	};
-
-	this.dragEnd = function(e) {
-		this.remove();
-		this.render();
 	};
 
 	this.setValue = function(value) {
@@ -1999,11 +1976,6 @@ function Meter(options) {
 		//this.needle.attr({x:this.nx, y:this.ny - this.nl});
 	};
 
-	this.dragEnd = function(e) {
-		this.remove();
-		this.render();
-	};
-
 	this.needleAngle = function(value) {
 		var fraction = (value - this.min) / (this.max - this.min);
 		var raw_angle = this.min_angle + fraction * (this.max_angle - this.min_angle);
@@ -2116,11 +2088,6 @@ function Scope(options) {
 		this.layout();
 		this.outerrect.attr({x:this.x, y:this.y});
 		this.label.attr({x:this.lx, y:this.ly});
-	};
-
-	this.dragEnd = function(e) {
-		this.remove();
-		this.render();
 	};
 
 	this.mapy = function(value) {

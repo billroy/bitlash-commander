@@ -180,8 +180,6 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
-- BUG: New Round Button fails
-
 - right-click menus
 	- add "save panel" on item edit menu
 
