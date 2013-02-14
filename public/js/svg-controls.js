@@ -689,6 +689,23 @@ ControlPanel.prototype = {
 //
 Control = function() {
 
+
+	this.indragzone = function(e) {
+		//console.log('dragzone:', e, e.clientX, this.x+this.w-this.parent.grid);
+		if (e.clientX < (this.x + this.w - this.parent.grid)) return false;
+		if (e.clientY < (this.y + this.h - this.parent.grid)) return false;
+		return true;
+	};
+
+	this.mouseover = function(e) {
+		if (this.parent.editingpanel) {
+			if (this.indragzone(e)) this.attr({cursor:'se-resize'});
+			else this.attr({cursor:'move'});
+		}
+		else this.attr({cursor:'pointer'}); 
+		return false;
+	};
+
 	this.sethandlers = function() {
 		var self = this;
 		for (var i=0; i<this.elts.length; i++) {
@@ -696,7 +713,8 @@ Control = function() {
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.highlight.call(self, e); return false;})
 				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
-				.mouseover(function(e) { self.attr.call(self, {cursor:'pointer'}); return false;})
+				//.mouseover(function(e) { self.attr.call(self, {cursor:'pointer'}); return false;})
+				.mouseover(function(e) { return self.mouseover.call(self, e); })
 				.touchend(function(e) { self.handleClick.call(self,e); return false;});
 
 			if (this.parent.editingpanel)
@@ -717,7 +735,7 @@ Control = function() {
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.highlight.call(self, e); return false;})
 				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
-				.mouseover(function(e) { self.attr.call(self, {cursor:'pointer'}); return false;})
+				.mouseover(function(e) { return self.mouseover.call(self, e); })
 				.touchend(function(e) { self.handleClick.call(self,e); return false;});
 
 			if (this.parent.editingpanel)
@@ -830,13 +848,17 @@ Control = function() {
 
 		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
 
+/*
 		if (event && event.shiftKey) {
 			var id = (this.group != undefined) ? this.group : this.id;
 			this.parent.showEditMenu(id, e);
 			return true;
 		}
+*/
 		this.drag = {x:this.x, y:this.y, xoff:x-this.x, yoff:y-this.y};
-		this.dragging = true;
+
+		if (this.indragzone(e)) this.resizing = true;
+		else this.dragging = true;
 		this.attr({opacity:0.5});
 		this.toFront();
 	};
@@ -846,18 +868,35 @@ Control = function() {
 	};
 
 	this.dragMove = function(dx, dy, x, y, e) {
-		//console.log('Control dragMove:',dx,dy,x,y,e);
+console.log('Control dragMove:',dx,dy,x,y,e);
 		if (!this.parent.editingpanel) return true;
 
 		var grid = this.parent.grid;
-		if (grid && !e.shiftKey) {
-			this.x = this.drag.x + (grid * Math.floor(dx / grid));
-			this.y = this.drag.y + (grid * Math.floor(dy / grid));
+		if (this.dragging) {
+			if (grid && !e.shiftKey) {
+				this.x = this.drag.x + (grid * Math.floor(dx / grid));
+				this.y = this.drag.y + (grid * Math.floor(dy / grid));
+			}
+			else {
+				this.x = this.drag.x + dx;
+				this.y = this.drag.y + dy;
+			}
 		}
-		else {
-			this.x = this.drag.x + dx;
-			this.y = this.drag.y + dy;
+		else {		// resizing
+			var w = (x - this.x);
+			var h = (y - this.y);
+
+			if (grid && !e.shiftKey) {
+				this.w = grid + (grid * Math.floor(w / grid));
+				this.h = grid + (grid * Math.floor(h / grid));
+console.log('old/new:', this.w, this.h, w, h);
+			}
+			else {
+				this.w = w;
+				this.h = h;
+			}
 		}
+
 		this.move(this.x, this.y);
 		return this.dragFinish(e);
 	};
@@ -866,6 +905,17 @@ Control = function() {
 		console.log('Control dragEnd');
 		this.remove();
 		this.render();
+		if (this.dragging) {
+			this.options.x = this.x;
+			this.options.y = this.y;
+			delete this.dragging;
+		}
+		if (this.resizing) {
+			this.options.w = this.w;
+			this.options.h = this.h;
+			delete this.resizing;
+		}
+
 /*
 		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
 		this.attr({opacity:1.0});
@@ -1070,7 +1120,7 @@ function Button(options) {
 			if (this.readout) this.readout.attr({x:x, y:y});
 		}
 		else {
-			this.elt.attr({x:x, y:y});
+			this.elt.attr({x:x, y:y, width:this.w, height:this.h});
 			this.label.attr({x:x + this.w/2, y:y + this.h/2});
 			if (this.readout) this.readout.attr({x:x + this.w/2, y:y + this.h + this.fontsize});
 		}
@@ -1237,7 +1287,7 @@ function Slider(options) {
 	this.move = function(x, y) {
 		this.x = x;
 		this.y = y;
-		this.outerrect.attr({x:this.x, y:this.y});
+		this.outerrect.attr({x:this.x, y:this.y, width:this.w, height:this.h});
 		if (this.xbar) this.xbar.attr({x:this.x, y:this.y + this.outerh/2});
 		if (this.ybar) this.ybar.attr({x:this.x + (this.w-this.barw)/2, y:this.y});
 		this.slide.attr({x:this.x + (this.w - this.slidew)/2, y:this.slideYPos()});
@@ -1528,7 +1578,7 @@ function Chart(options) {
 	this.move = function(x, y) {
 		this.x = x;
 		this.y = y;
-		this.outerrect.attr({x:this.x, y:this.y});
+		this.outerrect.attr({x:this.x, y:this.y, width:this.w, height:this.h});
 		this.label.attr({x:this.x + this.w/2, y:this.y + this.h + this.fontsize*2});
 
 		var translation = ['translate(', this.x, ',', this.y,')'].join('');
@@ -1704,7 +1754,7 @@ function Group(options) {
 	}
 	
 	this.layout = function() {
-		this.outerh = this.numy * (this.h + this.guttery) + this.guttery;
+		this.h = this.outerh = this.numy * (this.h + this.guttery) + this.guttery;
 		if (this.childopts.type == 'Slider') {
 			this.outerh += 3 * this.fontsize;
 		}
@@ -1795,7 +1845,7 @@ function Group(options) {
 	this.move = function(newx, newy) {
 		this.options.x = this.x = newx;
 		this.options.y = this.y = newy;
-		this.elt.attr({x:this.x - this.gutterx, y:this.y - this.guttery});
+		this.elt.attr({x:this.x - this.gutterx, y:this.y - this.guttery, width:this.w, height:this.h});
 
 		var x;
 		var y = this.y;
@@ -1967,7 +2017,7 @@ function Meter(options) {
 		//console.log('move:', x, y, this);
 		this.x = x;
 		this.y = y;
-		this.elt.attr({x:x, y:y});
+		this.elt.attr({x:x, y:y, width:this.w, height:this.h});
 
 		this.layout();
 		this.label.attr({x:this.lx, y:this.ly});
@@ -2086,7 +2136,7 @@ function Scope(options) {
 		this.x = x;
 		this.y = y;
 		this.layout();
-		this.outerrect.attr({x:this.x, y:this.y});
+		this.outerrect.attr({x:this.x, y:this.y, width:this.w, height:this.h});
 		this.label.attr({x:this.lx, y:this.ly});
 	};
 

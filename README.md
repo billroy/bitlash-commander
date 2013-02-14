@@ -180,8 +180,21 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+
+- BUG: drag/resize
+	- drag zone is too small for rounded meter
+	- circle button doesn't resize
+	- path button doesn't resize
+	- group: doesn't resize; set w and h for drag calculation
+	- slider: slide and ybar should resize with control resize
+
+- BUG: slider goes dead after drag (only in some panels)
+	- stops receiving updates
+	- can't drag the slider
+
 - right-click menus
 	- add "save panel" on item edit menu
+	- enable context menu in panel face?
 
 - multi panel
 	- BUG: All menu commands end up targeted at Panel0
@@ -206,9 +219,6 @@ The push example in the file public/push.html shows event listeners in use:
 	- multiple sources (source array) (color array)
 	- time axis controls (zoom in/out, start/stop, faster/slower)
 		- requires point history
-
-- common base class
-	- implement drag/resize
 
 - lockdown mode: no menu access
 
