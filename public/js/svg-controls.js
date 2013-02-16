@@ -692,9 +692,12 @@ Control = function() {
 
 	this.indragzone = function(e) {
 		//console.log('dragzone:', e, e.clientX, this.x+this.w-this.parent.grid);
-		if (e.clientX < (this.x + this.w - this.parent.grid)) return false;
-		if (e.clientY < (this.y + this.h - this.parent.grid)) return false;
-		return true;
+		//if (e.clientX < (this.x + this.w - this.parent.grid)) return false;
+		//if (e.clientY < (this.y + this.h - this.parent.grid)) return false;
+		//return true;
+		if (e.clientX > (this.x + this.w - this.parent.grid)) return true;
+		if (e.clientY > (this.y + this.h - this.parent.grid)) return true;
+		return false;
 	};
 
 	this.mouseover = function(e) {
@@ -740,15 +743,14 @@ Control = function() {
 
 			if (this.parent.editingpanel)
 				this.textelts[i].drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
-/*
-			$(this.elts[i].node).bind("contextmenu", function(event) {
+
+			$(this.textelts[i].node).bind("contextmenu", function(event) {
 				var id = (self.group != undefined) ? self.group : self.id;
 				self.parent.showEditMenu(id, event);
 				event.preventDefault();
 				event.stopPropagation();
 				return false;
 			});
-*/
 		}
 	};
 
@@ -844,10 +846,9 @@ Control = function() {
 	};
 
 	this.dragStart = function(x, y, e) {
-		console.log('Control dragStart:', x, y, e);
+		//console.log('Control dragStart:', x, y, e);
 
 		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
-
 /*
 		if (event && event.shiftKey) {
 			var id = (this.group != undefined) ? this.group : this.id;
@@ -868,7 +869,7 @@ Control = function() {
 	};
 
 	this.dragMove = function(dx, dy, x, y, e) {
-console.log('Control dragMove:',dx,dy,x,y,e);
+		//console.log('Control dragMove:',dx,dy,x,y,e);
 		if (!this.parent.editingpanel) return true;
 
 		var grid = this.parent.grid;
@@ -882,14 +883,16 @@ console.log('Control dragMove:',dx,dy,x,y,e);
 				this.y = this.drag.y + dy;
 			}
 		}
-		else {		// resizing
+		else {						// resizing
 			var w = (x - this.x);
 			var h = (y - this.y);
+			if ((w < 0) || (h < 0)) return;
+			//if (w < Math.max(24, grid)) return;
+			//if (h < Math.max(24, grid)) return;
 
 			if (grid && !e.shiftKey) {
 				this.w = grid + (grid * Math.floor(w / grid));
 				this.h = grid + (grid * Math.floor(h / grid));
-console.log('old/new:', this.w, this.h, w, h);
 			}
 			else {
 				this.w = w;
@@ -902,7 +905,7 @@ console.log('old/new:', this.w, this.h, w, h);
 	};
 
 	this.dragEnd = function(e) {
-		console.log('Control dragEnd');
+		//console.log('Control dragEnd');
 		this.remove();
 		this.render();
 		if (this.dragging) {
@@ -1049,7 +1052,7 @@ function Button(options) {
 			source: undefined,
 			refresh: 0,
 
-			r: 60,
+//			r: 60,
 			noreadout: undefined,
 			path: undefined,
 			scale: 1
@@ -1061,12 +1064,21 @@ function Button(options) {
 		return this;
 	};
 
+	this.indragzone = function(e) {
+		if (this.subtype == 'circle') {
+			if (e.clientX > (this.x + this.w/2 - this.parent.grid)) return true;
+			if (e.clientY > (this.y + this.h/2 - this.parent.grid)) return true;
+			return false
+		}
+		return this.__proto__.indragzone.call(this, e);
+	};
+
 	this.render = function() {
 
 		if (this.subtype == 'circle') {
-			this.elt = this.parent.paper.circle(this.x+this.r, this.y+this.r, this.r);
-			this.label = this.parent.paper.text(this.x + this.r, this.y + this.r, this.text);
-			if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + 2 * this.r + this.fontsize, '');
+			this.elt = this.parent.paper.ellipse(this.x, this.y, this.w/2, this.h/2);
+			this.label = this.parent.paper.text(this.x + (this.w/2), this.y + (this.h/2), this.text);
+			if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize, '');
 		}
 		else if (this.subtype == 'path') {	// path button
 			var translation = ['t', this.x, ',', this.y, 's', this.scale].join('');
@@ -1108,9 +1120,9 @@ function Button(options) {
 		this.x = x;
 		this.y = y;
 		if (this.subtype == 'circle') {
-			this.elt.attr({cx:x + this.r, cy:y + this.r});
-			this.label.attr({x:x + (this.w/2), y:y + this.r});
-			if (this.readout) this.readout.attr({x: this.x + (this.w/2), y: this.y + 2 * this.r + this.fontsize});
+			this.elt.attr({cx:x, cy:y, rx: this.w/2, ry:this.h/2});
+			this.label.attr({x:x + this.w/2, y:y + this.h/2});
+			if (this.readout) this.readout.attr({x: this.x + (this.w/2), y: this.y + this.h + this.fontsize});
 		}
 		else if (this.subtype == 'path') {
 			var bbox = this.elt.getBBox();
@@ -1695,7 +1707,7 @@ function Group(options) {
 			value: 0,
 			text: '',
 			script: undefined,
-			fill:this.parent.fill,
+			fill: this.parent.fill,
 			stroke: this.parent.stroke,
 			//fill_highlight: this.parent.lighter(this.parent.stroke),
 			'stroke-width': this.parent.control_stroke,
@@ -1754,7 +1766,7 @@ function Group(options) {
 	}
 	
 	this.layout = function() {
-		this.h = this.outerh = this.numy * (this.h + this.guttery) + this.guttery;
+		//this.h = this.outerh = this.numy * (this.h + this.guttery) + this.guttery;
 		if (this.childopts.type == 'Slider') {
 			this.outerh += 3 * this.fontsize;
 		}

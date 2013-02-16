@@ -181,11 +181,35 @@ The push example in the file public/push.html shows event listeners in use:
 ## To Do / Bugs
 
 
+- BUG: group render / resize is borked
+	- options
+		- calculate group w, h from child.w, child.h, numx, numy
+			- but then what does resize do?
+			- resize changes child size to fill new box 
+				with specified numx, numy, and gutters
+
+		- calculate child.w and child.h from w, h, numx, numy
+			- this can be "invalid" (size can be less than 0)
+			- resize changes child size to fill new box
+		
+		- calculate numx, numy from w, h, child.w, child.h
+			- slack in the gutters
+			
+	- what happens on drag resize of the group?
+	- resize a group should...
+		- add more buttons
+		- resize existing buttons
+
+	- resize an item in a group should resize all the items and the group wrapper
+	- move an item in a group should move the group
+
+
 - BUG: drag/resize
 	- drag zone is too small for rounded meter
 	- circle button doesn't resize
 	- path button doesn't resize
-	- group: doesn't resize; set w and h for drag calculation
+	- group resizes very creatively
+		- problems using its w and h
 	- slider: slide and ybar should resize with control resize
 
 - BUG: slider goes dead after drag (only in some panels)
@@ -336,6 +360,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- integrate with cosm for upload
 
 - controls
+	- range slider (slider with two sliders)
 	- dropdown selector
 	- uploader button: click to upload a bitlash code file or url to the arduino
 		- autorunnable
