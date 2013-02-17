@@ -188,25 +188,33 @@ The push example in the file public/push.html shows event listeners in use:
 			- resize changes child size to fill new box 
 				with specified numx, numy, and gutters
 
-		- calculate child.w and child.h from w, h, numx, numy
+-->		- calculate child.w and child.h from w, h, numx, numy
 			- this can be "invalid" (size can be less than 0)
+				- init to plausible values; 1 grid is minimum; force w and h if needed
 			- resize changes child size to fill new box
+				- min resize is the grid quantum
 		
 		- calculate numx, numy from w, h, child.w, child.h
 			- slack in the gutters
-			
+
+	- more options
+		- disallow drag on the group, allow resize of buttons
+
 	- what happens on drag resize of the group?
 	- resize a group should...
 		- add more buttons
-		- resize existing buttons
+-->		- resize existing buttons
+		- change the gutters but leave the buttons as sized
 
-	- resize an item in a group should resize all the items and the group wrapper
-	- move an item in a group should move the group
+-->	- resize an item in a group should resize all the items and the group wrapper
+-->	- move an item in a group should move the group
 
+	- don't touch x,y 
+		- adjust origin of outerrect to be at x,y and offset the array from there
 
 - BUG: drag/resize
-	- drag zone is too small for rounded meter
 	- circle button doesn't resize
+		- resizes but doesn't track cursor correctly (factor of 2?)
 	- path button doesn't resize
 	- group resizes very creatively
 		- problems using its w and h
@@ -247,6 +255,8 @@ The push example in the file public/push.html shows event listeners in use:
 - lockdown mode: no menu access
 
 - doc:
+	- circle button uses w, h not r (deprecated)
+		- so it's really an ellipse
 	- source id dispatch
 		- source array for groups
 	- Meter, Scope

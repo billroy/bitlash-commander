@@ -1064,6 +1064,7 @@ function Button(options) {
 		return this;
 	};
 
+/*
 	this.indragzone = function(e) {
 		if (this.subtype == 'circle') {
 			if (e.clientX > (this.x + this.w/2 - this.parent.grid)) return true;
@@ -1072,13 +1073,22 @@ function Button(options) {
 		}
 		return this.__proto__.indragzone.call(this, e);
 	};
+*/
+
+	this.layout = function() {
+		if (this.subtype == 'circle') {
+			this.cx = this.x + this.w/2;
+			this.cy = this.y + this.h/2;
+		}
+	};
 
 	this.render = function() {
+		this.layout();
 
 		if (this.subtype == 'circle') {
-			this.elt = this.parent.paper.ellipse(this.x, this.y, this.w/2, this.h/2);
-			this.label = this.parent.paper.text(this.x + (this.w/2), this.y + (this.h/2), this.text);
-			if (!this.noreadout) this.readout = this.parent.paper.text(this.x + (this.w/2), this.y + this.h + this.fontsize, '');
+			this.elt = this.parent.paper.ellipse(this.cx, this.cy, this.w/2, this.h/2);
+			this.label = this.parent.paper.text(this.cx, this.cy, this.text);
+			if (!this.noreadout) this.readout = this.parent.paper.text(this.cx, this.y + this.h + this.fontsize, '');
 		}
 		else if (this.subtype == 'path') {	// path button
 			var translation = ['t', this.x, ',', this.y, 's', this.scale].join('');
@@ -1119,10 +1129,12 @@ function Button(options) {
 		//console.log('move:', x, y, this);
 		this.x = x;
 		this.y = y;
+		this.layout();
+
 		if (this.subtype == 'circle') {
-			this.elt.attr({cx:x, cy:y, rx: this.w/2, ry:this.h/2});
-			this.label.attr({x:x + this.w/2, y:y + this.h/2});
-			if (this.readout) this.readout.attr({x: this.x + (this.w/2), y: this.y + this.h + this.fontsize});
+			this.elt.attr({cx:this.cx, cy:this.cy, rx: this.w/2, ry:this.h/2});
+			this.label.attr({x:this.cx, y:this.cy});
+			if (this.readout) this.readout.attr({x:this.cx, y:this.y + this.h + this.fontsize});
 		}
 		else if (this.subtype == 'path') {
 			var bbox = this.elt.getBBox();
@@ -1218,7 +1230,6 @@ function Slider(options) {
 	this.layout = function() {
 		if (this.subtype == 'xy') {
 			this.slidew = options.slidew || 1+Math.floor(this.w / 12);
-			//this.w += this.slidew;
 			this.slideh = options.slideh || 1+Math.floor(this.h / 12);
 		}
 		else if (this.subtype == 'x') {
@@ -1709,7 +1720,6 @@ function Group(options) {
 			script: undefined,
 			fill: this.parent.fill,
 			stroke: this.parent.stroke,
-			//fill_highlight: this.parent.lighter(this.parent.stroke),
 			'stroke-width': this.parent.control_stroke,
 			fontsize: this.parent.fontsize,
 			repeat: 0,
@@ -1766,7 +1776,7 @@ function Group(options) {
 	}
 	
 	this.layout = function() {
-		//this.h = this.outerh = this.numy * (this.h + this.guttery) + this.guttery;
+		this.outerh = this.numy * (this.h + this.guttery) + this.guttery;
 		if (this.childopts.type == 'Slider') {
 			this.outerh += 3 * this.fontsize;
 		}
@@ -1774,6 +1784,8 @@ function Group(options) {
 
 	this.render = function() {
 		this.layout();
+
+console.log('New group:', this);
 
 		// bug: we don't have accurate this.w and this.h for path buttons here
 		this.elt = this.parent.paper.rect(
