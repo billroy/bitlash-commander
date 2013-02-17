@@ -1031,8 +1031,8 @@ function Button(options) {
 		this.parent = options.parent;
 		this.defaults = {
 			x:48, y:48,
-			w:120, h:48,
-
+			w:120, 
+			h: (options.subtype == 'circle') ? 120 : 48,
 			value: 0,
 			text: '',
 			script: undefined,
