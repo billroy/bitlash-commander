@@ -180,7 +180,6 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
-
 - BUG: group render / resize is borked
 	- options
 		- calculate group w, h from child.w, child.h, numx, numy
@@ -213,11 +212,9 @@ The push example in the file public/push.html shows event listeners in use:
 		- adjust origin of outerrect to be at x,y and offset the array from there
 
 - BUG: drag/resize
-	- circle button doesn't resize
-		- resizes but doesn't track cursor correctly (factor of 2?)
+	- circle button resize doesn't track cursor correctly (factor of 2?)
 	- path button doesn't resize
 	- group resizes very creatively
-		- problems using its w and h
 	- slider: slide and ybar should resize with control resize
 
 - BUG: slider goes dead after drag (only in some panels)
@@ -384,7 +381,6 @@ The push example in the file public/push.html shows event listeners in use:
 	- synth
 	- piano
 	- trafficlight
-	- elevator
 	- security alarm system
 	- train set
 	- remote doorbell

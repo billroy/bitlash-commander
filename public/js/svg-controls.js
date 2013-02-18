@@ -13,8 +13,10 @@ var ControlPanelBoss = {
 	panels: [],
 	currentpanel: undefined,
 
-	init: function() {
-		this.initSocketIO();
+	init: function(options) {
+		if (!options) options = {};
+		if (!options.nosocketio) this.initSocketIO();
+		return this;
 	},
 
 	initSocketIO: function() {
@@ -67,7 +69,7 @@ var ControlPanelBoss = {
 
 	load: function(id) {
 		console.log('Load:', id);
-		this.socket.emit('open', id);
+		if (this.socket) this.socket.emit('open', id);
 	},
 
 	add: function(items) {		// add an array of items to the panel
@@ -353,7 +355,7 @@ ControlPanel.prototype = {
 	},
 
 	sync: function() {
-		this.boss.socket.emit('sync', {});
+		if (this.boss.socket) this.boss.socket.emit('sync', {});
 	},
 
 	uniqueid: function(basestring) {
@@ -446,11 +448,11 @@ ControlPanel.prototype = {
 	},
 
 	sendCommand: function(command, data) {
-		this.boss.socket.emit(command, data);
+		if (this.boss.socket) this.boss.socket.emit(command, data);
 	},
 
 	sendUpdate: function(command, data) {
-		this.boss.socket.emit(command, data);
+		if (this.boss.socket) this.boss.socket.emit(command, data);
 	},
 	
 	lighter: function(color) {
@@ -901,13 +903,19 @@ Control = function() {
 		}
 
 		this.move(this.x, this.y);
+
+		window.status = ['Control dragMove:',
+			' x=', this.x,
+			' y=', this.y,
+			' w=', this.w,
+			' h=', this.h
+		].join('');
+			
 		return this.dragFinish(e);
 	};
 
 	this.dragEnd = function(e) {
 		//console.log('Control dragEnd');
-		this.remove();
-		this.render();
 		if (this.dragging) {
 			this.options.x = this.x;
 			this.options.y = this.y;
@@ -917,6 +925,13 @@ Control = function() {
 			this.options.w = this.w;
 			this.options.h = this.h;
 			delete this.resizing;
+		}
+		this.remove();
+		this.render();
+
+		if (this.group) {
+			//console.log('dragEnd calling:', this.row, this.col);
+			this.parent.controls[this.group].dragNotify(this);
 		}
 
 /*
@@ -1152,7 +1167,6 @@ function Button(options) {
 
 	this.setValue = function(value) {
 		this.value = value;
-		//this.label.attr({text: this.text + ': ' + this.value});
 		if (this.readout) this.readout.attr({text: '' + this.value});
 		else if (this.highlighttrue) {
 			if (parseInt(this.value) != 0) this.highlight();
@@ -1863,6 +1877,7 @@ console.log('New group:', this);
 		// calculate x,y of group from row, col of button[id]
 		var newx = moved.x - moved.col * (this.w + this.gutterx);
 		var newy = moved.y - moved.row * (this.h + this.guttery);
+		console.log('dragNotify', moved, this.x, this.y, newx, newy);
 		this.move(newx, newy);
 	};
 
