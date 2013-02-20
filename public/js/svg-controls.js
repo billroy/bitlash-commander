@@ -1166,6 +1166,13 @@ function Button(options) {
 	};
 
 	this.setValue = function(value) {
+
+		// handle group side effects like radio buttons and bitwise highlighting
+		if (this.group) {
+			this.parent.controls[this.group].setValue(value);
+			return;
+		}
+
 		this.value = value;
 		if (this.readout) this.readout.attr({text: '' + this.value});
 		else if (this.highlighttrue) {
@@ -1175,7 +1182,8 @@ function Button(options) {
 		var update = {id: this.id, value: this.value};
 		this.fire('update', update);
 	};
-	
+
+/*
 	this.exec = function() {
 		//console.log('Button exec!');
 		// handle radio button side effects
@@ -1184,6 +1192,7 @@ function Button(options) {
 		}
 		this.__proto__.exec.call(this);
 	};
+*/
 
 	return this.init(options || {});
 };

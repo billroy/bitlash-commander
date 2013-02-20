@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!-- Copyright 2012-2013 by Bill Roy - MIT license - See LICENSE file -->
+<html><head>
+	<title>Bitlash Commander</title>
+
+	<script type='text/javascript' src='/js/jquery-1.8.2.min.js'></script>
+	<script type='text/javascript' src='/js/fastclick.js'></script>
+	<script type='text/javascript' src='/js/raphael.js'></script>
+	<script type='text/javascript' src='/js/d3.v2.min.js'></script>
+	<script type='text/javascript' src='/js/mustache.js'></script>
+	<script type='text/javascript' src='/socket.io/socket.io.js'></script>
+	<script type='text/javascript' src='/js/handsontable/jquery.handsontable.full.js'></script>
+	<script type='text/javascript' src='/js/jQuery-contextMenu/jquery.contextMenu.js'></script>
+	<script type='text/javascript' src='/js/jQuery-contextMenu/jquery.ui.position.js'></script>
+
+	<script type='text/javascript' src='/js/svg-controls.js'></script>
+
+	<link rel='stylesheet' media='screen' href='/js/handsontable/jquery.handsontable.full.css'>
+	<link rel='stylesheet' media='screen' href='/js/jQuery-contextMenu/jquery.contextMenu.css'>
+
+</head><body style='background:gray, font-family:sans-serif'>
+
+<script type='text/javascript' charset='utf8'>
+
+$(document).ready(function() {
+
+	//document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
+	var effects = 1;	
+
+	var Panel = new ControlPanel({stroke:'blue',
+		id:'radiotest', 
+		title:'Radio Button Group Test'
+	});
+
+	Panel.addGroup({
+			id: 'radiogroup',
+			numx:1, numy:3,
+			x:400, y:200,
+			gutter:10,
+			corner:0,
+			radio:1,
+			childopts:{
+				noreadout: true,
+				text: ['stop', 'slow', 'go'],
+				stroke: ['red','yellow','green'],
+				script: 'print "{{text}}"',
+				value: 'stop',
+			}
+		});
+/*
+	var led32 = Panel.addGroup({
+			id: 'hbtns-32',
+			numx:32, numy:1,
+			x:600, y:200,
+			gutterx: 5, guttery:0,
+			corner:0,
+			text: ' ',
+			stroke: 'black',
+			childopts: {
+				noreadout: true,
+				w:10, h:20,
+				stroke:[
+					'green','green','green','green', 'green','green','green','green',
+					'green','green','green','green', 'green','green','green','green',
+					'yellow','yellow','yellow','yellow', 'yellow','yellow','yellow','yellow',
+					'red','red','red','red', 'red','red','red','red']
+			},
+			script: 'javascript:alert(this.id);'
+		});
+
+	if (effects) window.setInterval(function() { 
+		var newvalue = ~(-1<<Math.floor(32*Math.random()));
+		led32.setValue(newvalue);
+	}, 900);
+*/
+}); 	// document.ready
+</script>
+<div id='editor'>
+	<div id='dataTable'></div>
+	<input type='button' value='cancel' id='editcancel'></input>
+	<input type='button' value='+' id='editadd'></input>
+	<input type='button' value='-' id='editdelete'></input>
+	<input type='button' value='save' id='editsave'></input>
+</div>
+<div id='contextmenu'></div>
+<div id='editmenu'></div>
+</body></html>
