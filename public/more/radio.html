@@ -47,9 +47,10 @@ $(document).ready(function() {
 				value: 'stop',
 			}
 		});
-/*
+
+
 	var led32 = Panel.addGroup({
-			id: 'hbtns-32',
+			id: 'vu32',
 			numx:32, numy:1,
 			x:600, y:200,
 			gutterx: 5, guttery:0,
@@ -67,7 +68,8 @@ $(document).ready(function() {
 			},
 			script: 'javascript:alert(this.id);'
 		});
-
+/*
+	var effects = 1;
 	if (effects) window.setInterval(function() { 
 		var newvalue = ~(-1<<Math.floor(32*Math.random()));
 		led32.setValue(newvalue);

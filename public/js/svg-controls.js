@@ -89,6 +89,7 @@ var ControlPanelBoss = {
 			else if (items[i].type == 'Group') panel.addGroup(items[i]);
 			else if (items[i].type == 'Meter') panel.addMeter(items[i]);
 			else if (items[i].type == 'Scope') panel.addScope(items[i]);
+			else if (items[i].type == 'Knob') panel.addKnob(items[i]);
 			else console.log('Unknown type in Add:', items[i]);
 		}
 	}
@@ -269,6 +270,7 @@ ControlPanel.prototype = {
 				else if (key == 'addchart') self.addChart({x:self.menux, y:self.menuy, });
 				else if (key == 'addmeter') self.addMeter({x:self.menux, y:self.menuy, });
 				else if (key == 'addscope') self.addScope({x:self.menux, y:self.menuy, });
+				else if (key == 'addknob') self.addKnob({x:self.menux, y:self.menuy, });
 				else if (key == 'save') self.saveControls();
 				else if (key == 'editpanel') self.edit.call(self, self);
 				else if (key == 'addtext') self.addText({x:self.menux, y:self.menuy, text:'Text'});
@@ -301,6 +303,7 @@ ControlPanel.prototype = {
 				'addslider': 	{name: 'New Slider', 	icon: 'addslider'},
 				'addxyslider': 	{name: 'New XY-Slider', icon: 'addslider'},
 				'addhslider': 	{name: 'New H-Slider', 	icon: 'addslider'},
+				'addknob': 		{name: 'New Knob', 		icon: 'addslider'},
 				'sep4': 	 	'---------',
 				'addchart':  	{name: 'New Chart', 	icon: 'addchart'},
 				'addmeter':  	{name: 'New Meter', 	icon: 'addchart'},
@@ -407,6 +410,14 @@ ControlPanel.prototype = {
 		return scope;
 	},
 
+	addKnob: function(options) {
+		options.parent = this;
+		options.type = 'Knob';
+		var knob = new Knob(options);
+		this.controls[knob.id] = knob;
+		return knob;
+	},
+
 	addText: function(options) {
 		options.parent = this;
 		options.type = 'Text';
@@ -433,6 +444,7 @@ ControlPanel.prototype = {
 			else if (items[i].type == 'Group') this.addGroup(items[i]);
 			else if (items[i].type == 'Meter') this.addMeter(items[i]);
 			else if (items[i].type == 'Scope') this.addScope(items[i]);
+			else if (items[i].type == 'Knob') this.addKnob(items[i]);
 			else if (items[i].type == 'Panel') {
 				for (var f in items[i]) {
 					this.options[f] = this[f] = items[i][f];
@@ -972,7 +984,7 @@ Control = function() {
 				var translation = ['t', this.x, ',', this.y, 's', .75].join('');
 				this.runningindicator = this.parent.paper.path('M19.275,3.849l1.695,8.56l1.875-1.642c2.311,3.59,1.72,8.415-1.584,11.317c-2.24,1.96-5.186,2.57-7.875,1.908l-0.84,3.396c3.75,0.931,7.891,0.066,11.02-2.672c4.768-4.173,5.521-11.219,1.94-16.279l2.028-1.775L19.275,3.849zM8.154,20.232c-2.312-3.589-1.721-8.416,1.582-11.317c2.239-1.959,5.186-2.572,7.875-1.909l0.842-3.398c-3.752-0.93-7.893-0.067-11.022,2.672c-4.765,4.174-5.519,11.223-1.939,16.283l-2.026,1.772l8.26,2.812l-1.693-8.559L8.154,20.232z')
 					.transform(translation)
-					.attr({fill:this.stroke, stroke:this.stroke});					
+					.attr({fill:this.stroke, stroke:this.stroke});
 				this.exec();
 			}
 		}
@@ -2236,3 +2248,154 @@ function Scope(options) {
 
 	return this.init(options || {});
 }
+
+
+//////////
+//
+//	Knob control
+//
+function Knob(options) {
+
+	this.__proto__ = new Control();
+
+	this.init = function(options) {
+		this.type = options.type = 'Knob';
+		this.parent = options.parent;
+		this.defaults = {
+			x:48, y:48,
+			w:120, 
+			h:120,
+			value: 0,
+			text: '',
+			script: undefined,
+			fill:'315-gray:1-white:50-gray:99',		//this.parent.fill,
+			stroke: this.parent.stroke,
+			'stroke-width': this.parent.control_stroke,
+			fontsize: this.parent.fontsize,
+			repeat: 0,
+			running: 0,
+			corner: this.parent.Knob_corner,
+			subtype: undefined,
+			group: undefined,
+			row: undefined,
+			col: undefined,
+			autorun: undefined,
+			highlighttrue: undefined,
+			source: undefined,
+			refresh: 0,
+
+			noreadout: undefined,
+
+			increment:1,
+			min:0,
+			max:1024,
+			rscale:2,		// scales increments to degrees of rotation			
+		};
+		this.setoptions(options);
+		this.fill_highlight = this.parent.lighter(this.stroke);
+
+		this.render();
+		return this;
+	};
+
+	this.layout = function() {
+		this.cx = this.x + this.w/2;
+		this.cy = this.y + this.h/2;
+		this.rx = this.cx;
+		this.ry = this.y + this.h + this.fontsize;
+	};
+
+	this.highlight = function() {
+	};
+
+	this.dehighlight = function() {
+	};
+
+	this.render = function() {
+		this.layout();
+
+		this.knob = this.parent.paper.ellipse(this.cx, this.cy, this.w/2, this.h/2)
+			.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']})
+			.drag(this.knobMove, this.knobStart, this.knobEnd, this, this, this);
+		this.elts.push(this.knob);
+
+		this.label = this.parent.paper.text(this.cx, this.cy, this.text)
+			.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize});
+		this.textelts.push(this.label);
+
+		if (!this.noreadout) {
+			this.readout = this.parent.paper.text(this.rx, this.ry, '')
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': this.fontsize-2});
+			this.textelts.push(this.readout);
+		}
+		this.sethandlers();
+	};
+
+	this.move = function(x, y) {
+		//console.log('move:', x, y, this);
+		this.x = x;
+		this.y = y;
+		this.layout();
+
+		this.knob.attr({cx:this.cx, cy:this.cy, rx: this.w/2, ry:this.h/2});
+		this.label.attr({x:this.cx, y:this.cy});
+		if (this.readout) this.readout.attr({x:this.rx, y:this.ry});
+	};
+
+	this.markStart = function(x, y) {
+		this.spinx = x;
+		this.spiny = y;
+	};
+
+	this.sign = function(x) {
+		if (x < 0) return -1;
+		if (x > 0) return 1;
+		return 0;
+	};
+
+	this.knob_angle = 0;
+
+	this.rotateKnob = function(degrees) {
+		this.knob_angle += (degrees / this.rscale);
+		this.knob.transform("r" + this.knob_angle + " " + this.cx + " " + this.cy);
+	}
+
+	this.knobStart = function(x, y, e) {
+		this.markStart(x, y);
+	};
+	
+	this.knobMove = function(dx, dy, x, y, e) {
+		console.log('Knob dragMove:',dx,dy,x,y,e);
+
+		var dragx = x - this.spinx;
+		var dragy = y - this.spiny;
+		var dx = x - this.cx;
+		var dy = y - this.cy;
+		var increment;
+		if (dx > dy) increment = this.sign(dx) * dragy * this.increment;
+		else increment = -this.sign(dy) * dragx * this.increment;
+
+		var value = this.value + increment;
+		value = Math.max(this.min, value);
+		value = Math.min(this.max, value);
+		this.setValue(value);
+
+		this.exec();
+		this.rotateKnob(increment);
+
+		this.markStart(x, y);
+	};
+
+	this.knobEnd = function(e) {
+	};
+
+	this.setValue = function(value) {
+		this.value = value;
+		if (this.readout) this.readout.attr({text: '' + this.value});
+		var update = {id: this.id, value: this.value};
+		this.fire('update', update);
+	};
+
+	return this.init(options || {});
+}
+
