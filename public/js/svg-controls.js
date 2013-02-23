@@ -2305,6 +2305,7 @@ function Knob(options) {
 		this.ry = this.y + this.h + this.fontsize;
 	};
 
+	// block normal highlighting
 	this.highlight = function() {
 	};
 
@@ -2365,8 +2366,7 @@ function Knob(options) {
 	};
 	
 	this.knobMove = function(dx, dy, x, y, e) {
-		console.log('Knob dragMove:',dx,dy,x,y,e);
-
+		//console.log('Knob dragMove:',dx,dy,x,y,e);
 		var dragx = x - this.spinx;
 		var dragy = y - this.spiny;
 		var dx = x - this.cx;
@@ -2376,12 +2376,12 @@ function Knob(options) {
 		else increment = -this.sign(dy) * dragx * this.increment;
 
 		var value = this.value + increment;
-		value = Math.max(this.min, value);
-		value = Math.min(this.max, value);
-		this.setValue(value);
+		if (value < this.min) value = this.min;
+		else if (value > this.max) value = this.max;
+		else this.rotateKnob(increment);
 
+		this.setValue(value);
 		this.exec();
-		this.rotateKnob(increment);
 
 		this.markStart(x, y);
 	};

@@ -251,7 +251,11 @@ The push example in the file public/push.html shows event listeners in use:
 
 - lockdown mode: no menu access
 
+- BUG: knob isn't responsive after edit mode
+	- restore handlers
+
 - doc:
+	- knob
 	- circle button uses w, h not r (deprecated)
 		- so it's really an ellipse
 	- source id dispatch
