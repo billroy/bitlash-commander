@@ -218,7 +218,6 @@ The push example in the file public/push.html shows event listeners in use:
 		- adjust origin of outerrect to be at x,y and offset the array from there
 
 - BUG: drag/resize
-	- circle button resize doesn't track cursor correctly (factor of 2?)
 	- path button doesn't resize
 	- group resizes very creatively
 	- slider: slide and ybar should resize with control resize
@@ -242,6 +241,7 @@ The push example in the file public/push.html shows event listeners in use:
 			- 'this' is Panel0
 			- could save 'menupanel' as well as owner
 		- could be raphael dispatching to the first paper in the div
+		- seems like Boss could coordinate a fix
 
 - meter control
 	- damping factor for animation
@@ -374,7 +374,6 @@ The push example in the file public/push.html shows event listeners in use:
 
 - datalogging
 	- limit number of points per series
-	- facility to write to disk
 	- integrate with cosm for upload
 
 - controls

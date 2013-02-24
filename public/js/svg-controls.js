@@ -731,9 +731,8 @@ Control = function() {
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.highlight.call(self, e); return false;})
 				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
-				//.mouseover(function(e) { self.attr.call(self, {cursor:'pointer'}); return false;})
-				.mouseover(function(e) { return self.mouseover.call(self, e); })
-				.touchend(function(e) { self.handleClick.call(self,e); return false;});
+				.mouseover(function(e) { return self.mouseover.call(self, e); });
+				//.touchend(function(e) { self.handleClick.call(self,e); return false;});
 
 			if (this.parent.editingpanel)
 				this.elts[i].drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
@@ -826,13 +825,15 @@ Control = function() {
 		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(textattrs);
 	};
 
-	this.highlight = function(event) {
+	this.highlight = function() {
+console.log('Control highlight:', this.fill_highlight, this.fill, this.stroke);
 		for (var i=0; i<this.elts.length; i++) this.elts[i].attr({fill:this.fill_highlight});
 		var highlight_attr = {fill:this.fill, stroke:this.fill};
 		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(highlight_attr);
 	};
 
-	this.dehighlight = function(event) {
+	this.dehighlight = function() {
+console.log('Control dehighlight:', this.fill_highlight, this.fill, this.stroke);
 		for (var i=0; i<this.elts.length; i++) this.elts[i].attr({fill:this.fill});
 		var dehighlight_attr = {fill:this.stroke, stroke:this.stroke};
 		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(dehighlight_attr);
@@ -1191,7 +1192,7 @@ function Button(options) {
 			this.parent.controls[this.group].handleClick(e);
 			return;
 		}
-		this.__proto__.handleClick.call(this);
+		this.__proto__.handleClick.call(this, e);
 	};
 
 	this.setValue = function(value) {
@@ -1205,7 +1206,10 @@ function Button(options) {
 		this.value = value;
 		if (this.readout) this.readout.attr({text: '' + this.value});
 		if (this.highlighttrue) {
-console.log('highlight:', typeof this.value, this.value);
+			if (typeof this.value == 'string') this.value = parseInt(this.value);
+console.log('highlight:', this.value, typeof this.value);
+if (this.value) console.log('true');
+else console.log('false');
 			if (this.value) this.highlight();
 			else this.dehighlight();
 		}
