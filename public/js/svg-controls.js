@@ -1204,8 +1204,9 @@ function Button(options) {
 */
 		this.value = value;
 		if (this.readout) this.readout.attr({text: '' + this.value});
-		else if (this.highlighttrue) {
-			if (parseInt(this.value) != 0) this.highlight();
+		if (this.highlighttrue) {
+console.log('highlight:', typeof this.value, this.value);
+			if (this.value) this.highlight();
 			else this.dehighlight();
 		}
 		var update = {id: this.id, value: this.value};

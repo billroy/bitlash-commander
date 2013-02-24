@@ -20,7 +20,7 @@
 	<link rel='stylesheet' media='screen' href='/js/handsontable/jquery.handsontable.full.css'>
 	<link rel='stylesheet' media='screen' href='/js/jQuery-contextMenu/jquery.contextMenu.css'>
 
-</head><body bgcolor='black', style='font-family:sans-serif'>
+</head><body bgcolor='green', style='font-family:sans-serif'>
 
 <script type='text/javascript' charset='utf8'>
 
@@ -85,13 +85,12 @@ $(document).ready(function() {
 		old_xknob = new_xknob;
 		movex(delta);
 	});
-	
 
 	function movey(delta) {
-		var new_pen_y = pen_y - delta;
+		var new_pen_y = pen_y + delta;
 		if ((new_pen_y > Panel.face_stroke/2) && (new_pen_y < Panel.h - Panel.face_stroke/2)) {
 			var segment = Panel.paper.path([
-				'M', pen_x, ' ', pen_y, 'v', -delta].join(''))
+				'M', pen_x, ' ', pen_y, 'v', delta].join(''))
 				.attr({fill:'black', stroke:'black'});		
 			pen_y = new_pen_y;
 		}
@@ -104,16 +103,25 @@ $(document).ready(function() {
 		movey(delta);
 	});
 
+	var random = Panel.addButton({
+		id:'random',
+		x:24, y:72,
+		w:96, h:24,
+		text:'random',
+		highlighttrue:1,
+		noreadout:1,
+		script:'javascript:this.setValue(!{{value}});'
+	});
+
 	var step = 11;
 	if (1) {
 		window.setInterval(function() { 
-			movex((Math.random() * step) - step/2);
+			if (random.value) movex((Math.random() * step) - step/2);
 		}, 75);
 		window.setInterval(function() { 
-			movey((Math.random() * step) - step/2);
+			if (random.value) movey((Math.random() * step) - step/2);
 		}, 100);
 	}
-
 
 }); 	// document.ready
 </script>
