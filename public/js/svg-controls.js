@@ -131,6 +131,7 @@ ControlPanel.prototype = {
 			fill_highlight: 'white',
 			face_corner: 20,
 			button_corner: 10,
+			face_stroke: 6,
 			control_stroke: 3,
 			title: 'Bitlash Commander',
 			channel: '',
@@ -146,7 +147,7 @@ ControlPanel.prototype = {
 		this.paper = Raphael(this.x, this.y, this.w, this.h);
 
 		this.face = this.paper.rect(0, 0, this.w, this.h, this.face_corner)
-			.attr({stroke: this.stroke, fill: this.fill, 'stroke-width': 2 * this.control_stroke});
+			.attr({stroke: this.stroke, fill: this.fill, 'stroke-width': this.face_stroke});
 
 		this.controls = {};
 		this.next_id = 0;

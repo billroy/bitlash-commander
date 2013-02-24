@@ -261,6 +261,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- restore handlers
 
 - doc:
+	- update: in script
 	- knob
 	- circle button uses w, h not r (deprecated)
 		- so it's really an ellipse
