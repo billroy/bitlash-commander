@@ -1008,6 +1008,12 @@ Control = function() {
 			cmd = cmd.replace('javascript:', '');
 			eval(cmd);
 		}
+		else if (cmd.match(/^update\:/)) {			// javascript command
+			var value = cmd.replace('update:', '');
+			if ((typeof value == 'string') && value.match(/^-?\d+$/)) value = parseInt(value);
+			this.parent.sendCommand('update', {value:value, id:this.id});
+			this.setValue(value);
+		}
 		else {										// bitlash command
 			this.parent.sendCommand('exec', {cmd:cmd, id:this.id});
 		}

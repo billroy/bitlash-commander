@@ -356,8 +356,8 @@ io.sockets.on('connection', function (socket) {
 		executeBitlash(data)
 	});
 	socket.on('update', function(data) {
-		console.log('Update????:', data);
-		socket.broadcast.emit('update', data);	// everyone but requester
+		console.log('Update:', data);
+		socket.broadcast.emit('update', [data]);	// everyone but requester
 	});
 	socket.on('sync', function(data) {
 		var response = [];

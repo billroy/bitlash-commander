@@ -182,6 +182,9 @@ The push example in the file public/push.html shows event listeners in use:
 
 - readout: '{{value}}' instead of noreadout
 
+- knob:
+	- fixed list of values in value array
+	- value field is index into values
 
 - BUG: group render / resize is borked
 	- options
