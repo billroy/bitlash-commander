@@ -1002,7 +1002,7 @@ Control = function() {
 		if (typeof this.script == 'function') return this.script.call(this);
 		
 		var cmd = Mustache.render(this.script, this);
-		//console.log('button exec:', cmd);
+			//console.log('exec:', cmd, this.script, this);
 
 		if (cmd.match(/^javascript\:/)) {			// javascript command
 			cmd = cmd.replace('javascript:', '');
@@ -1164,9 +1164,9 @@ function Button(options) {
 			if (this.readout) this.readout.attr({x:this.cx, y:this.y + this.h + this.fontsize});
 		}
 		else if (this.subtype == 'path') {
-			var bbox = this.elt.getBBox();
+			this.bbox = this.elt.getBBox();
 			this.elt.transform(['t', x, ',', y, 's', this.scale].join(''));
-			var labely = bbox.y + this.h + this.fontsize;
+			var labely = this.bbox.y + this.h + this.fontsize;
 			this.label.attr({x:x, y:labely});
 			if (this.readout) this.readout.attr({x:x, y:y});
 		}
@@ -1177,14 +1177,24 @@ function Button(options) {
 		}
 	};
 
-	this.setValue = function(value) {
+	this.handleClick = function(e) {
+		// handle group side effects like radio buttons and bitwise highlighting
+		if (this.group) {
+			this.parent.controls[this.group].selected = this.text;
+			this.parent.controls[this.group].handleClick(e);
+			return;
+		}
+		this.__proto__.handleClick.call(this);
+	};
 
+	this.setValue = function(value) {
+/*
 		// handle group side effects like radio buttons and bitwise highlighting
 		if (this.group) {
 			this.parent.controls[this.group].setValue(value);
 			return;
 		}
-
+*/
 		this.value = value;
 		if (this.readout) this.readout.attr({text: '' + this.value});
 		else if (this.highlighttrue) {
@@ -1922,6 +1932,7 @@ console.log('New group:', this);
 	};
 
 	this.setValue = function(value) {
+	console.log('Group setValue:', value);
 		var bit = 0;
 		this.value = value;
 		if (typeof value == 'string') {

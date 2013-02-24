@@ -365,7 +365,7 @@ io.sockets.on('connection', function (socket) {
 			var datalist = data_cache[id];
 			if (datalist.length) response.push({id:id, value:datalist[datalist.length-1].value});
 		}
-		//console.log('Sync:', response);
+		console.log('Sync:', response);
 		// only to requester
 		if (response.length > 0) socket.emit('update', response);
 	});

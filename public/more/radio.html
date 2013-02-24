@@ -39,12 +39,13 @@ $(document).ready(function() {
 			gutter:10,
 			corner:0,
 			radio:1,
+			script: 'print "{{selected}}"',
+			value: 'stop',
 			childopts:{
 				noreadout: true,
 				text: ['stop', 'slow', 'go'],
-				stroke: ['red','yellow','green'],
-				script: 'print "{{text}}"',
-				value: 'stop',
+				stroke: ['red','yellow','green']
+				//script: 'print "{{text}}"',
 			}
 		});
 

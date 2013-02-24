@@ -180,6 +180,9 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+- readout: '{{value}}' instead of noreadout
+
+
 - BUG: group render / resize is borked
 	- options
 		- calculate group w, h from child.w, child.h, numx, numy
