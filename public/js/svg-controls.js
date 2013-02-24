@@ -752,8 +752,8 @@ Control = function() {
 				.click(function(e) { return self.handleClick.call(self, e); })
 				.mousedown(function(e) { self.highlight.call(self, e); return false;})
 				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
-				.mouseover(function(e) { return self.mouseover.call(self, e); })
-				.touchend(function(e) { self.handleClick.call(self,e); return false;});
+				.mouseover(function(e) { return self.mouseover.call(self, e); });
+				//.touchend(function(e) { self.handleClick.call(self,e); return false;});
 
 			if (this.parent.editingpanel)
 				this.textelts[i].drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
