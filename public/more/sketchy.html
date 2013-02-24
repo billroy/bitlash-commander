@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<!-- Copyright 2012-2013 by Bill Roy - MIT license - See LICENSE file -->
+<html><head>
+	<title>sketchy</title>
+
+	<script type='text/javascript' src='/js/jquery-1.8.2.min.js'></script>
+	<script type='text/javascript' src='/js/fastclick.js'></script>
+	<script type='text/javascript' src='/js/raphael.js'></script>
+	<script type='text/javascript' src='/js/d3.v2.min.js'></script>
+	<script type='text/javascript' src='/js/mustache.js'></script>
+	<script type='text/javascript' src='/socket.io/socket.io.js'></script>
+	<script type='text/javascript' src='/js/handsontable/jquery.handsontable.full.js'></script>
+	<script type='text/javascript' src='/js/jQuery-contextMenu/jquery.contextMenu.js'></script>
+	<script type='text/javascript' src='/js/jQuery-contextMenu/jquery.ui.position.js'></script>
+	<script type='text/javascript' src='/js/jplayer/jquery.jplayer.min.js'></script>
+
+	<script type='text/javascript' src='/js/svg-controls.js'></script>
+	<script type='text/javascript' src='/js/sound.js'></script>
+
+	<link rel='stylesheet' media='screen' href='/js/handsontable/jquery.handsontable.full.css'>
+	<link rel='stylesheet' media='screen' href='/js/jQuery-contextMenu/jquery.contextMenu.css'>
+
+</head><body bgcolor='black', style='font-family:sans-serif'>
+
+<script type='text/javascript' charset='utf8'>
+
+$(document).ready(function() {
+
+	//document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
+
+	var Panel = new ControlPanel({stroke:'red', fill:'lightgray',
+		id:'sketchy', 
+		face_corner:50,
+		face_stroke:40,
+		title:''
+	});
+
+	var knob_r = 64;
+	var knob_inset = 1.5;
+
+	var leftknob = Panel.addKnob({
+		x: knob_inset*knob_r, 
+		y: Panel.h - (knob_r) - knob_inset*knob_r,
+		w:2*knob_r, h:2*knob_r,
+		stroke:'darkgray',
+		//fill:'white',
+		text:'',
+		script:'',
+		min:-999999,
+		max:999999,
+		noreadout:1
+	});
+
+	var rightknob = Panel.addKnob({
+		x: Panel.w - 2*knob_r - knob_inset*knob_r, 
+		y: Panel.h - knob_r - knob_inset*knob_r,
+		w:2*knob_r, h:2*knob_r,
+		stroke:'darkgray',
+		//fill:'white',
+		text:'',
+		script:'',
+		min:-999999,
+		max:999999,
+		noreadout:1		
+	});
+
+	var pen_x = Math.floor(Math.random() * Panel.w);
+	var pen_y = Math.floor(Math.random() * Panel.h);
+	var old_xknob = leftknob.value;
+	var old_yknob = rightknob.value;
+
+	function movex(delta) {
+		var new_pen_x = pen_x + delta;
+		if ((new_pen_x > Panel.face_stroke/2) && (new_pen_x < Panel.w - Panel.face_stroke/2)) {
+			var segment = Panel.paper.path([
+				'M', pen_x, ' ', pen_y, 'h', delta].join(''))
+				.attr({fill:'black', stroke:'black'});
+			pen_x = new_pen_x;
+		}
+	}
+
+	leftknob.on('update', function(data) {
+		var new_xknob = parseInt(data.value);
+		var delta = new_xknob - old_xknob;
+		old_xknob = new_xknob;
+		movex(delta);
+	});
+	
+
+	function movey(delta) {
+		var new_pen_y = pen_y - delta;
+		if ((new_pen_y > Panel.face_stroke/2) && (new_pen_y < Panel.h - Panel.face_stroke/2)) {
+			var segment = Panel.paper.path([
+				'M', pen_x, ' ', pen_y, 'v', -delta].join(''))
+				.attr({fill:'black', stroke:'black'});		
+			pen_y = new_pen_y;
+		}
+	}
+
+	rightknob.on('update', function(data) {
+		var new_yknob = parseInt(data.value);
+		var delta = new_yknob - old_yknob;
+		old_yknob = new_yknob;
+		movey(delta);
+	});
+
+	var step = 11;
+	if (1) {
+		window.setInterval(function() { 
+			movex((Math.random() * step) - step/2);
+		}, 75);
+		window.setInterval(function() { 
+			movey((Math.random() * step) - step/2);
+		}, 100);
+	}
+
+
+}); 	// document.ready
+</script>
+<div id='editor'>
+	<div id='dataTable'></div>
+	<input type='button' value='cancel' id='editcancel'></input>
+	<input type='button' value='+' id='editadd'></input>
+	<input type='button' value='-' id='editdelete'></input>
+	<input type='button' value='save' id='editsave'></input>
+</div>
+<div id='contextmenu'></div>
+<div id='editmenu'></div>
+<div id='player'></div>
+</body></html>
