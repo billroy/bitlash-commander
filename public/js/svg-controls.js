@@ -197,6 +197,8 @@ ControlPanel.prototype = {
 				.attr({stroke:this.stroke, fill:this.stroke, 'font-size':36});
 		}
 
+		this.log('Commander here!');
+
 		return this;
 	},
 
@@ -690,7 +692,41 @@ ControlPanel.prototype = {
 			var newy = this.grid * Math.floor(control.y / this.grid);
 			control.move(newx, newy);
 		}
+	},
+	
+	// alertify.js integration: http://fabien-d.github.com/alertify.js/
+	alert: function(msg) {
+		if (alertify) alertify.alert(msg);
+		else alert(msg);
+	},
+
+	prompt: function(msg, value, callback) {
+		if (alertify) {
+			alertify.prompt(msg, callback, value);
+			return;
+		}
+		else return prompt(msg, value);
+	},
+
+	confirm: function(msg, callback) {
+		if (alertify) {
+			alertify.confirm(msg, callback);
+			return;
+		}
+		else return prompt(msg, '');
+	},
+
+	log: function(msg) {
+		//console.log('Alertify:', typeof alertify);
+		if (typeof alertify != 'undefined') alertify.success(msg);
+		else window.status = msg;
+	},
+
+	logerror: function(msg) {
+		if (alertify) alertify.error(msg);
+		else window.status = msg;
 	}
+
 }
 
 
@@ -826,14 +862,14 @@ Control = function() {
 	};
 
 	this.highlight = function() {
-console.log('Control highlight:', this.fill_highlight, this.fill, this.stroke);
+		//console.log('Control highlight:', this.fill_highlight, this.fill, this.stroke);
 		for (var i=0; i<this.elts.length; i++) this.elts[i].attr({fill:this.fill_highlight});
 		var highlight_attr = {fill:this.fill, stroke:this.fill};
 		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(highlight_attr);
 	};
 
 	this.dehighlight = function() {
-console.log('Control dehighlight:', this.fill_highlight, this.fill, this.stroke);
+		//console.log('Control dehighlight:', this.fill_highlight, this.fill, this.stroke);
 		for (var i=0; i<this.elts.length; i++) this.elts[i].attr({fill:this.fill});
 		var dehighlight_attr = {fill:this.stroke, stroke:this.stroke};
 		for (var i=0; i<this.textelts.length; i++) this.textelts[i].attr(dehighlight_attr);
@@ -1025,12 +1061,15 @@ console.log('Control dehighlight:', this.fill_highlight, this.fill, this.stroke)
 		}
 	};
 
-	this.setValue = function(value) {
-		console.log('ERROR: setValue() must be defined in the control.');
-	};
-
 	this.updateValue = function(value) {
 		this.parent.boss.handleUpdate({id:this.id, value:value});
+	};
+
+	this.setValue = function(value) {
+		//console.log('ERROR: setValue() must be defined in the control.');
+		this.value = value;
+		var update = {id: this.id, value: this.value};
+		this.fire('update', update);
 	};
 
 	this.on = function(eventname, listener) {
@@ -1207,9 +1246,6 @@ function Button(options) {
 		if (this.readout) this.readout.attr({text: '' + this.value});
 		if (this.highlighttrue) {
 			if (typeof this.value == 'string') this.value = parseInt(this.value);
-console.log('highlight:', this.value, typeof this.value);
-if (this.value) console.log('true');
-else console.log('false');
 			if (this.value) this.highlight();
 			else this.dehighlight();
 		}
