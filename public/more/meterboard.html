@@ -24,13 +24,13 @@ $(document).ready(function() {
 
 	document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
 	
-	var Panel = new ControlPanel({title:'Buttons!', stroke:'turquoise', id:'buttonboard'});
+	var Panel = new ControlPanel({title:'Meters!', stroke:'turquoise', id:'buttonboard'});
 
 		var bx;
-		var bw = 50;
+		var bw = 96;
 		var bm = 10;
 		var by = 100;
-		var bh = 50;
+		var bh = 96;
 		var count = 1;
 		
 		while ((by + bh + bm) < (Panel.y + Panel.h)) {

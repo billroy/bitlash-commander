@@ -4,6 +4,9 @@
 //	Copyright 2012-2013 Bill Roy (MIT License; see LICENSE file)
 //
 
+/* jshint -W004 */
+/* jshint -W099 */
+
 //////////
 //
 //	Control Panel Boss (Singleton)
@@ -32,6 +35,7 @@ var ControlPanelBoss = {
 	},
 
 	handleUpdate: function(data) {
+console.log('handleupdate:', data);
 		if (typeof data[0] == 'undefined') data = [data];
 
 		// dispatch to controls in all panels whose id field matches the update's id
@@ -39,11 +43,11 @@ var ControlPanelBoss = {
 			for (var p=0; p < this.panels.length; p++) {
 				var ctrl = this.panels[p].controls[data[i].id];
 				if (ctrl) {
-					if ((data[i].xvalue != undefined) && (data[i].yvalue != undefined)) {
+					if ((data[i].xvalue !== undefined) && (data[i].yvalue !== undefined)) {
 						console.log('Incoming Update XY:', data);
 						ctrl.setValue(data[i].xvalue, data[i].yvalue);
 					}
-					else if (data[i].value != undefined) ctrl.setValue(data[i].value);
+					else if (data[i].value !== undefined) ctrl.setValue(data[i].value);
 					else console.log('Malformed update:', i, data);
 				}
 			}
@@ -54,12 +58,16 @@ var ControlPanelBoss = {
 			for (var p=0; p < this.panels.length; p++) {
 				for (var c in this.panels[p].controls) {
 					var ctrl = this.panels[p].controls[c];
+console.log('checking control:', ctrl.id);
 					if (ctrl.source == data[i].id) {
-						if ((data[i].xvalue != undefined) && (data[i].yvalue != undefined)) {
+
+console.log('dispatching update:', data, ctrl.id);
+
+						if ((data[i].xvalue !== undefined) && (data[i].yvalue !== undefined)) {
 							console.log('Incoming Update XY:', data);
 							ctrl.setValue(data[i].xvalue, data[i].yvalue);
 						}
-						else if (data[i].value != undefined) ctrl.setValue(data[i].value);
+						else if (data[i].value !== undefined) ctrl.setValue(data[i].value);
 						else console.log('Malformed update:', i, data);
 					}
 				}
@@ -74,7 +82,7 @@ var ControlPanelBoss = {
 
 	add: function(items) {		// add an array of items to the panel
 
-		var panel = undefined;
+		var panel;
 		if (this.currentpanel) panel = this.panels[this.currentpanel];
 
 		for (var i=0; i < items.length; i++) {
@@ -93,7 +101,7 @@ var ControlPanelBoss = {
 			else console.log('Unknown type in Add:', items[i]);
 		}
 	}
-}
+};
 
 function LoadControlPanel(id) {
 	ControlPanelBoss.load(id);
@@ -141,7 +149,7 @@ ControlPanel.prototype = {
 
 		for (var prop in this.defaults) {
 			if (options.hasOwnProperty(prop)) this[prop] = options[prop];
-			else if (this.defaults[prop] != undefined) this[prop] = this.defaults[prop];
+			else if (this.defaults[prop] !== undefined) this[prop] = this.defaults[prop];
 		}
 
 		this.paper = Raphael(this.x, this.y, this.w, this.h);
@@ -259,7 +267,7 @@ ControlPanel.prototype = {
 			trigger: 'left',
 			zIndex:99999,
 			callback: function(key, options) {
-				if (key == 'addbutton') self.addButton({x:self.menux, y:self.menuy, });
+				if (key == 'addbutton') self.addButton({x:self.menux, y:self.menuy });
 				else if (key == 'addrbutton') self.addButton({x:self.menux, y:self.menuy, subtype:'circle'});
 				else if (key == 'addpbutton') self.addButton({x:self.menux, y:self.menuy, subtype:'path',
 					path:'M26.154,13.988c-0.96-0.554-1.982-0.892-3.019-1.032c0.396-0.966,0.616-2.023,0.616-3.131c0-4.399-3.438-8.001-7.772-8.264c3.245,0.258,5.803,2.979,5.803,6.292c0,3.373-2.653,6.123-5.983,6.294v1.292c0.908,0.144,1.605,0.934,1.605,1.883c0,0.232-0.043,0.454-0.118,0.66l1.181,0.683c1.826-2.758,5.509-3.658,8.41-1.981c2.896,1.672,3.965,5.299,2.506,8.254C31.386,21.038,29.992,16.204,26.154,13.988zM4.122,16.587c2.92-1.686,6.628-0.764,8.442,2.034l1.141-0.657c-0.072-0.2-0.109-0.417-0.109-0.642c0-0.909,0.638-1.67,1.489-1.859v-1.319c-3.3-0.202-5.92-2.94-5.92-6.292c0-3.297,2.532-6.007,5.757-6.286c-4.312,0.285-7.729,3.875-7.729,8.258c0,1.078,0.206,2.106,0.581,3.05c-1.004,0.147-1.999,0.481-2.931,1.02c-3.812,2.201-5.209,6.985-3.264,10.87C0.174,21.823,1.251,18.244,4.122,16.587zM11.15,11.452c0.114,0.139,0.235,0.271,0.362,0.398c0.126,0.126,0.259,0.247,0.397,0.361c0.102,0.084,0.211,0.16,0.318,0.236c0.93-0.611,2.045-0.969,3.244-0.969c1.201,0,2.312,0.357,3.242,0.969c0.107-0.077,0.217-0.152,0.318-0.236c0.139-0.114,0.271-0.235,0.397-0.361c0.127-0.127,0.248-0.259,0.362-0.398c0.113-0.138,0.222-0.283,0.323-0.431c-1.307-0.956-2.908-1.528-4.643-1.528c-0.042,0-0.083-0.001-0.124,0c-0.019,0-0.04-0.001-0.06,0c-1.666,0.038-3.201,0.605-4.462,1.528C10.929,11.17,11.037,11.314,11.15,11.452zM9.269,16.787c-0.168-0.062-0.338-0.117-0.512-0.164c-0.173-0.047-0.348-0.083-0.525-0.113c-0.177-0.03-0.355-0.053-0.535-0.065c-0.175,1.609,0.13,3.282,0.998,4.786c0.868,1.503,2.164,2.606,3.645,3.259c0.079-0.162,0.15-0.328,0.212-0.496c0.063-0.169,0.118-0.338,0.164-0.512c0.047-0.173,0.087-0.349,0.115-0.525c0.022-0.13,0.034-0.262,0.046-0.394c-0.993-0.5-1.86-1.286-2.461-2.325c-0.6-1.04-0.847-2.182-0.783-3.294C9.512,16.889,9.392,16.833,9.269,16.787zM18.122,22.657c0.014,0.132,0.024,0.263,0.046,0.394c0.03,0.177,0.067,0.352,0.113,0.524c0.047,0.174,0.102,0.346,0.165,0.514c0.062,0.169,0.132,0.333,0.212,0.495c1.48-0.653,2.777-1.755,3.644-3.257c0.868-1.504,1.176-3.179,1.001-4.788c-0.18,0.013-0.358,0.035-0.535,0.065c-0.177,0.029-0.353,0.067-0.525,0.113s-0.345,0.101-0.513,0.163c-0.124,0.047-0.241,0.105-0.362,0.16c0.063,1.11-0.183,2.253-0.784,3.292C19.984,21.373,19.116,22.157,18.122,22.657zM20.569,27.611c-2.92-1.687-3.977-5.358-2.46-8.329l-1.192-0.689c-0.349,0.389-0.854,0.634-1.417,0.634c-0.571,0-1.086-0.254-1.436-0.653l-1.146,0.666c1.475,2.96,0.414,6.598-2.488,8.272c-2.888,1.668-6.552,0.791-8.386-1.935c2.38,3.667,7.249,4.87,11.079,2.658c0.929-0.535,1.711-1.227,2.339-2.018c0.64,0.832,1.45,1.554,2.416,2.112c3.835,2.213,8.709,1.006,11.086-2.671C27.132,28.396,23.463,29.282,20.569,27.611z',
@@ -267,13 +275,13 @@ ControlPanel.prototype = {
 					scale:5
 				});
 				else if (key == 'addgroup') self.addGroup({x:self.menux, y:self.menuy, numx:3, numy:3});
-				else if (key == 'addslider') self.addSlider({x:self.menux, y:self.menuy, });
+				else if (key == 'addslider') self.addSlider({x:self.menux, y:self.menuy });
 				else if (key == 'addxyslider') self.addSlider({x:self.menux, y:self.menuy, subtype:'xy', w:96, h:96});
 				else if (key == 'addhslider') self.addSlider({x:self.menux, y:self.menuy, subtype:'x', w:192, h:72});
-				else if (key == 'addchart') self.addChart({x:self.menux, y:self.menuy, });
-				else if (key == 'addmeter') self.addMeter({x:self.menux, y:self.menuy, });
-				else if (key == 'addscope') self.addScope({x:self.menux, y:self.menuy, });
-				else if (key == 'addknob') self.addKnob({x:self.menux, y:self.menuy, });
+				else if (key == 'addchart') self.addChart({x:self.menux, y:self.menuy });
+				else if (key == 'addmeter') self.addMeter({x:self.menux, y:self.menuy });
+				else if (key == 'addscope') self.addScope({x:self.menux, y:self.menuy });
+				else if (key == 'addknob') self.addKnob({x:self.menux, y:self.menuy });
 				else if (key == 'save') self.saveControls();
 				else if (key == 'editpanel') self.edit.call(self, self);
 				else if (key == 'addtext') self.addText({x:self.menux, y:self.menuy, text:'Text'});
@@ -521,7 +529,7 @@ ControlPanel.prototype = {
 			for (var i=0; i < data.length; i++) {
 				var field = data[i][0];
 				var value = data[i][1];
-				if ((typeof value == 'string') && value.match(/^-?\d+$/)) value = parseInt(value);
+				if ((typeof value == 'string') && value.match(/^-?\d+$/)) value = parseInt(value, 10);
 				opts[field] = value;
 			}
 			console.log('Saving:', opts);
@@ -615,10 +623,10 @@ ControlPanel.prototype = {
 		this.inheritOption(id, 'y');
 
 		for (var f in this.controls[id].options) {				// for properties in original options
-			if (this.controls[id].options.hasOwnProperty(f)
-				&& (f != 'parent')
-				//&& (typeof this.controls[id][f] != 'object')
-				&& (typeof this.controls[id][f] != 'function')) {		// push current object value
+			if (this.controls[id].options.hasOwnProperty(f) &&
+				(f != 'parent') &&
+				//(typeof this.controls[id][f] != 'object') &&
+				(typeof this.controls[id][f] != 'function')) {		// push current object value
 				data.push([f, this.controls[id][f] || this.controls[id].options[f]]);
 			}
 		}
@@ -634,12 +642,12 @@ ControlPanel.prototype = {
 
 		// force the id to be in the storage list, even if it wasn't specified
 		if (!(this.controls[id].options.hasOwnProperty('id')))
-			this.controls[id].options['id'] = id;
+			this.controls[id].options.id = id;
 
 		for (var f in this.controls[id].options) {				// for properties in original options
-			if (this.controls[id].options.hasOwnProperty(f)
-				&& ((typeof this.controls[id][f] != 'object') || (this.controls[id][f] instanceof Array))
-				&& (typeof this.controls[id][f] != 'function')) {		// push current object value
+			if (this.controls[id].options.hasOwnProperty(f) &&
+				((typeof this.controls[id][f] != 'object') || (this.controls[id][f] instanceof Array)) &&
+				(typeof this.controls[id][f] != 'function')) {		// push current object value
 				data[f] = this.controls[id][f];
 			}
 		}
@@ -652,9 +660,9 @@ ControlPanel.prototype = {
 		var data = [];
 		for (var f in this.options) {				// for properties in original options
 		//console.log('p2e:', f);
-			if (this.options.hasOwnProperty(f)
-				&& ((typeof this.options[f] != 'object') || (this.options[f] instanceof Array))
-				&& (typeof this.options[f] != 'function')) {		// push current object value
+			if (this.options.hasOwnProperty(f) &&
+				((typeof this.options[f] != 'object') || (this.options[f] instanceof Array)) &&
+				(typeof this.options[f] != 'function')) {		// push current object value
 				data.push([f, this.options[f] || this[f]]);
 			}
 		}
@@ -666,9 +674,9 @@ ControlPanel.prototype = {
 		var data = [];
 		var panelopts = {};
 		for (var f in this.options) {
-			if (this.options.hasOwnProperty(f)
-				&& (typeof this.options[f] != 'object')
-				&& (typeof this.options[f] != 'function')) {
+			if (this.options.hasOwnProperty(f) &&
+				(typeof this.options[f] != 'object') &&
+				(typeof this.options[f] != 'function')) {
 				panelopts[f] = this.options[f];
 			}
 		}
@@ -727,7 +735,7 @@ ControlPanel.prototype = {
 		else window.status = msg;
 	}
 
-}
+};
 
 
 
@@ -762,45 +770,46 @@ Control = function() {
 
 	this.sethandlers = function() {
 		var self = this;
+
+		function f_click(e) 	{ return self.handleClick.call(self, e); }
+		function f_mousedown(e) { self.highlight.call(self, e); return false;}
+		function f_mouseup(e) 	{ self.dehighlight.call(self, e); return false;}
+		function f_mouseover(e) { return self.mouseover.call(self, e); }
+
+		function f_contextmenu(event) {
+			var id = (self.group !== undefined) ? self.group : self.id;
+			self.parent.showEditMenu(id, event);
+			event.preventDefault();
+			event.stopPropagation();
+			return false;		
+		}
+
 		for (var i=0; i<this.elts.length; i++) {
 			this.elts[i]
-				.click(function(e) { return self.handleClick.call(self, e); })
-				.mousedown(function(e) { self.highlight.call(self, e); return false;})
-				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
-				.mouseover(function(e) { return self.mouseover.call(self, e); });
-				//.touchend(function(e) { self.handleClick.call(self,e); return false;});
+				.click(f_click)
+				.mousedown(f_mousedown)
+				.mouseup(f_mouseup)
+				.mouseover(f_mouseover);
+				//.touchend(f_touchend);
 
 			if (this.parent.editingpanel)
 				this.elts[i].drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-			$(this.elts[i].node).bind("contextmenu", function(event) {
-				var id = (self.group != undefined) ? self.group : self.id;
-				self.parent.showEditMenu(id, event);
-				event.preventDefault();
-				event.stopPropagation();
-				return false;
-			});
-
+			$(this.elts[i].node).bind("contextmenu", f_contextmenu);
 		}
 
 		for (var i=0; i<this.textelts.length; i++) {
 			this.textelts[i]
-				.click(function(e) { return self.handleClick.call(self, e); })
-				.mousedown(function(e) { self.highlight.call(self, e); return false;})
-				.mouseup(function(e) { self.dehighlight.call(self, e); return false;})
-				.mouseover(function(e) { return self.mouseover.call(self, e); });
-				//.touchend(function(e) { self.handleClick.call(self,e); return false;});
+				.click(f_click)
+				.mousedown(f_mousedown)
+				.mouseup(f_mouseup)
+				.mouseover(f_mouseover);
+				//.touchend(f_touchend);
 
 			if (this.parent.editingpanel)
 				this.textelts[i].drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
 
-			$(this.textelts[i].node).bind("contextmenu", function(event) {
-				var id = (self.group != undefined) ? self.group : self.id;
-				self.parent.showEditMenu(id, event);
-				event.preventDefault();
-				event.stopPropagation();
-				return false;
-			});
+			$(this.textelts[i].node).bind("contextmenu", f_contextmenu);
 		}
 	};
 
@@ -842,7 +851,7 @@ Control = function() {
 				//console.log('set option:', prop, options[prop]);
 				this[prop] = options[prop];
 			}
-			else if (this.defaults[prop] != undefined) {
+			else if (this.defaults[prop] !== undefined) {
 				//console.log('set default:', prop, this.defaults[prop]);
 				this[prop] = this.defaults[prop];
 			}
@@ -903,7 +912,7 @@ Control = function() {
 		if (!this.parent.editingpanel) return true;// this.dragFinish(e);
 /*
 		if (event && event.shiftKey) {
-			var id = (this.group != undefined) ? this.group : this.id;
+			var id = (this.group !== undefined) ? this.group : this.id;
 			this.parent.showEditMenu(id, e);
 			return true;
 		}
@@ -1019,7 +1028,7 @@ Control = function() {
 				delete this.runningindicator;
 			} else {
 				this.running = true;
-				var translation = ['t', this.x, ',', this.y, 's', .75].join('');
+				var translation = ['t', this.x, ',', this.y, 's', 0.75].join('');
 				this.runningindicator = this.parent.paper.path('M19.275,3.849l1.695,8.56l1.875-1.642c2.311,3.59,1.72,8.415-1.584,11.317c-2.24,1.96-5.186,2.57-7.875,1.908l-0.84,3.396c3.75,0.931,7.891,0.066,11.02-2.672c4.768-4.173,5.521-11.219,1.94-16.279l2.028-1.775L19.275,3.849zM8.154,20.232c-2.312-3.589-1.721-8.416,1.582-11.317c2.239-1.959,5.186-2.572,7.875-1.909l0.842-3.398c-3.752-0.93-7.893-0.067-11.022,2.672c-4.765,4.174-5.519,11.223-1.939,16.283l-2.026,1.772l8.26,2.812l-1.693-8.559L8.154,20.232z')
 					.transform(translation)
 					.attr({fill:this.stroke, stroke:this.stroke});
@@ -1048,9 +1057,12 @@ Control = function() {
 		}
 		else if (cmd.match(/^update\:/)) {			// javascript command
 			var value = cmd.replace('update:', '');
-			if ((typeof value == 'string') && value.match(/^-?\d+$/)) value = parseInt(value);
-			this.parent.sendCommand('update', {value:value, id:this.id});
-			this.setValue(value);
+			if ((typeof value == 'string') && value.match(/^-?\d+$/)) value = parseInt(value, 10);
+
+			var data = {value:value, id:this.id};
+			this.parent.sendCommand('update', data);
+			//this.setValue(value);					// not setValue - ignores source: subscribers
+//			this.parent.boss.handleUpdate(data);	// propagate as though received
 		}
 		else {										// bitlash command
 			this.parent.sendCommand('exec', {cmd:cmd, id:this.id});
@@ -1245,7 +1257,7 @@ function Button(options) {
 		this.value = value;
 		if (this.readout) this.readout.attr({text: '' + this.value});
 		if (this.highlighttrue) {
-			if (typeof this.value == 'string') this.value = parseInt(this.value);
+			if (typeof this.value == 'string') this.value = parseInt(this.value, 10);
 			if (this.value) this.highlight();
 			else this.dehighlight();
 		}
@@ -1265,7 +1277,7 @@ function Button(options) {
 */
 
 	return this.init(options || {});
-};
+}
 
 
 //////////
@@ -1283,7 +1295,7 @@ function Slider(options) {
 			x:48, y:48,
 			w:72, h:192,
 
-			value: 0,
+			//value: 0,
 			text: '',
 			script: undefined,
 			fill:this.parent.fill,
@@ -1313,7 +1325,7 @@ function Slider(options) {
 			yvalue: 0,
 			barw: 1,
 			barh: this.barw
-		}
+		};
 		this.setoptions(options);
 		//console.log('Slider:', this);
 		this.render();
@@ -1327,13 +1339,13 @@ function Slider(options) {
 		}
 		else if (this.subtype == 'x') {
 			this.slidew = options.slidew || 1+Math.floor(this.w / 10);
-			this.slideh = .8 * this.h;
+			this.slideh = 0.8 * this.h;
 		}
 		else {
 			this.ymin = options.min || this.ymin;
 			this.ymax = options.max || this.ymax;
 			this.value = options.value || this.value;
-			this.slidew = .8 * this.w;
+			this.slidew = 0.8 * this.w;
 			this.slideh = options.slideh || 1+Math.floor(this.h / 10);
 		}
 
@@ -1498,10 +1510,10 @@ function Slider(options) {
 		if (this.dragging) return;	// be the boss: ignore updates while dragging
 
 		if (this.subtype == 'xy') {
-			if (value1 != undefined) this.xvalue = value1;
-			if (value2 != undefined) this.yvalue = value2;
-			if (this.xreadout && (this.xvalue != undefined)) this.xreadout.attr({text: ''+this.xvalue});
-			if (this.yreadout && (this.yvalue != undefined)) this.yreadout.attr({text: ''+this.yvalue});
+			if (value1 !== undefined) this.xvalue = value1;
+			if (value2 !== undefined) this.yvalue = value2;
+			if (this.xreadout && (this.xvalue !== undefined)) this.xreadout.attr({text: ''+this.xvalue});
+			if (this.yreadout && (this.yvalue !== undefined)) this.yreadout.attr({text: ''+this.yvalue});
 			var slidex = this.slideXPos();
 			var slidey = this.slideYPos();
 			this.slide.attr({x:slidex, y:slidey});
@@ -1510,7 +1522,7 @@ function Slider(options) {
 		}
 		else if (this.subtype == 'x') {
 			this.value = this.xvalue = value1;
-			if (this.xreadout && (this.value != undefined)) this.xreadout.attr({text: ''+this.value});
+			if (this.xreadout && (this.value !== undefined)) this.xreadout.attr({text: ''+this.value});
 			var slidex = this.slideXPos();
 			this.slide.attr({x:slidex});
 			var update = {id: this.id, value: this.value};
@@ -1518,7 +1530,7 @@ function Slider(options) {
 		}
 		else {
 			this.value = this.yvalue = value1;
-			if (this.yreadout && (this.value != undefined)) this.yreadout.attr({text: ''+this.value});
+			if (this.yreadout && (this.value !== undefined)) this.yreadout.attr({text: ''+this.value});
 			var slidey = this.slideYPos();
 			//console.log('slidey:', slidey);
 			this.slide.attr({y:slidey});
@@ -1563,7 +1575,7 @@ function Chart(options) {
 			refresh: 0,
 			ymax: undefined,
 			ymin: undefined
-		}
+		};
 		//console.log('Chart defaults:', this.defaults);
 		this.setoptions(options);
 		this.render();		// render D3 chart
@@ -1626,7 +1638,7 @@ function Chart(options) {
 			});
 		
 			x.domain(d3.extent(data, function(d) { return d.time; }));
-			if (self.ymax != undefined) y.domain([self.ymin, self.ymax]);
+			if (self.ymax !== undefined) y.domain([self.ymin, self.ymax]);
 			else y.domain([
 				d3.min(values, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
 				d3.max(values, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
@@ -1643,7 +1655,7 @@ function Chart(options) {
 					.attr('class', 'y axis')
 					.attr('stroke', self.stroke)
 					.attr('fill', self.stroke)
-					.call(yAxis)
+					.call(yAxis);
 /* y axis label
 				.append('text')
 					.attr('transform', 'rotate(-90)')
@@ -1751,8 +1763,8 @@ function Text(options) {
 			fill_highlight: this.parent.lighter(this.parent.stroke),
 			stroke: this.parent.stroke,
 			'stroke-width': this.parent.control_stroke,
-			fontsize: this.parent.fontsize,
-		}
+			fontsize: this.parent.fontsize
+		};
 		this.setoptions(options);
 		this.render();
 		return this;
@@ -1801,7 +1813,7 @@ function Group(options) {
 		if (options.childopts) {
 			for (var o in options.childopts) this.childopts[o] = options.childopts[o];
 		}
-		if (this.childopts.type == 'Group') this.childopts.type == 'Button';
+		if (this.childopts.type == 'Group') this.childopts.type = 'Button';
 
 		this.defaults = {
 			x:48, y:48,
@@ -1832,16 +1844,16 @@ function Group(options) {
 			//r: options.r || this.w/2,
 			reversebits: undefined,
 			numx: 1,
-			numy: 3,
+			numy: 3
 		};
 		this.fill_highlight = this.parent.lighter(this.stroke);
 		this.setoptions(options);
 
-		if (options.gutterx != undefined) this.gutterx = options.gutterx;
-		else if (options.gutter != undefined) this.gutterx = options.gutter;
+		if (options.gutterx !== undefined) this.gutterx = options.gutterx;
+		else if (options.gutter !== undefined) this.gutterx = options.gutter;
 		else this.gutterx = 20;
-		if (options.guttery != undefined) this.guttery = options.guttery; 
-		else if (options.gutter != undefined) this.guttery = options.gutter;
+		if (options.guttery !== undefined) this.guttery = options.guttery; 
+		else if (options.gutter !== undefined) this.guttery = options.gutter;
 		else this.guttery = 20;
 
 		this.nextstroke = 0;
@@ -1866,8 +1878,8 @@ function Group(options) {
 
 		this.render();
 		return this;
-	}
-	
+	};
+
 	this.layout = function() {
 		this.outerh = this.numy * (this.h + this.guttery) + this.guttery;
 		if (this.childopts.type == 'Slider') {
@@ -1998,7 +2010,7 @@ console.log('New group:', this);
 				for (var row = this.numy-1; row >= 0; row--) {
 					for (var col = this.numx-1; col >= 0; col--) {
 						var control = this.parent.controls[this.itemid(row, col)];
-						var bitvalue = ((value & (1<<bit++)) != 0) ? 1 : 0;
+						var bitvalue = ((value & (1<<bit++)) !== 0) ? 1 : 0;
 						if (bitvalue) control.highlight();
 						else control.dehighlight();
 					}
@@ -2008,7 +2020,7 @@ console.log('New group:', this);
 				for (var row = 0; row < this.numy; row++) {
 					for (var col = 0; col < this.numx; col++) {
 						var control = this.parent.controls[this.itemid(row, col)];
-						var bitvalue = ((value & (1<<bit++)) != 0) ? 1 : 0;
+						var bitvalue = ((value & (1<<bit++)) !== 0) ? 1 : 0;
 						if (bitvalue) control.highlight();
 						else control.dehighlight();
 					}
@@ -2068,23 +2080,23 @@ function Meter(options) {
 			max_angle: 45,
 			nfill: 'red',			// needle attributes
 			nstroke: 'red'
-		}
+		};
 		this.setoptions(options);
 		this.render();
 		return this;
 	};
 
 	this.layout = function() {
-		this.nx = this.x + .5 * this.w;
-		this.ny = this.y + .8 * this.h;
-		this.nl = .6 * this.h;
+		this.nx = this.x + 0.5 * this.w;
+		this.ny = this.y + 0.8 * this.h;
+		this.nl = 0.6 * this.h;
 		this.lx = this.x + (this.w/2);
 		this.ly = this.y + this.h - 1.5 * this.fontsize;
 		this.rx = this.x + (this.w/2);
 		this.ry = this.y + (this.h/2) + this.fontsize;
 
 		this.by = this.ny - this.nl - this.baton_height - 1;
-		this.font_factor = .7;
+		this.font_factor = 0.7;
 		this.ty = this.by + (this.font_factor * this.fontsize);
 	};
 
@@ -2200,8 +2212,8 @@ function Scope(options) {
 			min: 0,
 			max: 1024,
 			tickwidth: 3
-		}
-		//console.log('Scope defaults:', this.defaults);
+		};
+		console.log('Scope defaults:', this.defaults);
 
 		this.setoptions(options);
 		this.render();
@@ -2245,10 +2257,10 @@ function Scope(options) {
 			this.elts.push(tick);
 
 			var label = this.parent.paper.text(axisx, y, ''+value)
-				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': .7 * this.fontsize});
+				.attr({fill:this.stroke, stroke:this.stroke, 'font-size': 0.7 * this.fontsize});
 			this.textelts.push(label);
-			this.sethandlers();
 		}
+		this.sethandlers();
 	};
 
 	this.move = function(x, y) {
@@ -2348,7 +2360,7 @@ function Knob(options) {
 			increment:1,
 			min:0,
 			max:1024,
-			rscale:2,		// scales increments to degrees of rotation			
+			rscale:2		// scales increments to degrees of rotation			
 		};
 		this.setoptions(options);
 		this.fill_highlight = this.parent.lighter(this.stroke);
@@ -2418,7 +2430,7 @@ function Knob(options) {
 	this.rotateKnob = function(degrees) {
 		this.knob_angle += (degrees / this.rscale);
 		this.knob.transform("r" + this.knob_angle + " " + this.cx + " " + this.cy);
-	}
+	};
 
 	this.knobStart = function(x, y, e) {
 		this.markStart(x, y);

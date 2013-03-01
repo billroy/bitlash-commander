@@ -180,6 +180,10 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
+- BUG: update loop in update broadcast fix
+
+- BUG: property editor for Scope doesn't work
+
 - readout: '{{value}}' instead of noreadout
 
 - knob:
@@ -251,6 +255,7 @@ The push example in the file public/push.html shows event listeners in use:
 	- time axis marks
 	- "scope this"
 	- draw vertical connectors for logic signals
+	- xy meter
 	- multiple sources (source array) (color array)
 	- time axis controls (zoom in/out, start/stop, faster/slower)
 		- requires point history

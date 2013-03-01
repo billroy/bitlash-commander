@@ -172,7 +172,7 @@ if (argv.update) {
 
 app.get('/d3/:id', function(req, res) {		// serve D3 chart series for given control :id
 	//console.log('D3Get:', req.params.id, data_cache);
-	var output = []; 			// array of {time:23432, value:dsjklfjsd}
+	var output = [];		// array of {time:23432, value:dsjklfjsd}
 	if (data_cache[req.params.id]) {
 		var data = data_cache[req.params.id];
 		for (var i=0; i<data.length; i++) {
@@ -210,7 +210,7 @@ var bitlash_options = {
 		port: argv.serialport,
 		ipclient: argv.ipclient,
 		json_callback: broadcastJSONUpdate
-}
+};
 if (argv.baud) bitlash_options.baud = argv.baud;
 var bitlash = new Bitlash.Bitlash(bitlash_options, function (readytext) {
 	console.log('Bitlash ready:', readytext);
@@ -273,7 +273,7 @@ function addCache(id, value) {
 		var data_record = JSON.stringify({id:id, time:time, value:value}) + '\n';
 		fs.appendFile(log_file, data_record, function (err) {
 			if (err) console.log('LOG FILE WRITE ERROR:', data_record);
-			else {;}
+			else {}
 		});
 	}
 }
@@ -353,7 +353,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on('exec', executeBitlash);
 	socket.on('rexec', function(data) {
 		console.log('rexec:', data);
-		executeBitlash(data)
+		executeBitlash(data);
 	});
 	socket.on('update', function(data) {
 		console.log('Update:', data);
@@ -423,6 +423,6 @@ if (argv.rexec) {
 	//
 	clientsocket.on('rexec', function (data) {
 		console.log('Incoming Rexec: ', data);
-		executeBitlash(data)
+		executeBitlash(data);
 	});
 }
