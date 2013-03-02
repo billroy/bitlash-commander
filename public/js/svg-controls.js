@@ -35,7 +35,7 @@ var ControlPanelBoss = {
 	},
 
 	handleUpdate: function(data) {
-console.log('handleupdate:', data);
+		//console.log('handleupdate:', data);
 		if (typeof data[0] == 'undefined') data = [data];
 
 		// dispatch to controls in all panels whose id field matches the update's id
@@ -58,11 +58,7 @@ console.log('handleupdate:', data);
 			for (var p=0; p < this.panels.length; p++) {
 				for (var c in this.panels[p].controls) {
 					var ctrl = this.panels[p].controls[c];
-console.log('checking control:', ctrl.id);
 					if (ctrl.source == data[i].id) {
-
-console.log('dispatching update:', data, ctrl.id);
-
 						if ((data[i].xvalue !== undefined) && (data[i].yvalue !== undefined)) {
 							console.log('Incoming Update XY:', data);
 							ctrl.setValue(data[i].xvalue, data[i].yvalue);
@@ -100,6 +96,7 @@ console.log('dispatching update:', data, ctrl.id);
 			else if (items[i].type == 'Knob') panel.addKnob(items[i]);
 			else console.log('Unknown type in Add:', items[i]);
 		}
+		panel.onload();
 	}
 };
 
@@ -144,7 +141,8 @@ ControlPanel.prototype = {
 			title: 'Bitlash Commander',
 			channel: '',
 			grid: 24,
-			noedit: undefined
+			noedit: undefined,
+			nosync: undefined
 		};
 
 		for (var prop in this.defaults) {
@@ -169,7 +167,7 @@ ControlPanel.prototype = {
 		this.boss.currentpanel = this.id;
 
 		this.initContextMenu();
-		this.sync();
+		//if (!this.nosync) this.sync();
 
 		var self = this;
 		if (!this.noedit) this.editbutton = this.paper.path('M25.31,2.872l-3.384-2.127c-0.854-0.536-1.979-0.278-2.517,0.576l-1.334,2.123l6.474,4.066l1.335-2.122C26.42,4.533,26.164,3.407,25.31,2.872zM6.555,21.786l6.474,4.066L23.581,9.054l-6.477-4.067L6.555,21.786zM5.566,26.952l-0.143,3.819l3.379-1.787l3.14-1.658l-6.246-3.925L5.566,26.952z')
@@ -214,6 +212,16 @@ ControlPanel.prototype = {
 		for (var control in this.controls) {
 			callback(this.controls[control]);
 		}
+	},
+
+	onload: function() {
+		console.log('panel onload');
+		this.each(function(control) {
+			if (control.onload) {
+				console.log('onload:', control.id, control.onload);
+				control.execCommand(control.onload);
+			}
+		});
 	},
 
 	enabledrag: function() {
@@ -1018,7 +1026,7 @@ Control = function() {
 	};
 
 	this.handleClick = function(e) {
-		console.log('Control handleClick', e);
+		console.log('Control default handleClick', e);
 		if (this.repeat) {
 			if (this.running) {
 				this.running = false;
@@ -1040,16 +1048,21 @@ Control = function() {
 	};
 
 	this.exec = function() {
-
-		if (!this.script) {
-			//this.setValue(!this.value);		// unscripted buttons toggle and gossip
-			return;
+		this.execCommand(this.script);
+		if (this.repeat && !this.intervalid) {
+			var self = this;
+			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
 		}
+	};
 
-		if (typeof this.script == 'function') return this.script.call(this);
+	this.execCommand = function(command) {
+	
+		if (!command) return;
+
+		if (typeof command == 'function') return command.call(this);
 		
-		var cmd = Mustache.render(this.script, this);
-			//console.log('exec:', cmd, this.script, this);
+		var cmd = Mustache.render(command, this);
+		//console.log('exec:', cmd, command, this);
 
 		if (cmd.match(/^javascript\:/)) {			// javascript command
 			cmd = cmd.replace('javascript:', '');
@@ -1058,18 +1071,16 @@ Control = function() {
 		else if (cmd.match(/^update\:/)) {			// javascript command
 			var value = cmd.replace('update:', '');
 			if ((typeof value == 'string') && value.match(/^-?\d+$/)) value = parseInt(value, 10);
-
 			var data = {value:value, id:this.id};
 			this.parent.sendCommand('update', data);
-			//this.setValue(value);					// not setValue - ignores source: subscribers
+			this.setValue(value);					// not setValue - ignores source: subscribers
+
+// BUG: this would be proper but it seems to cause an update loop:
 //			this.parent.boss.handleUpdate(data);	// propagate as though received
+
 		}
 		else {										// bitlash command
 			this.parent.sendCommand('exec', {cmd:cmd, id:this.id});
-		}
-		if (this.repeat && !this.intervalid) {
-			var self = this;
-			this.intervalid = setInterval(function() { self.exec.call(self, {}); }, this.repeat);
 		}
 	};
 
@@ -1122,6 +1133,7 @@ function Button(options) {
 			value: 0,
 			text: '',
 			script: undefined,
+			onload: undefined,
 			fill:this.parent.fill,
 			stroke: this.parent.stroke,
 			'stroke-width': this.parent.control_stroke,
@@ -1239,9 +1251,12 @@ function Button(options) {
 	this.handleClick = function(e) {
 		// handle group side effects like radio buttons and bitwise highlighting
 		if (this.group) {
-			this.parent.controls[this.group].selected = this.text;
-			this.parent.controls[this.group].handleClick(e);
-			return;
+			var group = this.parent.controls[this.group];
+			if (group.radio) {
+				group.selected = this.text;
+				group.handleClick(e);
+				return;
+			}
 		}
 		this.__proto__.handleClick.call(this, e);
 	};
@@ -1298,6 +1313,7 @@ function Slider(options) {
 			//value: 0,
 			text: '',
 			script: undefined,
+			onload: undefined,
 			fill:this.parent.fill,
 			fill_highlight: this.parent.lighter(this.parent.stroke),
 			stroke: this.parent.stroke,
@@ -1558,6 +1574,7 @@ function Chart(options) {
 			x:48, y:48, w:288, h:144,
 			text: '',
 			script: undefined,
+			onload: undefined,
 			fill: this.parent.fill,
 			fill_highlight: this.parent.lighter(this.parent.stroke), 	// ??
 			stroke: this.parent.stroke,
@@ -1823,6 +1840,7 @@ function Group(options) {
 			value: 0,
 			text: '',
 			script: undefined,
+			onload: undefined,
 			fill: this.parent.fill,
 			stroke: this.parent.stroke,
 			'stroke-width': this.parent.control_stroke,
@@ -1932,7 +1950,7 @@ console.log('New group:', this);
 				opts.source = this.sources[this.nextsource];
 				if (++this.nextsource >= this.sources.length) this.nextsource = 0;
 
-				//console.log('Group add:', opts.type, opts);
+	console.log('Group add:', opts.type, opts);
 				if (opts.type) this.parent.add([opts]);
 				else this.parent.addButton(opts);
 				x += (this.w + this.gutterx);
@@ -1992,7 +2010,7 @@ console.log('New group:', this);
 	};
 
 	this.setValue = function(value) {
-	console.log('Group setValue:', value);
+		console.log('Group setValue:', value);
 		var bit = 0;
 		this.value = value;
 		if (typeof value == 'string') {
@@ -2054,6 +2072,7 @@ function Meter(options) {
 			value: 0,
 			text: '',
 			script: undefined,
+			onload: undefined,
 			fill:this.parent.fill,
 			fill_highlight: this.parent.lighter(this.parent.stroke),
 			stroke: this.parent.stroke,
@@ -2196,6 +2215,7 @@ function Scope(options) {
 			value: 0,
 			text: '',
 			script: undefined,
+			onload: undefined,
 			fill: this.parent.fill,
 			fill_highlight: this.parent.lighter(this.parent.stroke),
 			stroke: this.parent.stroke,
@@ -2339,6 +2359,7 @@ function Knob(options) {
 			value: 0,
 			text: '',
 			script: undefined,
+			onload: undefined,
 			fill:'315-gray:1-white:50-gray:99',		//this.parent.fill,
 			stroke: this.parent.stroke,
 			'stroke-width': this.parent.control_stroke,

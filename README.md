@@ -180,9 +180,16 @@ The push example in the file public/push.html shows event listeners in use:
 
 ## To Do / Bugs
 
-- BUG: update loop in update broadcast fix
+- defaults should be in the Control, not the control panel
 
-- BUG: property editor for Scope doesn't work
+- BUG: update: scripts don't update other controls on the same page
+	listening to their matching source
+	- must call boss.handleUpdate to get distribution
+	- seems to cause an update loop
+
+- text and readout should be mustached
+- reverse noreadout
+
 
 - readout: '{{value}}' instead of noreadout
 

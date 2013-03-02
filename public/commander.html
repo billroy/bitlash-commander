@@ -39,12 +39,39 @@ $(document).ready(function() {
 		autorun: true,
 		script:'pinmode(2,1);pinmode(4,1);pinmode(7,1);pinmode(8,1);pinmode(12,1);print "GO"'
 	});
+
+/*
 	Panel.addButton({x:96, y:120, text:'Toggle2', script:'d2=!d2;print d2'});
 	Panel.addButton({x:96, y:216, text:'Toggle4', script:'d4=!d4;print d4'});
 	Panel.addButton({x:96, y:312, text:'Toggle7', script:'d7=!d7;print d7'});
-	Panel.addButton({x:96, y:408, text:'Toggle8', script:'d8=!d8;print d8'});
+	Panel.addButton({x:96, y:408, text:'Toggle8', 
+		highlighttrue:1,
+		noreadout:1,
+		script:'d8=!d8;print d8',
+		onload:'print d8'
+	});
 	Panel.addButton({x:96, y:504, text:'Toggle12', script:'d12=!d12;if d12 print "on"; else print "off";'});
-	Panel.addButton({x:96, y:600, text:'Blink13', script:'d13=!d13;print d13', repeat:1000, id:'blink13'});
+
+	Panel.addButton({x:96, y:600, text:'Blink13', 
+		script:'d13=!d13;print d13',
+		onload:'print d13',
+		highlighttrue:1,
+		noreadout:1,
+		repeat:1000, id:'blink13'
+	});
+
+*/
+	Panel.addGroup({x:96, y:144,
+		numx:1, numy:6,
+		childopts: {
+			type:'Button',
+			text:['d2','d4','d7','d8','d12','d13'],
+			script:'{{text}}=!{{text}};print {{text}}',
+			onload:'print {{text}}',
+			highlighttrue:1,
+			noreadout:1
+		}
+	});
 
 	Panel.addButton({x:336, y:384, text:'a0', script:'print a0', id:'a0', repeat:125});
 	Panel.addButton({x:480, y:384, text:'a1', script:'print a1'});
@@ -87,6 +114,7 @@ $(document).ready(function() {
 		//repeat: 500,
 		refresh: 0
 	});
+	Panel.onload();		// fire the onload handlers
 
 }); 	// document.ready
 </script>
