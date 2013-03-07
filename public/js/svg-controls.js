@@ -780,6 +780,7 @@ Control = function() {
 		var self = this;
 
 		function f_click(e) 	{ return self.handleClick.call(self, e); }
+		function f_dblclick(e) 	{ return self.parent.edit.call(self.parent, self.id); }
 		function f_mousedown(e) { self.highlight.call(self, e); return false;}
 		function f_mouseup(e) 	{ self.dehighlight.call(self, e); return false;}
 		function f_mouseover(e) { return self.mouseover.call(self, e); }
@@ -795,6 +796,7 @@ Control = function() {
 		for (var i=0; i<this.elts.length; i++) {
 			this.elts[i]
 				.click(f_click)
+				.dblclick(f_dblclick)
 				.mousedown(f_mousedown)
 				.mouseup(f_mouseup)
 				.mouseover(f_mouseover);
@@ -809,6 +811,7 @@ Control = function() {
 		for (var i=0; i<this.textelts.length; i++) {
 			this.textelts[i]
 				.click(f_click)
+				.dblclick(f_dblclick)
 				.mousedown(f_mousedown)
 				.mouseup(f_mouseup)
 				.mouseover(f_mouseover);
@@ -1780,7 +1783,9 @@ function Text(options) {
 			fill_highlight: this.parent.lighter(this.parent.stroke),
 			stroke: this.parent.stroke,
 			'stroke-width': this.parent.control_stroke,
-			fontsize: this.parent.fontsize
+			fontsize: this.parent.fontsize,
+			script: undefined,
+			onload: undefined
 		};
 		this.setoptions(options);
 		this.render();

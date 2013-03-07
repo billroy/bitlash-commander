@@ -110,6 +110,11 @@ app.configure(function () {
 	app.use(express.static(__dirname + '/public'));
 });
 
+
+//////////
+//
+//	Serve / as index of html and designer panels
+//
 var panelpath = 'panel/';
 var htmlpath  = 'public/*.html';
 var fs = require('fs');
@@ -147,6 +152,11 @@ app.get('/', function(req, res) {
 
 var paneltemplate = fs.readFileSync('public/template.html', 'utf8');
 
+
+//////////
+//
+//	Serve panel contents on panel startup
+//
 app.get('/panel/:id', function(req, res) {
 	var panelid = req.params.id;
 	var html = paneltemplate.replace(/{{panelid}}/g, panelid.toString());
@@ -154,6 +164,10 @@ app.get('/panel/:id', function(req, res) {
 });
 
 
+//////////
+//
+//	Receive JSON updates via POST /update/id/value
+//
 function handleUpdate(req, res) {
 	var id = req.params.id;
 	var value = req.params.value;
@@ -170,6 +184,11 @@ if (argv.update) {
 	app.get(mountpoint, handleUpdate);
 }
 
+
+//////////
+//
+//	Return data series for chart: GET /d3/id
+//
 app.get('/d3/:id', function(req, res) {		// serve D3 chart series for given control :id
 	//console.log('D3Get:', req.params.id, data_cache);
 	var output = [];		// array of {time:23432, value:dsjklfjsd}
@@ -257,6 +276,11 @@ if (1 || heroku) {
 }
 io.set('log level', 1);
 
+
+//////////
+//
+//	Data log file and live cache for charts
+//
 var data_cache = {};		// caches updates per id by time
 var log_file = "log/datalog.txt";
 
@@ -304,7 +328,10 @@ function loadCache() {
 if (argv.cache) loadCache();
 
 
-// for heroku,
+//////////
+//
+//	Heroku socket.io configuration
+//
 // per https://devcenter.heroku.com/articles/using-socket-io-with-node-js-on-heroku
 if (heroku) {
 	io.configure(function () { 
