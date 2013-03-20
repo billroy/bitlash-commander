@@ -937,7 +937,7 @@ Control = function() {
 	};
 
 	this.move = function() {
-		console.log('ERROR =move() must be implemented in the control');
+		console.log('ERROR: move() must be implemented in the control');
 	};
 
 	this.dragMove = function(dx, dy, x, y, e) {

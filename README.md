@@ -181,6 +181,8 @@ The push example in the file public/push.html shows event listeners in use:
 ## To Do / Bugs
 
 - defaults should be in the Control, not the control panel
+	- how to propagate panel updates
+		- delete/re-render after edit
 
 - BUG: update: scripts don't update other controls on the same page
 	listening to their matching source
@@ -194,6 +196,7 @@ The push example in the file public/push.html shows event listeners in use:
 - readout: '{{value}}' instead of noreadout
 
 - knob:
+	- NREP: won't rotate without script
 	- fixed list of values in value array
 	- value field is index into values
 
