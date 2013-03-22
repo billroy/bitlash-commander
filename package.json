@@ -1,7 +1,7 @@
 {
 	"name": "bitlash-commander", 
 	"description": "Web control panel builder for Arduino",
-	"version": "0.0.12",
+	"version": "0.0.13",
 	"private": false,
 	"preferGlobal": false, 
 	"author": {
