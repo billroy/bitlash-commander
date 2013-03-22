@@ -33,7 +33,7 @@
 		"request": ">=2.12.0",
 		"socket.io": ">=0.9.11",
 		"shelljs": ">=0.0.8",
-		"serialport": ">=1.0.8",
+		"serialport": ">=1.1.0",
 		"redis": ">=0.8.2"
 	},
 	"engines": {
