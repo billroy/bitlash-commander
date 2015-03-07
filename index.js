@@ -3,7 +3,7 @@
 //
 //	index.js: Run the Bitlash Commander server
 //
-//	Copyright 2012-2013 Bill Roy (MIT License; see LICENSE file)
+//	Copyright 2012-2015 Bill Roy (MIT License; see LICENSE file)
 //
 //
 var opt = require('optimist');
@@ -33,7 +33,7 @@ var argv = opt.usage('Usage: $0 [flags]')
 if (argv.help) {
 	opt.showHelp();
 	process.exit();
-} 
+}
 
 console.log('Bitlash Commander here!', argv);
 
@@ -91,7 +91,7 @@ var server;
 
 if (0) {
 	var ssl_key = fs.readFileSync('server.key').toString();
-	var ssl_cert = fs.readFileSync('server.crt').toString();  
+	var ssl_cert = fs.readFileSync('server.crt').toString();
 	server = https.createServer({key:ssl_key, cert:ssl_cert}, app);
 }
 else {
@@ -100,15 +100,19 @@ else {
 
 var io = require('socket.io').listen(server);
 
-if (argv.login) app.configure(function () {
-	app.use(express.basicAuth(authorize));
-});
+// TODO: revise routes to use auth function
+var basicAuth;
+if (argv.login) app.use(require('basic-auth'));
 
-app.configure(function () {
-	app.use(express.logger());
-	app.use(express.bodyParser());
-	app.use(express.static(__dirname + '/public'));
-});
+var logger = require('morgan');
+var bodyParser = require('body-parser');
+var multer = require('multer');
+var staticfiles = require('serve-static');
+
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(multer());
+app.use(express.static(__dirname + '/public'));
 
 
 //////////
@@ -131,7 +135,7 @@ app.get('/', function(req, res) {
 		p = p.replace(/.html$/, '');
 		if (p == 'template') continue;
 		if (p == 'indextemplate') continue;
-		custompanels.push(p);		
+		custompanels.push(p);
 	}
 
 	var rawguipanels = shell.ls(panelpath);
@@ -224,7 +228,7 @@ console.log("Memory:", totalmem, mem);
 //
 var Bitlash = require('./lib/bitlash.js');
 var bitlash_options = {
-		debug: true, 
+		debug: true,
 		echo: true,
 		port: argv.serialport,
 		ipclient: argv.ipclient,
@@ -255,26 +259,8 @@ if (redis_url) {
 	redis_client.auth(parsed_url.auth.split(':')[1]);
 
 	RedisStore = require('socket.io/lib/stores/redis');
+	io.set('store', new RedisStore({redis: redis, redisPub: redis_pub, redisSub: redis_sub, redisClient: redis_client}));
 }
-
-
-//////////
-//
-//	Initialize Socket.io
-//
-// for heroku,
-// per https://devcenter.heroku.com/articles/using-socket-io-with-node-js-on-heroku
-if (1 || heroku) {
-	io.configure(function () { 
-		io.set('transports', ['xhr-polling']); 
-		io.set('polling duration', 10); 
-		if (RedisStore) {
-			console.log('Starting RedisStore');
-			io.set('store', new RedisStore({redis: redis, redisPub: redis_pub, redisSub: redis_sub, redisClient: redis_client}));
-		}
-	});
-}
-io.set('log level', 1);
 
 
 //////////
@@ -319,7 +305,6 @@ function loadCache() {
 
 		// restore all values to the cache
 		//data_cache[entry.id].push({time:entry.time, value:entry.value});
-
 	})
 	.on('close', function() {
 		console.log('Loaded cache:', data_cache);
@@ -333,13 +318,12 @@ if (argv.cache) loadCache();
 //	Heroku socket.io configuration
 //
 // per https://devcenter.heroku.com/articles/using-socket-io-with-node-js-on-heroku
-if (heroku) {
-	io.configure(function () { 
-		io.set("transports", ["xhr-polling"]); 
-		io.set("polling duration", 10); 
-	});
-}
-io.set('log level', 1);
+//if (heroku) {
+//	io.configure(function () {
+//		io.set("transports", ["xhr-polling"]);
+//		io.set("polling duration", 10);
+//	});
+//}
 
 
 //////////
