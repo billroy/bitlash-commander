@@ -82,7 +82,7 @@ var ControlPanelBoss = {
 		if (this.currentpanel) panel = this.panels[this.currentpanel];
 
 		for (var i=0; i < items.length; i++) {
-			console.log('Boss Add:', items[i]);
+			//console.log('Boss Add:', items[i]);
 			if (items[i].type == 'Panel') {			// panel decl must be first in the data
 				panel = new ControlPanel(items[i]);
 			}
@@ -121,7 +121,7 @@ ControlPanel.prototype = {
 	init: function(options) {
 		this.options = {};
 		for (var o in options) this.options[o] = options[o];
-	
+
 		this.defaults = {
 			id: options.title || 'Panel',
 			x: 0,		//($(window).width() - this.w)/2,
@@ -174,7 +174,7 @@ ControlPanel.prototype = {
 			.transform('T24,24')
 			.attr({fill:this.fill, stroke: this.stroke})
 			.mouseover(function(e) { self.editbutton.attr({cursor:'pointer'}); })
-			.click(function(e) { 
+			.click(function(e) {
 				self.editingpanel = !self.editingpanel;
 				if (self.editingpanel) {
 					self.face.attr({fill:"url('/images/grid24-greenblack.png')", stroke:self.stroke});
@@ -227,7 +227,7 @@ ControlPanel.prototype = {
 	enabledrag: function() {
 		this.each(function(control) { control.enabledrag(); });
 	},
-	
+
 	disabledrag: function() {
 		this.each(function(control) { control.disabledrag(); });
 	},
@@ -241,7 +241,7 @@ ControlPanel.prototype = {
 					.attr('stroke', 'gray')
 					.toBack()
 			);
-		}	
+		}
 		for (var y=0; y<this.h; y+=grid) {
 			this.gridlines.push(
 				this.paper.rect(0, y, this.w, 1)
@@ -250,16 +250,16 @@ ControlPanel.prototype = {
 			);
 		}
 		this.face.toBack();
-		// need to call all controls tofront 
+		// need to call all controls tofront
 	},
-	
+
 	eraseGrid: function() {
 		for (var i=0; i<this.gridlines.length; i++) {
 			this.gridlines[i].remove();
 		}
 		delete this.gridlines;
 	},
-	
+
 	attr: function(attrs) {
 		this.face.attr(attrs);
 		this.editbutton.attr(attrs);
@@ -452,7 +452,7 @@ ControlPanel.prototype = {
 		this.controls[group.id] = group;
 		return group;
 	},
-	
+
 	add: function(items) {		// add an array of items to the panel
 		for (var i=0; i < items.length; i++) {
 			//console.log('Add:', items[i]);
@@ -485,7 +485,7 @@ ControlPanel.prototype = {
 	sendUpdate: function(command, data) {
 		if (this.boss.socket) this.boss.socket.emit(command, data);
 	},
-	
+
 	lighter: function(color) {
 		var rgb = Raphael.getRGB(color);
 		var hsb = Raphael.rgb2hsb(rgb.r, rgb.g, rgb.b);
@@ -528,7 +528,7 @@ ControlPanel.prototype = {
 		this.editingcontrol = object;
 		console.log('edit table object:', this.edittable);
 	},
-	
+
 	endEdit: function(save) {
 		var opts = {};
 		if (save) {
@@ -559,7 +559,7 @@ ControlPanel.prototype = {
 		$('#editor').css('zIndex', 0);
 		delete this.editingcontrol;
 	},
-	
+
 	saveControls: function() {
 		this.sendCommand('save', this.panelToStorageFormat());
 	},
@@ -582,7 +582,7 @@ ControlPanel.prototype = {
 		}
 		this.edit(id);
 	},
-	
+
 	editDeleteField: function() {
 		var id = this.editingcontrol;
 		console.log('addfield:', id);
@@ -599,7 +599,7 @@ ControlPanel.prototype = {
 		}
 		this.edit(id);
 	},
-	
+
 	duplicate: function(id) {
 		var newopts = {};
 		for (var f in this.controls[id].options) {
@@ -610,10 +610,10 @@ ControlPanel.prototype = {
 		newopts.id = this.uniqueid(id);
 		this.add([newopts]);
 	},
-	
+
 	deletecontrol: function(id) {
 		this.controls[id].remove();
-		delete this.controls[id];	
+		delete this.controls[id];
 	},
 
 
@@ -641,7 +641,7 @@ ControlPanel.prototype = {
 		console.log('controlToEdit:', id, data);
 		return data;
 	},
-	
+
 	controlToStorageFormat: function(id) {
 		var data = {};
 
@@ -699,7 +699,7 @@ ControlPanel.prototype = {
 		//console.log('Controls.ToStorage:', data);
 		return data;
 	},
-	
+
 	alignToGrid: function() {
 		if (!this.grid) return;
 		for (var id in this.controls) {
@@ -709,7 +709,7 @@ ControlPanel.prototype = {
 			control.move(newx, newy);
 		}
 	},
-	
+
 	// alertify.js integration: http://fabien-d.github.com/alertify.js/
 	alert: function(msg) {
 		if (alertify) alertify.alert(msg);
@@ -772,7 +772,7 @@ Control = function() {
 			if (this.indragzone(e)) this.attr({cursor:'se-resize'});
 			else this.attr({cursor:'move'});
 		}
-		else this.attr({cursor:'pointer'}); 
+		else this.attr({cursor:'pointer'});
 		return false;
 	};
 
@@ -790,7 +790,7 @@ Control = function() {
 			self.parent.showEditMenu(id, event);
 			event.preventDefault();
 			event.stopPropagation();
-			return false;		
+			return false;
 		}
 
 		for (var i=0; i<this.elts.length; i++) {
@@ -907,7 +907,7 @@ Control = function() {
 		}
 */
 	};
-	
+
 	this.setText = function(text) {
 		if (this.label) this.label.attr({text:text});
 	};
@@ -980,7 +980,7 @@ Control = function() {
 			' w=', this.w,
 			' h=', this.h
 		].join('');
-			
+
 		return this.dragFinish(e);
 	};
 
@@ -1019,7 +1019,7 @@ Control = function() {
 */
 		return this.dragFinish(e);
 	};
-	
+
 	this.dragFinish = function(e) {
 		if (e) {
 			e.preventDefault();
@@ -1059,11 +1059,11 @@ Control = function() {
 	};
 
 	this.execCommand = function(command) {
-	
+
 		if (!command) return;
 
 		if (typeof command == 'function') return command.call(this);
-		
+
 		var cmd = Mustache.render(command, this);
 		//console.log('exec:', cmd, command, this);
 
@@ -1131,7 +1131,7 @@ function Button(options) {
 		this.parent = options.parent;
 		this.defaults = {
 			x:48, y:48,
-			w:120, 
+			w:120,
 			h: (options.subtype == 'circle') ? 120 : 48,
 			value: 0,
 			text: '',
@@ -1371,13 +1371,13 @@ function Slider(options) {
 		this.outerw = this.w; if (this.subtype != 'y') this.outerw += this.slidew;
 		this.outerh = this.h; if (this.subtype != 'x') this.outerh += this.slideh;
 
-		this.outerxmid = this.x + this.w/2; 
+		this.outerxmid = this.x + this.w/2;
 		if (this.subtype !='y') this.outerxmid += (this.slidew/2);
 
-		this.outerymid = this.y + this.h/2; 
+		this.outerymid = this.y + this.h/2;
 		if (this.subtype !='x') this.outerymid += (this.slideh/2);
 	};
-	
+
 	this.render = function() {
 		this.layout();
 		this.outerrect = this.parent.paper.rect(this.x, this.y, this.outerw, this.outerh, 10)
@@ -1477,7 +1477,7 @@ function Slider(options) {
 		this.slide.attr({fill:this.stroke});
 		return this.slideFinish(e);
 	};
-	
+
 	this.slideFinish = function(e) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -1485,7 +1485,7 @@ function Slider(options) {
 		this.sliding = false;
 		this.exec();
 		var self = this;
-		//console.log('slidefinish:', e, e.type);	
+		//console.log('slidefinish:', e, e.type);
 		if (this.recenter && ((e.type == 'mouseup') || (e.type == 'touchend'))) {
 			window.setTimeout(function() {
 				self.slideToCenter();
@@ -1495,8 +1495,8 @@ function Slider(options) {
 	};
 
 	this.slideToCenter = function() {
-		if (this.subtype == 'xy') 
-			this.setValue(Math.floor((this.xmax + this.xmin)/2), 
+		if (this.subtype == 'xy')
+			this.setValue(Math.floor((this.xmax + this.xmin)/2),
 				Math.floor((this.ymax + this.ymin)/2));
 		else if (this.subtype == 'x') this.setValue(Math.floor((this.xmax + this.xmin)/2));
 		else this.setValue(Math.floor((this.ymax + this.ymin)/2));
@@ -1589,7 +1589,7 @@ function Chart(options) {
 			subtype: undefined,
 			r: this.w/2,		//?? chart??
 			autorun: undefined,
-			interpolate: 'step-after',	// vs. 'basis'	
+			interpolate: 'step-after',	// vs. 'basis'
 			ticks: 5,
 			target: undefined,
 			refresh: 0,
@@ -1608,7 +1608,7 @@ function Chart(options) {
 		this.__proto__.attr.call(this);
 		this.svg.attr(attrs);
 	};
-	
+
 	this.render = function() {
 
 		var margin = {top: 0, right: 0, bottom: 0, left: 0};
@@ -1656,21 +1656,21 @@ function Chart(options) {
 					})
 				};
 			});
-		
+
 			x.domain(d3.extent(data, function(d) { return d.time; }));
 			if (self.ymax !== undefined) y.domain([self.ymin, self.ymax]);
 			else y.domain([
 				d3.min(values, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
 				d3.max(values, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
 			]);
-		
+
 			self.svgx = self.svg.append('g')
 					.attr('class', 'x axis')
 					.attr('transform', 'translate(0,' + height + ')')
 					.attr('stroke', self.stroke)
 					.attr('fill', self.stroke)
 					.call(xAxis);
-		
+
 			self.svgy = self.svg.append('g')
 					.attr('class', 'y axis')
 					.attr('stroke', self.stroke)
@@ -1685,19 +1685,19 @@ function Chart(options) {
 					.attr('stroke', self.stroke)
 					.attr('fill', self.stroke)
 					.text(' ');
-*/		
+*/
 			self.svgvalue = self.svg.selectAll('.value')
 					.data(values)
 				.enter().append('g')
 					.attr('class', 'value');
-		
+
 			self.svgvalue.append('path')
 					.attr('class', 'line')
 					.attr('d', function(d) { return line(d.values); })
 					.style('stroke', function(d) { return color(d.name); })
 					.style('fill', self.fill)
 					.style('stroke-width', self['stroke-width']);
-		
+
 			self.svgvalue.append('text')
 					.datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
 					.attr('transform', function(d) { return 'translate(' + x(d.value.time) + ',' + y(d.value.value) + ')'; })
@@ -1722,7 +1722,7 @@ function Chart(options) {
 		this.__proto__.remove.call(this);
 		this.svg.remove();
 	};
-	
+
 	this.move = function(x, y) {
 		this.x = x;
 		this.y = y;
@@ -1827,7 +1827,7 @@ function Group(options) {
 	this.init = function(options) {
 		this.type = options.type = 'Group';
 		this.parent = options.parent;
-	
+
 		this.childopts = {};
 		for (var o in options) {
 			if ((o != 'childopts') && (o != 'type')) this.childopts[o] = options[o];
@@ -1839,7 +1839,7 @@ function Group(options) {
 
 		this.defaults = {
 			x:48, y:48,
-			w: this.childopts.w || 120, 
+			w: this.childopts.w || 120,
 			h: this.childopts.h || 48,
 
 			value: 0,
@@ -1875,7 +1875,7 @@ function Group(options) {
 		if (options.gutterx !== undefined) this.gutterx = options.gutterx;
 		else if (options.gutter !== undefined) this.gutterx = options.gutter;
 		else this.gutterx = 20;
-		if (options.guttery !== undefined) this.guttery = options.guttery; 
+		if (options.guttery !== undefined) this.guttery = options.guttery;
 		else if (options.gutter !== undefined) this.guttery = options.gutter;
 		else this.guttery = 20;
 
@@ -1918,7 +1918,7 @@ console.log('New group:', this);
 		// bug: we don't have accurate this.w and this.h for path buttons here
 		this.elt = this.parent.paper.rect(
 			this.x - this.gutterx,
-			this.y - this.guttery, 
+			this.y - this.guttery,
 			this.numx * (this.w + this.gutterx) + this.gutterx,
 			this.outerh, this.corner)
 				.attr({fill:this.fill, stroke:this.stroke, 'stroke-width': this['stroke-width']});
@@ -2145,7 +2145,7 @@ function Meter(options) {
 		this.bearing = this.parent.paper.circle(this.nx, this.ny, 3)
 			.attr({fill:this.nfill, stroke:this.nstroke});
 		this.elts.push(this.bearing);
-		
+
 		this.needle = this.parent.paper.rect(this.nx, this.ny - this.nl, 1, this.nl)
 			.attr({fill:this.nfill, stroke:this.nstroke});
 		this.elts.push(this.needle);
@@ -2259,7 +2259,7 @@ function Scope(options) {
 		this.lx = this.x + (this.w/2);
 		this.ly = this.y + this.h + this.fontsize*2;
 	};
-	
+
 	this.render = function() {
 		this.layout();
 		var self = this;
@@ -2359,7 +2359,7 @@ function Knob(options) {
 		this.parent = options.parent;
 		this.defaults = {
 			x:48, y:48,
-			w:120, 
+			w:120,
 			h:120,
 			value: 0,
 			text: '',
@@ -2386,7 +2386,7 @@ function Knob(options) {
 			increment:1,
 			min:0,
 			max:1024,
-			rscale:2		// scales increments to degrees of rotation			
+			rscale:2		// scales increments to degrees of rotation
 		};
 		this.setoptions(options);
 		this.fill_highlight = this.parent.lighter(this.stroke);
@@ -2461,7 +2461,7 @@ function Knob(options) {
 	this.knobStart = function(x, y, e) {
 		this.markStart(x, y);
 	};
-	
+
 	this.knobMove = function(dx, dy, x, y, e) {
 		//console.log('Knob dragMove:',dx,dy,x,y,e);
 		var dragx = x - this.spinx;
